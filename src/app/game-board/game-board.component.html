@@ -1,0 +1,98 @@
+<div *ngIf="isLoading" class="loading">
+  <mat-spinner></mat-spinner>
+  <p>Caricamento...</p>
+</div>
+<div *ngIf="!isLoading">
+  <mat-toolbar color="primary">
+    <span>Partita {{ gameId }} | Team {{ team }}</span>
+    <span class="spacer"></span>
+    <button mat-icon-button (click)="leaveGame()">
+      <mat-icon>exit_to_app</mat-icon>
+    </button>
+  </mat-toolbar>
+
+  <section class="turn-info">
+    <h3>Turno: {{ currentPlayerName }}</h3>
+    <p *ngIf="isMyTurn">💎 Cristalli: {{ playerCrystals }}</p>
+    <p *ngIf="!isMyTurn">⏳ Attendi...</p>
+    <button
+      mat-raised-button
+      color="warn"
+      (click)="endTurn()"
+      [disabled]="!isMyTurn"
+    >
+      Passa Turno
+    </button>
+  </section>
+
+  <section class="hand">
+    <h4>Mano ({{ cardsInHand.length }})</h4>
+    <div class="cards">
+      <div class="card" *ngFor="let c of cardsInHand">
+        <img
+          [src]="'http://localhost:3000/images/card-img/' + c.image"
+          alt="{{ c.name }}"
+        />
+        <button
+          mat-button
+          color="accent"
+          (click)="playCard(c)"
+          [disabled]="!isMyTurn || c.cost > playerCrystals"
+        >
+          Gioca
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <section class="board">
+    <h4>Plancia ({{ opponentBoard.length }} carte avversario)</h4>
+    <div class="cards">
+      <ng-container *ngFor="let c of board">
+        <div class="card">
+          <img
+            [src]="'http://localhost:3000/images/card-img/' + c.image"
+            alt="{{ c.name }}"
+          />
+          <button
+            mat-mini-button
+            color="warn"
+            (click)="attack(c, { type: 'HP', playerId: opponentId })"
+            [disabled]="!isMyTurn || c.justPlayed"
+          >
+            Attacca Team
+          </button>
+          <ng-container *ngFor="let opp of opponentBoard">
+            <button
+              mat-mini-button
+              color="primary"
+              (click)="
+                attack(c, { type: 'HERO', id: opp.id, playerId: opponentId })
+              "
+              [disabled]="!isMyTurn || c.justPlayed"
+            >
+              Attacca {{ opp.name }}
+            </button>
+          </ng-container>
+        </div>
+      </ng-container>
+    </div>
+  </section>
+
+  <section class="opponent-info">
+    <h4>Avversario: {{ getData() }}</h4>
+    <p>Carta in mano: {{ gameState.hands?.[opponentId]?.length }} carte</p>
+    <div class="cards">
+      <ng-container *ngFor="let c of opponentBoard">
+        <div class="card">
+          <img
+            [src]="'http://localhost:3000/images/card-img/' + c.image"
+            alt="{{ c.name }}"
+          />
+        </div>
+      </ng-container>
+    </div>
+  </section>
+
+  <pre>{{ gameState | json }}</pre>
+</div>

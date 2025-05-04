@@ -1,0 +1,49 @@
+.deck-builder {
+    display: flex;
+    gap: 20px;
+    height: 90vh;
+  }
+  
+  .deck {
+    width: 30%;
+    border: 1px solid #ccc;
+    padding: 1rem;
+    overflow-y: auto;
+  }
+  .card-pool {
+    width: 70%;
+    border: 1px solid #ccc;
+    padding: 1rem;
+    overflow-y: auto;
+  }
+  .cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  
+  .card {
+    width: 150px;
+    border: 1px solid #ddd;
+    padding: 0.5rem;
+    text-align: center;
+  
+    img {
+      width: 75%;
+      height: auto;
+    }
+  
+    button {
+      margin-top: 5px;
+    }
+  }
+  .pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+  
+    button {
+      margin: 0 10px;
+    }
+  }

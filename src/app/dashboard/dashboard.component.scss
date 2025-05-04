@@ -1,0 +1,12 @@
+// @use '@angular/material' as mat;
+// $blue-base: mat.$blue;
+// @include mat.toolbar-overrides((
+//   container-background-color: $blue-base,
+//   container-text-color: red,
+// ));
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+// Customize the entire app. Change :root to your selector if you want to scope the styles.

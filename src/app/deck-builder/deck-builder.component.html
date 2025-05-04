@@ -1,0 +1,49 @@
+<div class="button-group">
+  <button mat-raised-button color="primary" (click)="goBack()">
+    torna indietro
+  </button>
+  <button mat-raised-button color="accent" (click)="salva()">salva</button>
+</div>
+<div class="deck-builder">
+  <div class="deck">
+    <h3>Il tuo Deck ({{ deck.length }}/30)</h3>
+    <ul>
+      <li *ngFor="let card of deck; let i = index">
+        {{ card.name }}
+        <button (click)="removeFromDeck(i)">Rimuovi</button>
+      </li>
+    </ul>
+  </div>
+
+  <div class="card-pool">
+    <h3>Tutte le Carte</h3>
+    <div class="cards">
+      <div class="card" *ngFor="let card of paginatedCards">
+        <img
+          [src]="'http://localhost:3000/images/card-img/' + card.image"
+          alt="{{ card.name }}"
+        />
+        <p>{{ card.name }} ({{ card.cost }} mana)</p>
+        <button (click)="addToDeck(card)">Aggiungi</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="pagination">
+  <button
+    (click)="currentPage = currentPage - 1"
+    [disabled]="currentPage === 1"
+  >
+    « Prev
+  </button>
+
+  <span>Pagina {{ currentPage }} di {{ totalPages }}</span>
+
+  <button
+    (click)="currentPage = currentPage + 1"
+    [disabled]="currentPage === totalPages"
+  >
+    Next »
+  </button>
+</div>
+<br />
