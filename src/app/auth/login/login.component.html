@@ -20,7 +20,12 @@
           class="form-input"
         />
       </div>
-      <button type="submit" [disabled]="loginForm.invalid" class="btn-primary">
+      <button
+        type="submit"
+        (click)="onSubmit()"
+        [disabled]="loginForm.invalid"
+        class="btn-primary"
+      >
         Accedi
       </button>
       <p *ngIf="errorMsg" class="error-msg">{{ errorMsg }}</p>
