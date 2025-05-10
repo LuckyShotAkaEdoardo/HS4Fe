@@ -1,98 +1,146 @@
-<div *ngIf="isLoading" class="loading">
-  <mat-spinner></mat-spinner>
-  <p>Caricamento...</p>
-</div>
-<div *ngIf="!isLoading">
-  <mat-toolbar color="primary">
-    <span>Partita {{ gameId }} | Team {{ team }}</span>
-    <span class="spacer"></span>
-    <button mat-icon-button (click)="leaveGame()">
-      <mat-icon>exit_to_app</mat-icon>
-    </button>
-  </mat-toolbar>
-
-  <section class="turn-info">
-    <h3>Turno: {{ currentPlayerName }}</h3>
-    <p *ngIf="isMyTurn">💎 Cristalli: {{ playerCrystals }}</p>
-    <p *ngIf="!isMyTurn">⏳ Attendi...</p>
-    <button
-      mat-raised-button
-      color="warn"
-      (click)="endTurn()"
-      [disabled]="!isMyTurn"
-    >
-      Passa Turno
-    </button>
-  </section>
-
+<div
+  style="height: 100vh; width: 100vw"
+  (mousemove)="updateArrow($event)"
+  (mouseup)="endArrow($event)"
+>
+  <!-- AVVERSARIO -->
   <section class="hand">
-    <h4>Mano ({{ cardsInHand.length }})</h4>
-    <div class="cards">
-      <div class="card" *ngFor="let c of cardsInHand">
-        <img
-          [src]="'http://localhost:3000/images/card-img/' + c.image"
-          alt="{{ c.name }}"
-        />
-        <button
-          mat-button
-          color="accent"
-          (click)="playCard(c)"
-          [disabled]="!isMyTurn || c.cost > playerCrystals"
-        >
-          Gioca
-        </button>
+    <div style="display: flex">
+      <div style="width: 30%">
+        <h4>Avversario: {{ getData() }}</h4>
+        <p>Carta in mano: {{ gameState.hands[opponentId] }} carte</p>
+      </div>
+      <div style="width: 100%">
+        <div class="cards-enemy">
+          <img
+            *ngFor="let c of 0 | range : gameState.hands[opponentId]"
+            class="singleCardEnemy"
+            [src]="baseFrameBack + frameSelected.img"
+          />
+        </div>
       </div>
     </div>
   </section>
 
-  <section class="board">
-    <h4>Plancia ({{ opponentBoard.length }} carte avversario)</h4>
-    <div class="cards">
-      <ng-container *ngFor="let c of board">
-        <div class="card">
-          <img
-            [src]="'http://localhost:3000/images/card-img/' + c.image"
-            alt="{{ c.name }}"
-          />
-          <button
-            mat-mini-button
-            color="warn"
-            (click)="attack(c, { type: 'HP', playerId: opponentId })"
-            [disabled]="!isMyTurn || c.justPlayed"
+  <div cdkDropListGroup>
+    <!-- INFO TURNO + BOARD -->
+    <div style="display: flex">
+      <section style="width: 20%" class="turn-info">
+        <h3>Turno: {{ currentPlayerName }}</h3>
+        <p *ngIf="isMyTurn">💎 Cristalli: {{ playerCrystals }}</p>
+        <p *ngIf="!isMyTurn">⏳ Attendi...</p>
+        <button
+          mat-raised-button
+          color="warn"
+          (click)="endTurn()"
+          [disabled]="!isMyTurn"
+        >
+          Passa Turno
+        </button>
+      </section>
+
+      <section style="width: 100%" class="board">
+        <h4>Plancia</h4>
+
+        <!-- BOARD AVVERSARIO -->
+        <div class="cards-board">
+          <div *ngFor="let c of opponentBoard">
+            <div *ngIf="c.name" class="singleCardBoard">
+              <app-card
+                [isVisibileText]="false"
+                [frameSrc]="baseFrame + frameSelected.img"
+                [card]="c"
+              ></app-card>
+            </div>
+          </div>
+        </div>
+
+        <br />
+
+        <!-- TUA BOARD -->
+        <div
+          class="cards-board"
+          cdkDropList
+          id="boardDropList"
+          [cdkDropListData]="board"
+          [cdkDropListConnectedTo]="['handDropList']"
+          (cdkDropListDropped)="onDrop($event)"
+          [cdkDropListSortingDisabled]="true"
+        >
+          <div
+            *ngFor="let c of board; let i = index"
+            class="singleCardBoard"
+            [attr.data-index]="i"
+            (mousedown)="startArrow($event, c)"
           >
-            Attacca Team
-          </button>
-          <ng-container *ngFor="let opp of opponentBoard">
-            <button
+            <app-card
+              [isVisibileText]="false"
+              [frameSrc]="baseFrame + frameSelected.img"
+              [card]="c"
+            ></app-card>
+            <!-- <button
               mat-mini-button
-              color="primary"
-              (click)="
-                attack(c, { type: 'HERO', id: opp.id, playerId: opponentId })
-              "
+              color="warn"
+              (click)="attack(c, { type: 'HP', playerId: opponentId })"
               [disabled]="!isMyTurn || c.justPlayed"
             >
-              Attacca {{ opp.name }}
-            </button>
-          </ng-container>
+              Attacca Team
+            </button> -->
+          </div>
         </div>
-      </ng-container>
+      </section>
     </div>
-  </section>
 
-  <section class="opponent-info">
-    <h4>Avversario: {{ getData() }}</h4>
-    <p>Carta in mano: {{ gameState.hands?.[opponentId]?.length }} carte</p>
-    <div class="cards">
-      <ng-container *ngFor="let c of opponentBoard">
-        <div class="card">
-          <img
-            [src]="'http://localhost:3000/images/card-img/' + c.image"
-            alt="{{ c.name }}"
-          />
+    <!-- MANO GIOCATORE -->
+    <section style="display: flex" class="hand">
+      <div style="width: 10%">
+        <h4>Mano ({{ cardsInHand.length }})</h4>
+      </div>
+      <div
+        cdkDropList
+        id="handDropList"
+        [cdkDropListData]="cardsInHand"
+        [cdkDropListConnectedTo]="['boardDropList']"
+        [cdkDropListSortingDisabled]="false"
+        (cdkDropListDropped)="onDrop($event)"
+        class="cards-hand"
+      >
+        <div *ngFor="let c of cardsInHand" class="singleCard" cdkDrag>
+          <div class="drag-surface">
+            <app-card
+              [frameSrc]="baseFrame + frameSelected.img"
+              [card]="c"
+            ></app-card>
+          </div>
         </div>
-      </ng-container>
-    </div>
-  </section>
+      </div>
+    </section>
+  </div>
+
+  <!-- INSERIMENTO SVG PER LA FRECCIA -->
+  <svg class="arrow-layer" *ngIf="arrow">
+    <defs>
+      <marker
+        id="arrowhead"
+        markerWidth="10"
+        markerHeight="7"
+        refX="0"
+        refY="3.5"
+        orient="auto"
+      >
+        <polygon points="0 0, 10 3.5, 0 7" fill="red" />
+      </marker>
+    </defs>
+    <line
+      [attr.x1]="arrow.start.x"
+      [attr.y1]="arrow.start.y"
+      [attr.x2]="arrow.end.x"
+      [attr.y2]="arrow.end.y"
+      stroke="red"
+      stroke-width="3"
+      marker-end="url(#arrowhead)"
+    />
+  </svg>
 
   <pre>{{ gameState | json }}</pre>
 </div>

@@ -1,76 +1,96 @@
-.game-board {
+.card {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  aspect-ratio: 2 / 3;
+  overflow: hidden;
+}
+.frame,
+.content,
+.cutout {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.title {
+  position: absolute;
+  bottom: 10%;
+  width: 100%;
   text-align: center;
-  margin-top: 50px;
+  font-weight: bold;
+  font-size: 0.9rem;
+  color: white;
+  text-shadow: 0 0 3px black;
+  z-index: 2;
 }
-
-.players {
-  margin: 20px 0;
+.icons {
+  position: absolute;
+  bottom: 5%;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 4px;
+  z-index: 2;
 }
-
-.players ul {
-  list-style: none;
-  padding: 0;
+.singleCard {
+  width: 160px;
+  aspect-ratio: 2 / 3;
+  position: relative;
+  display: block;
 }
-
-.players li {
-  margin: 10px 0;
+.singleCardBoard {
+  width: 100px;
+  aspect-ratio: 2 / 3;
+  position: relative;
+  display: block;
 }
-
-.cards {
+.singleCardEnemy {
+  width: 60px;
+}
+.cards-hand {
   display: flex;
   justify-content: center;
-  gap: 10px;
 }
-
-.card {
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  cursor: pointer;
-  width: 100px;
-  text-align: center;
-}
-
-.card:hover {
-  background-color: #f0f0f0;
-}
-
-.game-status {
-  margin: 20px 0;
-}
-
-button {
-  padding: 10px 20px;
-  font-size: 1rem;
-  cursor: pointer;
-}
-.cards-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-
-.card {
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  padding: 12px;
-  width: 180px;
-  background-color: #f7f7f7;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-  text-align: center;
-}
-
-.card img {
+.drag-wrapper {
   width: 100%;
-  height: auto;
-  border-radius: 5px;
+  height: 100%;
+  cursor: grab;
 }
+.drag-surface {
+  width: 100%;
+  height: 100%;
+  cursor: grab;
 
-.effect {
-  font-style: italic;
-  font-size: 0.85em;
+  align-items: center;
+  justify-content: center;
 }
-
-.spacer {
-  flex: 1 1 auto;
+.card-board {
+  height: 20vh;
+}
+.cards-board {
+  height: 20vh;
+  display: flex;
+  justify-content: center;
+}
+.cdk-drag-preview {
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  border-radius: 4px;
+}
+.cdk-drag-placeholder {
+  opacity: 0.5;
+}
+.cdk-drop-list-drag-over {
+  border: 2px dashed #3f51b5;
+}
+.arrow-layer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 1000;
 }

@@ -3,11 +3,14 @@ import { Component, inject, OnInit } from '@angular/core';
 import { Card, CardService } from '../../service/card.service';
 import { GameModuleModule } from '../game-module/game-module.module';
 import { Router } from '@angular/router';
+import { CardComponent } from './card-component/card.component';
+import { environment } from '../../environments/environment';
+import { DragDropModule } from '@angular/cdk/drag-drop';
 
 @Component({
   selector: 'app-deck-builder',
   standalone: true,
-  imports: [GameModuleModule],
+  imports: [GameModuleModule, DragDropModule, CardComponent],
   templateUrl: './deck-builder.component.html',
   styleUrls: ['./deck-builder.component.scss'],
 })
@@ -17,10 +20,17 @@ export class DeckBuilderComponent implements OnInit {
   cardService = inject(CardService);
   currentPage = 1;
   cardsPerPage = 10;
+  addpathart = '';
+  allFrame: any[] = [];
+  frameSelected;
+
   constructor(private router: Router) {}
 
   ngOnInit(): void {
+    this.addpathart = environment.apiUrlBase + '/images/card-img/';
     this.cardService.loadCards();
+    this.allFrame = this.cardService.getCorniciList();
+    this.frameSelected = this.allFrame[0];
     this.cardService.getCardsFromSubject().subscribe((cards) => {
       this.allCards = cards;
       this.allCards.sort((a, b) => a.cost - b.cost);
@@ -54,6 +64,7 @@ export class DeckBuilderComponent implements OnInit {
   }
   salva() {
     localStorage.setItem('userDeck', JSON.stringify(this.deck));
+    localStorage.setItem('frameSelected', JSON.stringify(this.frameSelected));
     alert('Deck salvato con successo!');
   }
   get paginatedCards(): Card[] {
@@ -63,5 +74,11 @@ export class DeckBuilderComponent implements OnInit {
 
   get totalPages(): number {
     return Math.ceil(this.allCards.length / this.cardsPerPage);
+  }
+  refresh() {
+    this.cardService.refresh();
+  }
+  onFrameChange(event) {
+    this.frameSelected = event.value;
   }
 }

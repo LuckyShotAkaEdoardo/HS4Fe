@@ -4,6 +4,17 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MaterialModule } from '../material.module';
 import { SocketService } from '../../service/socket.service';
+import { CardComponent } from '../deck-builder/card-component/card.component';
+import { environment } from '../../environments/environment';
+import {
+  CdkDrag,
+  CdkDragDrop,
+  CdkDropList,
+  moveItemInArray,
+  transferArrayItem,
+} from '@angular/cdk/drag-drop';
+import { getDecodedToken } from '../auth/login/jwt-decoder';
+import { RangePipe } from '../shared/range-pipe';
 
 interface Card {
   id: string;
@@ -20,7 +31,15 @@ interface Card {
 @Component({
   selector: 'app-game-board',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, MaterialModule],
+  imports: [
+    CardComponent,
+    CommonModule,
+    RouterModule,
+    FormsModule,
+    MaterialModule,
+    RangePipe,
+  ],
+  providers: [RangePipe],
   templateUrl: './game-board.component.html',
   styleUrls: ['./game-board.component.css'],
 })
@@ -41,6 +60,15 @@ export class GameBoardComponent implements OnInit, OnDestroy {
   selectedCards: any[] = [];
   opponentBoard: Card[] = [];
   opponentId = '';
+  frameSelected;
+  baseFrame;
+  baseFrameBack;
+  arrow: {
+    start: { x: number; y: number };
+    end: { x: number; y: number };
+    source: any;
+  } | null = null;
+
   private socket: any;
 
   private reconnectSub: any;
@@ -48,6 +76,8 @@ export class GameBoardComponent implements OnInit, OnDestroy {
   // Variabile per il controllo del turno
   private _currentTurnPlayerId: string = '';
 
+  // boardTemplate: any = [];
+  enemyBoardTemplate: any = [];
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -57,6 +87,12 @@ export class GameBoardComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.frameSelected = JSON.parse(
+      localStorage.getItem('frameSelected') ?? ''
+    );
+    console.log(this.frameSelected);
+    this.baseFrame = environment.apiUrlBase + '/images/card-img/';
+    this.baseFrameBack = environment.apiUrlBase + '/images/card-img/dorso/';
     this.route.queryParams.subscribe((params) => {
       this.gameId = params['gameId'] || '';
       this.team = params['team'] || '';
@@ -65,6 +101,9 @@ export class GameBoardComponent implements OnInit, OnDestroy {
 
     this.reconnectSub = this.socketService.onReconnect().subscribe(() => {
       this.socket.emit('join-game', this.gameId);
+    });
+    this.socket.on('player-id', (id: string) => {
+      this.currentPlayerId = id;
     });
   }
 
@@ -89,25 +128,38 @@ export class GameBoardComponent implements OnInit, OnDestroy {
     });
     this.socket.on('error', (msg: string) => alert(msg));
   }
+  username;
+  private updateState(state: any) {
+    const token = getDecodedToken();
+    const username = token.username;
+    this.username = username;
+    this.currentPlayerId = username;
+    this.gameId = state.id;
+    this.gameState = state;
 
-  private updateState(state: any): void {
-    this.gameState = state || {};
-    this.players = state.teams || [];
+    // ⚠️ importante: inizializza opponentId PRIMA di usarlo
+    this.opponentId = state.opponentId;
 
-    this.playerCrystals = state.crystals?.[this.currentPlayerId] || 0;
-    this.cardsInHand = state.hands?.[this.currentPlayerId] || [];
-    this.board = state.boards?.[this.currentPlayerId] || [];
-    const all = state.allPlayers || [];
-    this.opponentId =
-      all.find((id: string) => id !== this.currentPlayerId) || '';
+    // Accesso con chiavi username
+    this.cardsInHand = state.hands?.[username] || [];
+    this.board = state.boards?.[username] || [];
     this.opponentBoard = state.boards?.[this.opponentId] || [];
-    this.currentPlayerName =
-      this.players.find((p) => p.id === this.currentPlayerId)?.name || '';
-  }
+    this.playerCrystals = state.crystals?.[this.currentPlayerId] || 0;
+    this.opponentCrystals = state.crystals?.[this.opponentId] || 0;
+    this.playerCrystals = state.crystals?.[username] || 0;
+    this.currentPlayerName = state.currentPlayerId;
+    // this.isMyTurn = state.currentPlayerId === username;
 
+    this.isLoading = false;
+  }
+  opponentCrystals;
   // Getter per verificare se è il turno del giocatore
   get isMyTurn(): boolean {
-    return this._currentTurnPlayerId === this.currentPlayerId;
+    return (
+      !!this._currentTurnPlayerId &&
+      !!this.currentPlayerId &&
+      this._currentTurnPlayerId === this.currentPlayerId
+    );
   }
 
   playCard(card: Card): void {
@@ -128,7 +180,7 @@ export class GameBoardComponent implements OnInit, OnDestroy {
 
   attack(
     attacker: Card,
-    target: { type: 'HERO' | 'HP'; id?: string; playerId?: string }
+    target: { type: 'HERO' | 'FACE'; id?: string; playerId?: string }
   ): void {
     if (!this.isMyTurn) return;
     if (attacker.justPlayed) {
@@ -165,5 +217,172 @@ export class GameBoardComponent implements OnInit, OnDestroy {
         (id: string) => id !== this.currentPlayerId
       ) || ''
     );
+  }
+  /** Predicate used by Angular CDK to allow dropping only
+   * if it's the player's turn and they have enough crystals */
+  boardEnterPredicate = (drag: CdkDrag<Card>, drop: CdkDropList): boolean => {
+    const card = drag.data;
+    return this.isMyTurn && card.cost <= this.playerCrystals;
+  };
+
+  onDrop(event: CdkDragDrop<Card[]>): void {
+    // Riordino nella mano
+    if (event.previousContainer === event.container) {
+      // riordino nella stessa lista
+      moveItemInArray(
+        event.container.data,
+        event.previousIndex,
+        event.currentIndex
+      );
+    } else {
+      const draggedCard = event.previousContainer.data[event.previousIndex];
+      console.log(draggedCard);
+      if (!this.isMyTurn || draggedCard.cost > this.playerCrystals) return;
+      if (draggedCard.type === 'HERO' && this.board.length >= 6) {
+        alert('Board piena');
+        return;
+      }
+
+      const dropX = event.dropPoint.x;
+      const cardElements = Array.from(
+        document.querySelectorAll('.singleCardBoard')
+      ) as HTMLElement[];
+
+      if (cardElements.length === 0) {
+        // Se la board è vuota
+        this.board.splice(0, 0, draggedCard);
+        event.previousContainer.data.splice(event.previousIndex, 1);
+        this.socketService.playCard(this.gameId, draggedCard);
+        return;
+      }
+
+      let closestIndex = 0;
+      let minDistance = Infinity;
+      let insertAfter = false;
+
+      for (let i = 0; i < cardElements.length; i++) {
+        const el = cardElements[i];
+        const rect = el.getBoundingClientRect();
+        const centerX = rect.left + rect.width / 2;
+        const distance = Math.abs(dropX - centerX);
+
+        if (distance < minDistance) {
+          minDistance = distance;
+          closestIndex = i;
+          insertAfter = dropX > centerX;
+        }
+      }
+
+      const insertIndex = insertAfter ? closestIndex + 1 : closestIndex;
+
+      // Rimuovi e inserisci
+      event.previousContainer.data.splice(event.previousIndex, 1);
+
+      draggedCard.justPlayed = true;
+
+      this.socketService.playCard(this.gameId, draggedCard);
+      // if (
+      //   event.container.id === 'handDropList' &&
+      //   event.previousContainer.id === 'handDropList'
+      // ) {
+      //   moveItemInArray(
+      //     this.cardsInHand,
+      //     event.previousIndex,
+      //     event.currentIndex
+      //   );
+      //   return;
+      // }
+    }
+    // // Play sulla board
+    // if (
+    //   event.container.id === 'boardDropList' &&
+    //   event.previousContainer.id === 'handDropList'
+    // ) {
+    //   const draggedCard = event.item.data as Card;
+    //   if (!this.isMyTurn || draggedCard.cost > this.playerCrystals) return;
+    //   if (draggedCard.type === 'HERO' && this.board.length >= 6) {
+    //     alert('Board piena');
+    //     return;
+    //   }
+    //   transferArrayItem(
+    //     event.previousContainer.data,
+    //     event.container.data,
+    //     event.previousIndex,
+    //     event.currentIndex
+    //   );
+  }
+  startArrow(event: MouseEvent, card: any) {
+    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+    this.arrow = {
+      start: {
+        x: rect.left + rect.width / 2,
+        y: rect.top + rect.height / 2,
+      },
+      end: {
+        x: event.clientX,
+        y: event.clientY,
+      },
+      source: card,
+    };
+  }
+
+  updateArrow(event: MouseEvent) {
+    if (this.arrow) {
+      this.arrow.end = {
+        x: event.clientX,
+        y: event.clientY,
+      };
+    }
+  }
+
+  endArrow(event: MouseEvent) {
+    if (!this.arrow) return;
+
+    const mouseX = event.clientX;
+    const mouseY = event.clientY;
+
+    // 1. Controlla se ha colpito una creatura avversaria
+    const enemyEls = document.querySelectorAll('.cards-board .singleCardBoard');
+    for (const [index, el] of Array.from(enemyEls).entries()) {
+      const rect = el.getBoundingClientRect();
+      const isInside =
+        mouseX >= rect.left &&
+        mouseX <= rect.right &&
+        mouseY >= rect.top &&
+        mouseY <= rect.bottom;
+
+      if (isInside) {
+        const target = this.opponentBoard?.[index];
+        if (target) {
+          this.attack(this.arrow.source, {
+            ...target,
+            type: 'HERO',
+            playerId: this.opponentId,
+          });
+          this.arrow = null;
+          return;
+        }
+      }
+    }
+
+    // 2. Altrimenti, controlla se ha colpito la faccia dell'avversario
+    const faceEl = document.querySelector('.cards-enemy');
+    if (faceEl) {
+      const rect = faceEl.getBoundingClientRect();
+      const isInside =
+        mouseX >= rect.left &&
+        mouseX <= rect.right &&
+        mouseY >= rect.top &&
+        mouseY <= rect.bottom;
+
+      if (isInside) {
+        this.attack(this.arrow.source, {
+          type: 'FACE',
+          playerId: this.opponentId,
+        });
+      }
+    }
+
+    this.arrow = null;
   }
 }

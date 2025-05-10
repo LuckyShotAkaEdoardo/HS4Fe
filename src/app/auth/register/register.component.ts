@@ -36,7 +36,7 @@ export class RegisterComponent {
     if (!this.registerForm.valid) return;
     const { username, password } = this.registerForm.value;
     this.http
-      .post<{ message: string }>(`${environment.apiUrl}/register`, {
+      .post<{ message: string }>(`${environment.apiUrlAut}/register`, {
         username,
         password,
       })

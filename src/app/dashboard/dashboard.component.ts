@@ -5,6 +5,7 @@ import { SocketService } from '../../service/socket.service';
 
 import { CardService } from '../../service/card.service';
 import { GameModuleModule } from '../game-module/game-module.module';
+import { getDecodedToken } from '../auth/login/jwt-decoder';
 
 @Component({
   selector: 'app-dashboard',
@@ -28,7 +29,14 @@ export class DashboardComponent implements OnInit {
   ngOnInit(): void {
     this.cardService.loadCards();
     this.loadCards();
+
     this.socketService.onGameStarted().subscribe((gameInfo) => {
+      this.loading = false;
+      this.router.navigate(['/game'], {
+        queryParams: { gameId: gameInfo.gameId, team: gameInfo.team },
+      });
+    });
+    this.socketService.onReconnect().subscribe((gameInfo: any) => {
       this.loading = false;
       this.router.navigate(['/game'], {
         queryParams: { gameId: gameInfo.gameId, team: gameInfo.team },

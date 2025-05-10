@@ -1,5 +1,14 @@
 @use '@angular/material' as mat;
+@import "@fontsource/righteous/index.css";
+/* card.component.scss */
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&display=swap');
+/* styles.scss */
 
+* {
+  -webkit-font-smoothing: antialiased;   /* Safari, Chrome, iOS */
+  -moz-osx-font-smoothing: grayscale;    /* Firefox su macOS */
+  text-rendering: optimizeLegibility;     /* migliora la leggibilità dei caratteri */
+}
 html {
   color-scheme: light dark;
   @include mat.theme((
@@ -13,3 +22,9 @@ html {
 
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+.singleCard {
+  width: 160px;
+  aspect-ratio: 2 / 3;
+  display: block;
+}

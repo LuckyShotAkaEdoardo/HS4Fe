@@ -36,12 +36,13 @@ export class LoginComponent {
     if (!this.loginForm.valid) return;
     const { username, password } = this.loginForm.value;
     this.http
-      .post<{ token: string }>(`${environment.apiUrl}/login`, {
+      .post<{ token: string }>(`${environment.apiUrlAut}/login`, {
         username,
         password,
       })
       .subscribe({
         next: (res) => {
+          localStorage.setItem('token', res.token);
           localStorage.setItem('token', res.token);
           this.router.navigate(['/dashboard']);
         },

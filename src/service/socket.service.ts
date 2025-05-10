@@ -3,6 +3,7 @@ import { io, Socket } from 'socket.io-client';
 import { Subject } from 'rxjs';
 import { Router } from '@angular/router'; // Importa Router per la navigazione
 import { environment } from '../environments/environment';
+import { getDecodedToken } from '../app/auth/login/jwt-decoder';
 
 @Injectable({
   providedIn: 'root',
@@ -24,19 +25,39 @@ export class SocketService {
 
     // Ascolta gli aggiornamenti sulla partita
     this.socket.on('game-update', (gameState) => {
+      console.log('game-uodate', gameState);
       this.gameUpdateSubject.next(gameState); // Invia aggiornamenti sullo stato della partita
     });
     // On successful reconnect
     this.socket.on('reconnect', () => {
       this.reconnectSubject.next();
     });
+    this.socket.on('force-logout', () => {
+      localStorage.removeItem('token');
+      // Qui puoi aggiungere anche la logica di logout vera e propria
+      this.router.navigate(['/login']);
+    });
+    this.socket.on('do-login', () => {
+      this.socketLogin();
+    });
   }
-
+  playCard(gameId, draggedCard) {
+    console.log(gameId, draggedCard);
+    this.socket.emit('play-card', {
+      gameId: gameId,
+      card: draggedCard,
+    });
+  }
+  //socketLogin
+  socketLogin() {
+    const token = getDecodedToken();
+    console.log(token.username);
+    if (token.username) this.socket.emit('login', { username: token.username });
+  }
   // Matchmaking 1v1
   matchmaking1v1(deck) {
     this.socket.emit('matchmaking-1v1', deck);
   }
-
   // Matchmaking 2v2
   matchmaking2v2() {
     this.socket.emit('matchmaking-2v2');

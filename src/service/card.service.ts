@@ -62,4 +62,21 @@ export class CardService {
       return [];
     }
   }
+  refresh() {
+    const savedCards = localStorage.removeItem('cards');
+  }
+  getCorniciList() {
+    return [
+      { id: 1, lable: 'Ghiaccio', img: 'ghiaccio.png' },
+      { id: 2, lable: 'acqua', img: 'acqua.png' },
+      { id: 1, lable: 'foresta', img: 'foresta.png' },
+      { id: 1, lable: 'fuoco', img: 'fuoco.png' },
+      { id: 1, lable: 'luce', img: 'luce.png' },
+      { id: 1, lable: 'magia', img: 'magia.png' },
+      { id: 1, lable: 'palude', img: 'ragno.png' },
+      { id: 1, lable: 'roccia', img: 'roccia.png' },
+      { id: 1, lable: 'teck', img: 'teck.png' },
+      { id: 1, lable: 'vento', img: 'vento.png' },
+    ];
+  }
 }

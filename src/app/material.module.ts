@@ -16,6 +16,8 @@ import { MatListModule } from '@angular/material/list';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatTabsModule } from '@angular/material/tabs';
+import { MatSelectModule } from '@angular/material/select';
+import { DragDropModule } from '@angular/cdk/drag-drop';
 
 @NgModule({
   imports: [
@@ -34,6 +36,8 @@ import { MatTabsModule } from '@angular/material/tabs';
     MatGridListModule,
     MatSidenavModule,
     MatTabsModule,
+    MatSelectModule,
+    DragDropModule,
   ],
   exports: [
     MatToolbarModule,
@@ -50,6 +54,8 @@ import { MatTabsModule } from '@angular/material/tabs';
     MatGridListModule,
     MatSidenavModule,
     MatTabsModule,
+    MatSelectModule,
+    DragDropModule,
   ],
 })
 export class MaterialModule {}

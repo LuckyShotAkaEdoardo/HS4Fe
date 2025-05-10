@@ -16,10 +16,16 @@
     padding: 1rem;
     overflow-y: auto;
   }
+  .singleCard{
+    width: 10;
+  }
   .cards {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
+  display: grid;
+  /* Ogni colonna avrà almeno 120px, al più 1fr, e si ripete fino a
+     contenere tutte le carte. Su viewport larghe puoi avere 15 colonne
+     se 15×120px rientrano, altrimenti scatta l’auto-fit. */
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
   }
   
   .card {
