@@ -33,7 +33,7 @@ export class SocketService {
     this.socket.on('reconnect', () => {
       this.reconnectSubject.next();
     });
-    this.socket.on('force-logout', () => {
+    this.socket.on('login-error', () => {
       localStorage.removeItem('token');
       // Qui puoi aggiungere anche la logica di logout vera e propria
       this.router.navigate(['/login']);
@@ -44,7 +44,7 @@ export class SocketService {
     this.socket.on('login-succes', (val) => {
       this.waitLogin.next(val);
     });
-    this.socket.on('  "abort-match"', (val) => {});
+    this.socket.on('abort-match', (val) => {});
   }
   playCard(gameId, draggedCard) {
     this.socket.emit('play-card', {

@@ -1,0 +1,69 @@
+.endgame-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(255, 255, 255, 0.05); /* più chiaro */
+  backdrop-filter: blur(12px) saturate(150%);
+  -webkit-backdrop-filter: blur(12px) saturate(150%);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.endgame-content{
+        display: flex
+;
+    flex-direction: column;
+}
+.endgame-content img {
+    max-width: 80vw;
+    max-height: 80vh;
+    border-radius: 10px;
+    box-shadow: 0 0 30px rgba(255, 255, 255, 0.1);
+
+}
+.victory-button {
+  margin-top: 24px;
+  padding: 12px 32px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #fff;
+  background: rgba(255, 215, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  backdrop-filter: blur(6px) saturate(180%);
+  -webkit-backdrop-filter: blur(6px) saturate(180%);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 12px rgba(255, 215, 0, 0.3), inset 0 0 5px rgba(255, 255, 255, 0.1);
+}
+
+.victory-button:hover {
+  background: rgba(255, 215, 0, 0.3);
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
+  transform: scale(1.05);
+}
+
+
+.defeat-button {
+  margin-top: 24px;
+  padding: 12px 32px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #ff4d4d;
+  background: rgba(255, 0, 0, 0.05);
+  border: 1px solid rgba(255, 0, 0, 0.3);
+  border-radius: 12px;
+  backdrop-filter: blur(6px) saturate(180%);
+  -webkit-backdrop-filter: blur(6px) saturate(180%);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 12px rgba(255, 0, 0, 0.2), inset 0 0 5px rgba(255, 0, 0, 0.1);
+}
+
+.defeat-button:hover {
+  background: rgba(255, 0, 0, 0.15);
+  box-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
+}

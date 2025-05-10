@@ -27,7 +27,7 @@ export class DeckBuilderComponent implements OnInit {
   constructor(private router: Router) {}
 
   ngOnInit(): void {
-    this.addpathart = environment.apiUrlBase + '/images/card-img/';
+    this.addpathart = environment.allcard;
     this.cardService.loadCards();
     this.allFrame = this.cardService.getCorniciList();
     this.frameSelected = this.allFrame[0];

@@ -38,22 +38,23 @@ export class CardComponent implements OnInit {
   ngOnInit(): void {
     const addpath = '/images/card-img/';
     const addpathart = '/images/card-img/all-card/';
-    this.contentSrc = environment.apiUrlBase + addpathart + this.card.image;
+    this.contentSrc = environment.allcard + this.card.image;
+    const baseOath = environment.assets;
     console.log();
     if (this.card.type === 'HERO') {
       this.icons = [
         {
-          src: environment.apiUrlBase + addpath + this.val.sword,
+          src: baseOath + this.val.sword,
           alt: '',
           value: this.card.attack,
         },
         {
-          src: environment.apiUrlBase + addpath + this.val.heart,
+          src: baseOath + this.val.heart,
           alt: '',
           value: this.card.defense,
         },
         {
-          src: environment.apiUrlBase + addpath + this.val.cristal,
+          src: baseOath + this.val.cristal,
           alt: '',
           value: this.card.cost,
         },
@@ -61,7 +62,7 @@ export class CardComponent implements OnInit {
     } else {
       this.icons = [
         {
-          src: environment.apiUrlBase + addpath + this.val.cristal,
+          src: baseOath + this.val.cristal,
           alt: '',
           value: this.card.cost,
         },

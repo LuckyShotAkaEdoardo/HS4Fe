@@ -68,7 +68,7 @@ export class GameBoardComponent implements OnInit, OnDestroy {
     end: { x: number; y: number };
     source: any;
   } | null = null;
-
+  username;
   private socket: any;
 
   private reconnectSub: any;
@@ -85,14 +85,20 @@ export class GameBoardComponent implements OnInit, OnDestroy {
   ) {
     this.socket = this.socketService.getSocket();
   }
-
+  showEndModal = false;
+  endImage;
   ngOnInit(): void {
     this.frameSelected = JSON.parse(
       localStorage.getItem('frameSelected') ?? ''
     );
+    this.socket.on('game-over', (data: { winner: string }) => {
+      this.showEndModal = true;
+      this.endImage = data.winner === this.username ? true : false;
+      this.socket.emit('leave-game', this.gameId);
+    });
     console.log(this.frameSelected);
-    this.baseFrame = environment.apiUrlBase + '/images/card-img/';
-    this.baseFrameBack = environment.apiUrlBase + '/images/card-img/dorso/';
+    this.baseFrame = environment.assets;
+    this.baseFrameBack = environment.dorso;
     this.route.queryParams.subscribe((params) => {
       this.gameId = params['gameId'] || '';
       this.team = params['team'] || '';
@@ -128,7 +134,6 @@ export class GameBoardComponent implements OnInit, OnDestroy {
     });
     this.socket.on('error', (msg: string) => alert(msg));
   }
-  username;
   private updateState(state: any) {
     const token = getDecodedToken();
     const username = token.username;
@@ -163,6 +168,7 @@ export class GameBoardComponent implements OnInit, OnDestroy {
   }
 
   playCard(card: Card): void {
+    if (this.showEndModal) return;
     if (!this.isMyTurn) {
       alert('Non è il tuo turno');
       return;
@@ -182,6 +188,7 @@ export class GameBoardComponent implements OnInit, OnDestroy {
     attacker: Card,
     target: { type: 'HERO' | 'FACE'; id?: string; playerId?: string }
   ): void {
+    if (this.showEndModal) return;
     if (!this.isMyTurn) return;
     if (attacker.justPlayed) {
       alert('Questa pedina non può attaccare questo turno');
@@ -227,6 +234,7 @@ export class GameBoardComponent implements OnInit, OnDestroy {
 
   onDrop(event: CdkDragDrop<Card[]>): void {
     // Riordino nella mano
+    if (this.showEndModal) return;
     if (event.previousContainer === event.container) {
       // riordino nella stessa lista
       moveItemInArray(

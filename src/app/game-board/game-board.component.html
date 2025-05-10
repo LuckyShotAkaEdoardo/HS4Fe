@@ -159,6 +159,10 @@
       marker-end="url(#arrowhead)"
     />
   </svg>
-
+  <div *ngIf="showEndModal" class="endgame-modal">
+    <div class="endgame-content">
+      <img [src]="endImage" alt="Esito partita" />
+    </div>
+  </div>
   <pre>{{ gameState | json }}</pre>
 </div>

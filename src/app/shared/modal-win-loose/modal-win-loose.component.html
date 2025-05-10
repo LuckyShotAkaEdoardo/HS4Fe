@@ -1,0 +1,12 @@
+<div class="endgame-modal">
+  <div class="endgame-content">
+    <img [src]="isWin ? win : loser" alt="Esito partita" />
+    <button
+      (click)="goToDashboard()"
+      [ngClass]="isWin ? 'victory-button' : 'defeat-button '"
+      class=""
+    >
+      Continua
+    </button>
+  </div>
+</div>
