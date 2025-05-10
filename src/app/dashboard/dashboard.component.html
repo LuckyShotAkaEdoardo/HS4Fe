@@ -25,7 +25,7 @@
         mat-raised-button
         color="primary"
         (click)="joinQueue('1v1')"
-        [disabled]="loading"
+        [disabled]="loading && disabled"
       >
         1 vs 1
       </button>
@@ -33,7 +33,7 @@
         mat-raised-button
         color="accent"
         (click)="joinQueue('2v2')"
-        [disabled]="loading"
+        [disabled]="loading && disabled"
       >
         2 vs 2
       </button>
@@ -41,7 +41,7 @@
         mat-raised-button
         color="warn"
         (click)="joinQueue('vs-npc')"
-        [disabled]="loading"
+        [disabled]="loading && disabled"
       >
         VS NPC
       </button>

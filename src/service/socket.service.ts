@@ -10,10 +10,12 @@ import { getDecodedToken } from '../app/auth/login/jwt-decoder';
 })
 export class SocketService {
   private socket: Socket;
+
   private gameStartedSubject = new Subject<any>(); // Nuovo subject per quando la partita inizia
   private gameUpdateSubject = new Subject<any>(); // Per aggiornamenti sullo stato della partita
   private reconnectSubject = new Subject<void>();
-
+  private waitLogin = new Subject<void>();
+  username;
   constructor(private router: Router) {
     // Assicurati di avere il URL corretto per il tuo server
     this.socket = io(environment.socketUrl);
@@ -25,7 +27,6 @@ export class SocketService {
 
     // Ascolta gli aggiornamenti sulla partita
     this.socket.on('game-update', (gameState) => {
-      console.log('game-uodate', gameState);
       this.gameUpdateSubject.next(gameState); // Invia aggiornamenti sullo stato della partita
     });
     // On successful reconnect
@@ -40,9 +41,12 @@ export class SocketService {
     this.socket.on('do-login', () => {
       this.socketLogin();
     });
+    this.socket.on('login-succes', (val) => {
+      this.waitLogin.next(val);
+    });
+    this.socket.on('  "abort-match"', (val) => {});
   }
   playCard(gameId, draggedCard) {
-    console.log(gameId, draggedCard);
     this.socket.emit('play-card', {
       gameId: gameId,
       card: draggedCard,
@@ -51,12 +55,18 @@ export class SocketService {
   //socketLogin
   socketLogin() {
     const token = getDecodedToken();
-    console.log(token.username);
+    console.log();
+    this.username = localStorage.getItem('username');
     if (token.username) this.socket.emit('login', { username: token.username });
   }
   // Matchmaking 1v1
   matchmaking1v1(deck) {
-    this.socket.emit('matchmaking-1v1', deck);
+    if (!this.username) {
+      return this.socket.emit('error', 'Devi prima effettuare il login.');
+    } else {
+      this.socket.emit('matchmaking-1v1', deck);
+      return 'start';
+    }
   }
   // Matchmaking 2v2
   matchmaking2v2() {
@@ -92,5 +102,8 @@ export class SocketService {
    */
   onReconnect() {
     return this.reconnectSubject.asObservable();
+  }
+  getwaitLogin() {
+    return this.waitLogin.asObservable();
   }
 }

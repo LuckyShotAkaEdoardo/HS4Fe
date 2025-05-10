@@ -19,6 +19,7 @@ export class DashboardComponent implements OnInit {
   loading = false;
   cards: any[] = []; // Per memorizzare le carteù
   deck = [];
+  disabled = true;
   constructor(
     private socketService: SocketService,
     private router: Router,
@@ -29,7 +30,9 @@ export class DashboardComponent implements OnInit {
   ngOnInit(): void {
     this.cardService.loadCards();
     this.loadCards();
-
+    this.socketService.getwaitLogin().subscribe((gameInfo) => {
+      this.disabled = false;
+    });
     this.socketService.onGameStarted().subscribe((gameInfo) => {
       this.loading = false;
       this.router.navigate(['/game'], {

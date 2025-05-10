@@ -9,6 +9,7 @@ import { HttpClientModule, HttpClient } from '@angular/common/http';
 import { Router, RouterModule } from '@angular/router';
 import { environment } from './../../../environments/environment';
 import { CommonModule } from '@angular/common';
+import { getDecodedToken } from './jwt-decoder';
 
 @Component({
   selector: 'app-login',
@@ -43,7 +44,8 @@ export class LoginComponent {
       .subscribe({
         next: (res) => {
           localStorage.setItem('token', res.token);
-          localStorage.setItem('token', res.token);
+          const token = getDecodedToken();
+          localStorage.setItem('username', token.username);
           this.router.navigate(['/dashboard']);
         },
         error: () => (this.errorMsg = 'Credenziali non valide'),
