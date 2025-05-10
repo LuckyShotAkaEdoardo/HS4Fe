@@ -42,6 +42,14 @@
         >
           Passa Turno
         </button>
+        <button
+          mat-raised-button
+          color="warn"
+          (click)="leaveGame()"
+          [disabled]="!isMyTurn"
+        >
+          concedi
+        </button>
       </section>
 
       <section style="width: 100%" class="board">
