@@ -13,35 +13,12 @@ import { DisplaySettingsService } from '../service/display-settings.service';
 })
 export class AppComponent implements OnInit {
   socketService = inject(SocketService);
-  displayService = inject(DisplaySettingsService);
+
   ngOnInit(): void {
     // const token = getDe
     // codedToken();
     // console.log(token.username);
     // if (token.username) this.socketService.socketLogin(token.username);
-    this.forceFullscreenIfUnset();
   }
   title = 'HS4';
-  forceFullscreenIfUnset() {
-    // controlla se il valore esiste nello storage
-    console.log('sei in metodo full screen');
-    const raw = localStorage.getItem('display_settings') ?? '';
-
-    if (!raw) {
-      // nessuna impostazione salvata: forziamo il fullscreen e salviamo
-      this.displayService.toggleFullscreen();
-      console.log('Fullscreen forzato: nessuna configurazione trovata');
-    } else {
-      try {
-        const parsed = JSON.parse(raw);
-        if (!parsed.fullscreen) {
-          this.displayService.toggleFullscreen();
-          console.log('Fullscreen forzato: fullscreen disattivo');
-        }
-      } catch {
-        this.displayService.toggleFullscreen();
-        console.log('Fullscreen forzato: configurazione corrotta');
-      }
-    }
-  }
 }

@@ -4,6 +4,9 @@ import { GameModuleModule } from '../../game-module/game-module.module';
 import { CutoutService } from '../../../service/service-card';
 import { environment } from '../../../environments/environment';
 import { LessThanEqualPipe } from '../../shared/less-than-equal.pipe';
+import { LongPressDirective } from '../../../directive/long-press.directive';
+import { MatDialog } from '@angular/material/dialog';
+import { CardZoomDialogComponent } from '../card-zoom-dialog/card-zoom-dialog.component';
 
 export interface Cutout {
   top: number;
@@ -14,7 +17,8 @@ export interface Cutout {
 
 @Component({
   selector: 'app-card',
-  imports: [GameModuleModule, LessThanEqualPipe],
+  standalone: true,
+  imports: [GameModuleModule, LessThanEqualPipe, LongPressDirective],
   templateUrl: './card.component.html',
   styleUrls: ['./card.component.scss'],
   providers: [LessThanEqualPipe],
@@ -39,7 +43,7 @@ export class CardComponent implements OnInit {
   cutoutStyles: { [k: string]: string } | null = null;
   iconStyles: { [k: string]: string } | null = null;
   titleStyles: { [k: string]: string } | null = null;
-  constructor(private cutoutSvc: CutoutService) {}
+  constructor(private cutoutSvc: CutoutService, private dialog: MatDialog) {}
   ngOnInit(): void {
     // const addpath = '/images/card-img/';
     // const addpathart = '/images/card-img/all-card/';
@@ -140,5 +144,12 @@ export class CardComponent implements OnInit {
   onImgError(ev: Event) {
     (ev.target as HTMLImageElement).style.display = 'none';
     ev.stopImmediatePropagation();
+  }
+  onLongPress() {
+    this.dialog.open(CardZoomDialogComponent, {
+      data: this.card,
+      panelClass: 'card-zoom-dialog',
+      backdropClass: 'card-zoom-backdrop',
+    });
   }
 }

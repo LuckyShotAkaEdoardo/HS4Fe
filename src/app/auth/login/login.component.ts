@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
@@ -10,6 +10,7 @@ import { Router, RouterModule } from '@angular/router';
 import { environment } from './../../../environments/environment';
 import { CommonModule } from '@angular/common';
 import { getDecodedToken } from './jwt-decoder';
+import { DisplaySettingsService } from '../../../service/display-settings.service';
 
 @Component({
   selector: 'app-login',
@@ -18,10 +19,10 @@ import { getDecodedToken } from './jwt-decoder';
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css'],
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
   loginForm: FormGroup;
   errorMsg = '';
-
+  displayService = inject(DisplaySettingsService);
   constructor(
     fb: FormBuilder,
     private http: HttpClient,
@@ -31,6 +32,13 @@ export class LoginComponent {
       username: ['', Validators.required],
       password: ['', Validators.required],
     });
+  }
+  ngOnInit(): void {
+    const target = document.querySelector('#setting-component') as HTMLElement;
+    if (target) {
+      target.click(); // 👈 simula click
+      this.forceFullscreenIfUnset();
+    }
   }
 
   onSubmit() {
@@ -50,5 +58,10 @@ export class LoginComponent {
         },
         error: () => (this.errorMsg = 'Credenziali non valide'),
       });
+  }
+  forceFullscreenIfUnset() {
+    // controlla se il valore esiste nello storage
+    console.log('sei in metodo full screen');
+    const raw = localStorage.getItem('display_settings') ?? '';
   }
 }

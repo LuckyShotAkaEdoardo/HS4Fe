@@ -1,0 +1,10 @@
+<div class="zoom-overlay" (click)="close()">
+  <div class="zoom-card" (click)="$event.stopPropagation()">
+    <img [src]="data.image" alt="{{ data.name }}" />
+    <h2>{{ data.name }}</h2>
+    <p>Attacco: {{ data.attack }}</p>
+    <p>Difesa: {{ data.defense }}</p>
+    <p>Costo: {{ data.cost }}</p>
+    <p>{{ data.effect }}</p>
+  </div>
+</div>

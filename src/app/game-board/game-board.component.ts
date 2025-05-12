@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MaterialModule } from '../material.module';
@@ -18,6 +18,7 @@ import { RangePipe } from '../shared/range-pipe';
 import { CardComponent } from '../shared/card-component/card.component';
 import { GameState } from '../shared/model/game-model';
 import { AudioService, SoundEffect } from '../../service/audio-service';
+import { DisplaySettingsService } from '../../service/display-settings.service';
 
 interface Card {
   id: string;
@@ -104,10 +105,12 @@ export class GameBoardComponent implements OnInit, OnDestroy {
   endImage;
   drawnCard: any = null;
   showCardAnim = false;
+  displaySettings = inject(DisplaySettingsService).settings;
   ngOnInit(): void {
     this.frameSelected = JSON.parse(
       localStorage.getItem('frameSelected') ?? ''
     );
+
     this.socket.on('game-over', (data: { winner: string }) => {
       this.showEndModal = true;
       this.endImage = data.winner === this.username ? true : false;

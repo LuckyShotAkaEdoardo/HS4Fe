@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 // Angular Material Components
@@ -18,6 +18,8 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatSelectModule } from '@angular/material/select';
 import { DragDropModule } from '@angular/cdk/drag-drop';
+import { MatSlider, MatSliderModule } from '@angular/material/slider';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 @NgModule({
   imports: [
@@ -38,6 +40,8 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
     MatTabsModule,
     MatSelectModule,
     DragDropModule,
+    MatSliderModule,
+    MatCheckboxModule,
   ],
   exports: [
     MatToolbarModule,
@@ -56,6 +60,8 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
     MatTabsModule,
     MatSelectModule,
     DragDropModule,
+    MatSliderModule,
+    MatCheckboxModule,
   ],
 })
 export class MaterialModule {}

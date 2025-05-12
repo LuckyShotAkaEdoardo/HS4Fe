@@ -1,62 +1,57 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 
-type Theme = 'light' | 'dark';
+export interface DisplaySizes {
+  enemy: number;
+  board: number;
+  player: number;
+}
+
+export interface DisplaySettings {
+  sizes: DisplaySizes;
+  fullscreen: boolean;
+}
 
 @Injectable({ providedIn: 'root' })
 export class DisplaySettingsService {
-  private readonly STORAGE_KEY = 'display_settings';
-
-  private settings: {
-    fullscreen: boolean;
-    theme: Theme;
-  } = {
+  private _settings = signal<DisplaySettings>({
+    sizes: { enemy: 20, board: 50, player: 30 },
     fullscreen: false,
-    theme: 'dark',
-  };
+  });
 
-  constructor() {
-    const saved = localStorage.getItem(this.STORAGE_KEY);
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        // Valida e assegna solo se corretto
-        if (parsed.theme === 'dark' || parsed.theme === 'light') {
-          this.settings.theme = parsed.theme;
-        }
-        this.settings.fullscreen = !!parsed.fullscreen;
-      } catch (e) {
-        console.warn('Impostazioni corrotte. Uso valori di default.');
-      }
-    }
+  settings = this._settings.asReadonly();
 
-    // Applica impostazioni attuali
-    this.applyTheme(this.settings.theme);
-
-    if (this.settings.fullscreen) {
-      this.requestFullscreen();
-    }
+  getSettings(): DisplaySettings {
+    return this._settings();
   }
 
-  private save() {
-    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.settings));
+  setSettings(settings: Partial<DisplaySettings>): void {
+    this._settings.update((prev) => ({
+      ...prev,
+      ...settings,
+      sizes: settings.sizes ? { ...prev.sizes, ...settings.sizes } : prev.sizes,
+    }));
   }
 
-  // 🟦 Fullscreen
+  updateSizes(sizes: Partial<DisplaySizes>): void {
+    this._settings.update((prev) => ({
+      ...prev,
+      sizes: { ...prev.sizes, ...sizes },
+    }));
+  }
+
   toggleFullscreen(): void {
-    if (!this.settings.fullscreen) {
+    const isFullscreen = this._settings().fullscreen;
+
+    if (!isFullscreen) {
       this.requestFullscreen();
     } else {
       this.exitFullscreen();
     }
-    this.settings.fullscreen = !this.settings.fullscreen;
-    this.save();
+
+    this.setFullscreen(!isFullscreen);
   }
 
-  getFullscreenState(): boolean {
-    return this.settings.fullscreen;
-  }
-
-  private requestFullscreen() {
+  private requestFullscreen(): void {
     const docEl = document.documentElement;
     if (docEl.requestFullscreen) {
       docEl.requestFullscreen();
@@ -67,7 +62,7 @@ export class DisplaySettingsService {
     }
   }
 
-  private exitFullscreen() {
+  private exitFullscreen(): void {
     if (document.exitFullscreen) {
       document.exitFullscreen();
     } else if ((document as any).webkitExitFullscreen) {
@@ -77,18 +72,17 @@ export class DisplaySettingsService {
     }
   }
 
-  // 🎨 Tema
-  setTheme(theme: Theme) {
-    this.settings.theme = theme;
-    this.applyTheme(theme);
-    this.save();
+  setFullscreen(value: boolean): void {
+    this._settings.update((prev) => ({ ...prev, fullscreen: value }));
   }
 
-  getTheme(): Theme {
-    return this.settings.theme;
+  exportSettings(): { displaySettings: DisplaySettings } {
+    return { displaySettings: this._settings() };
   }
 
-  private applyTheme(theme: Theme) {
-    document.body.setAttribute('data-theme', theme);
+  importSettings(data: { displaySettings: DisplaySettings }): boolean {
+    if (!data?.displaySettings) return false;
+    this._settings.set(data.displaySettings);
+    return true;
   }
 }

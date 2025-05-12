@@ -1,10 +1,14 @@
 <div
-  style="height: 100vh; width: 100vw"
+  style="height: 100vh"
   (mousemove)="updateArrow($event)"
   (mouseup)="endArrow($event)"
 >
   <!-- AVVERSARIO -->
-  <section class="hand">
+  <section
+    id="block-enemy"
+    [style.height.vh]="displaySettings().sizes.enemy"
+    class="hand"
+  >
     <div style="display: flex">
       <div style="width: 30%">
         <h4>Avversario: {{ opponentId }}</h4>
@@ -15,6 +19,7 @@
           {{ gameState.maxCrystals[opponentId] }}
         </p>
       </div>
+
       <div style="width: 100%">
         <div class="cards-enemy">
           <img
@@ -29,70 +34,75 @@
 
   <div cdkDropListGroup>
     <!-- INFO TURNO + BOARD -->
-    <div style="display: flex">
-      <section style="width: 20%" class="turn-info">
-        <h3>Turno Di: {{ currentPlayerName }}</h3>
-        <!-- <p *ngIf="isMyTurn">💎 Cristalli: {{ playerCrystals }}</p> -->
-        <!-- Turno {{ gameState.currentTurnIndex }} -->
-        <p *ngIf="!isMyTurn">⏳ Attendi...</p>
-        <button
-          mat-raised-button
-          color="warn"
-          (click)="endTurn()"
-          [disabled]="!isMyTurn"
-        >
-          Passa Turno
-        </button>
-        <button
-          mat-raised-button
-          color="warn"
-          (click)="leaveGame()"
-          [disabled]="!isMyTurn"
-        >
-          concedi
-        </button>
-      </section>
+    <div
+      id="block-board"
+      [style.height.vh]="displaySettings().sizes.board"
+      style=""
+    >
+      <div style="height: 100%; display: flex">
+        <section style="width: 20%" class="turn-info">
+          <h3>Turno Di: {{ currentPlayerName }}</h3>
+          <!-- <p *ngIf="isMyTurn">💎 Cristalli: {{ playerCrystals }}</p> -->
+          <!-- Turno {{ gameState.currentTurnIndex }} -->
+          <p *ngIf="!isMyTurn">⏳ Attendi...</p>
+          <button
+            mat-raised-button
+            color="warn"
+            (click)="endTurn()"
+            [disabled]="!isMyTurn"
+          >
+            Passa Turno
+          </button>
+          <button
+            mat-raised-button
+            color="warn"
+            (click)="leaveGame()"
+            [disabled]="!isMyTurn"
+          >
+            concedi
+          </button>
+        </section>
 
-      <section style="width: 100%" class="board">
-        <h4>Plancia</h4>
+        <section style="width: 100%" class="board">
+          <h4>Plancia</h4>
 
-        <!-- BOARD AVVERSARIO -->
-        <div class="cards-board">
-          <div *ngFor="let c of opponentBoard">
-            <div *ngIf="c.name" class="singleCardBoard">
+          <!-- BOARD AVVERSARIO -->
+          <div class="cards-board">
+            <div *ngFor="let c of opponentBoard">
+              <div *ngIf="c.name" class="singleCardBoard">
+                <app-card
+                  [isVisibileText]="false"
+                  [frameTitle]="frameSelected.img"
+                  [card]="c"
+                ></app-card>
+              </div>
+            </div>
+          </div>
+
+          <br />
+
+          <!-- TUA BOARD -->
+          <div
+            class="cards-board"
+            cdkDropList
+            id="boardDropList"
+            [cdkDropListData]="board"
+            [cdkDropListConnectedTo]="['handDropList']"
+            (cdkDropListDropped)="onDrop($event)"
+            [cdkDropListSortingDisabled]="true"
+          >
+            <div
+              *ngFor="let c of board; let i = index"
+              class="singleCardBoard"
+              [attr.data-index]="i"
+              (mousedown)="startArrow($event, c)"
+            >
               <app-card
                 [isVisibileText]="false"
                 [frameTitle]="frameSelected.img"
                 [card]="c"
               ></app-card>
-            </div>
-          </div>
-        </div>
-
-        <br />
-
-        <!-- TUA BOARD -->
-        <div
-          class="cards-board"
-          cdkDropList
-          id="boardDropList"
-          [cdkDropListData]="board"
-          [cdkDropListConnectedTo]="['handDropList']"
-          (cdkDropListDropped)="onDrop($event)"
-          [cdkDropListSortingDisabled]="true"
-        >
-          <div
-            *ngFor="let c of board; let i = index"
-            class="singleCardBoard"
-            [attr.data-index]="i"
-            (mousedown)="startArrow($event, c)"
-          >
-            <app-card
-              [isVisibileText]="false"
-              [frameTitle]="frameSelected.img"
-              [card]="c"
-            ></app-card>
-            <!-- <button
+              <!-- <button
               mat-mini-button
               color="warn"
               (click)="attack(c, { type: 'HP', playerId: opponentId })"
@@ -100,13 +110,19 @@
             >
               Attacca Team
             </button> -->
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </div>
     </div>
 
     <!-- MANO GIOCATORE -->
-    <section style="display: flex" class="hand">
+    <section
+      id="block-player"
+      style="display: flex"
+      [style.height.vh]="displaySettings().sizes.player"
+      class="hand"
+    >
       <div style="width: 10%">
         <h4>Mano ({{ cardsInHand.length }})</h4>
         <p>Vita: {{ gameState.health[username] }}</p>
@@ -132,6 +148,8 @@
       </div>
     </section>
   </div>
+  <!-- animazioni -------------    -->
+  <!-- animazioni -->
   <div *ngIf="showCardAnim && drawnCard" class="card-drawn-overlay singleCard">
     <app-card
       [card]="drawnCard"

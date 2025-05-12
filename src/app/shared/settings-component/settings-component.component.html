@@ -1,4 +1,6 @@
-<div class="settings-toggle" (click)="togglePanel()">⚙️</div>
+<div id="setting-component" class="settings-toggle" (click)="togglePanel()">
+  ⚙️
+</div>
 
 <div
   class="settings-slideout"
@@ -29,8 +31,9 @@
 
       <div *ngIf="activeSection === 'general'">
         <h4>Generale</h4>
-        <p>Impostazioni globali</p>
+        <app-keybinding-settings></app-keybinding-settings>
       </div>
     </div>
+    <button (click)="save()">SALVA</button>
   </div>
 </div>
