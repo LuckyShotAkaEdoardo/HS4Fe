@@ -3,9 +3,12 @@ export const environment = {
   apiUrlAut: 'http://localhost:3000/auth',
   apiUrlBase: 'http://localhost:3000',
   socketUrl: 'http://localhost:3000',
-  allcard: 'assets/all-card/',
-  assets: 'assets',
-  dorso: 'assets/dorso',
+
+  // assets: 'assets',
+  allcard: 'http://localhost:3000/images/card-img/all-card/',
+  dorso: 'http://localhost:3000/images/card-img/dorso/',
+  icon: 'http://localhost:3000/images/card-img/icon/',
+  frame: 'http://localhost:3000/images/card-img/frame/',
 };
 // export const environment = {
 //   production: false,

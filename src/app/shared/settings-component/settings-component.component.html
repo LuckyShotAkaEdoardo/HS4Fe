@@ -1,0 +1,37 @@
+// floating-settings.component.html
+<div class="settings-toggle" (click)="togglePanel()">⚙️</div>
+
+<div
+  class="settings-slideout"
+  [style.width.px]="isOpen ? panelWidth : 0"
+  [style.height.px]="isOpen ? panelHeight : 0"
+>
+  <div class="resize-h resize-handle" (mousedown)="startResizeH($event)"></div>
+  <div class="resize-v resize-handle" (mousedown)="startResizeV($event)"></div>
+  <div class="settings-inner" *ngIf="isOpen">
+    <h3>Opzioni</h3>
+
+    <div class="settings-nav">
+      <button (click)="setSection('audio')">🎧 Audio</button>
+      <button (click)="setSection('style')">🎨 Aspetto</button>
+      <button (click)="setSection('general')">⚙️ Generale</button>
+    </div>
+
+    <div class="settings-content">
+      <div *ngIf="activeSection === 'audio'">
+        <h4>Audio</h4>
+        <app-settings-audio></app-settings-audio>
+      </div>
+
+      <div *ngIf="activeSection === 'style'">
+        <h4>Aspetto</h4>
+        <p>Scelte di tema, animazioni, ecc.</p>
+      </div>
+
+      <div *ngIf="activeSection === 'general'">
+        <h4>Generale</h4>
+        <p>Impostazioni globali</p>
+      </div>
+    </div>
+  </div>
+</div>

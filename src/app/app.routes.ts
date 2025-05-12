@@ -8,6 +8,7 @@ import { GameBoardComponent } from './game-board/game-board.component';
 import { authGuard } from '../guard/auth.guard';
 import { DeckBuilderComponent } from './deck-builder/deck-builder.component';
 import { UserComponent } from './auth/user/user.component';
+import { ModalWinLooseComponent } from './shared/modal-win-loose/modal-win-loose.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -31,6 +32,12 @@ export const routes: Routes = [
   {
     path: 'profile',
     component: UserComponent,
+    canActivate: [authGuard],
+  },
+
+  {
+    path: 'endgame',
+    component: ModalWinLooseComponent,
     canActivate: [authGuard],
   },
 ];

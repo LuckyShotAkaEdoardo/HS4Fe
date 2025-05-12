@@ -15,11 +15,31 @@ export class SocketService {
   private gameUpdateSubject = new Subject<any>(); // Per aggiornamenti sullo stato della partita
   private reconnectSubject = new Subject<void>();
   private waitLogin = new Subject<void>();
+  private cardDrawnSubject = new Subject<any>();
+  cardDrawn$ = this.cardDrawnSubject.asObservable();
+
+  private gameResultSubject = new Subject<{
+    result: 'win' | 'lose';
+    message: string;
+  }>();
+  gameResult$ = this.gameResultSubject.asObservable();
+
   username;
   constructor(private router: Router) {
     // Assicurati di avere il URL corretto per il tuo server
     this.socket = io(environment.socketUrl);
 
+    this.socket.on('card-drawn', (data) => {
+      this.cardDrawnSubject.next(data);
+    });
+
+    this.socket.on('you-won', (data) => {
+      this.gameResultSubject.next({ result: 'win', message: data.message });
+    });
+
+    this.socket.on('you-lost', (data) => {
+      this.gameResultSubject.next({ result: 'lose', message: data.message });
+    });
     // Ascolta quando la partita è pronta e redirige al game board
     this.socket.on('game-started', (gameData) => {
       this.gameStartedSubject.next(gameData); // Notifica l'inizio della partita

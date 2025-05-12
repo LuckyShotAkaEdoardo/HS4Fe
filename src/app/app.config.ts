@@ -8,7 +8,8 @@ import {
   withInterceptorsFromDi,
 } from '@angular/common/http';
 import { CardService } from '../service/card.service';
-import { CutoutService } from './deck-builder/card-component/service-card';
+import { CutoutService } from '../service/service-card';
+import { AudioService } from '../service/audio-service';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -18,5 +19,6 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(withInterceptorsFromDi()),
     CardService,
     CutoutService,
+    AudioService,
   ],
 };

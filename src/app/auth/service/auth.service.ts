@@ -7,12 +7,12 @@ import { environment } from '../../../environments/environment';
   providedIn: 'root',
 })
 export class AuthService {
-  private apiUrl = '/auth/login'; // URL del server backend
+  private apiUrl = '/login'; // URL del server backend
 
   constructor(private http: HttpClient) {}
 
   login(username: string, password: string): Observable<any> {
-    return this.http.post<any>(environment.apiUrlBase + this.apiUrl, {
+    return this.http.post<any>(environment.apiUrlAut + this.apiUrl, {
       username,
       password,
     });

@@ -13,7 +13,14 @@ export class ModalWinLooseComponent {
 
   win = 'assets/card-img/victory.png';
   loser = 'assets/card-img/defeat.png';
-  constructor(private router: Router) {}
+  constructor(private router: Router) {
+    const nav = this.router.getCurrentNavigation();
+    const state = nav?.extras.state as {
+      result: 'win' | 'lose';
+      message: string;
+    };
+    this.isWin = state?.result == 'win' ? true : false;
+  }
   goToDashboard() {
     this.router.navigate(['/dashboard']);
   }

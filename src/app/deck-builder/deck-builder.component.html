@@ -34,7 +34,7 @@
       <app-card
         (click)="addToDeck(n)"
         *ngFor="let n of paginatedCards; let i = index"
-        [frameSrc]="addpathart + frameSelected.img"
+        [frameTitle]="frameSelected.img"
         [card]="n"
       >
       </app-card>

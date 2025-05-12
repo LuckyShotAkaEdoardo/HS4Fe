@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MaterialModule } from '../material.module';
 import { SocketService } from '../../service/socket.service';
-import { CardComponent } from '../deck-builder/card-component/card.component';
+
 import { environment } from '../../environments/environment';
 import {
   CdkDrag,
@@ -15,6 +15,11 @@ import {
 } from '@angular/cdk/drag-drop';
 import { getDecodedToken } from '../auth/login/jwt-decoder';
 import { RangePipe } from '../shared/range-pipe';
+import { CardComponent } from '../shared/card-component/card.component';
+import { GameState } from '../shared/model/game-model';
+import { ModalWinLooseComponent } from '../shared/modal-win-loose/modal-win-loose.component';
+import { AudioService, SoundEffect } from '../../service/audio-service';
+import { SettingsComponent } from '../shared/settings-component/settings-component.component';
 
 interface Card {
   id: string;
@@ -38,19 +43,30 @@ interface Card {
     FormsModule,
     MaterialModule,
     RangePipe,
+    SettingsComponent,
   ],
   providers: [RangePipe],
   templateUrl: './game-board.component.html',
   styleUrls: ['./game-board.component.css'],
 })
 export class GameBoardComponent implements OnInit, OnDestroy {
-  getData() {
-    return this.gameState.players?.find((p) => p.id === this.opponentId)?.name;
-  }
   gameId = '';
   players: any[] = [];
   currentPlayerId = '';
-  gameState: any = {};
+  gameState: GameState = {
+    hands: {},
+    health: {},
+    crystals: {},
+    maxCrystals: {},
+    boards: {},
+    allPlayers: [],
+    players: [],
+    opponentId: '',
+    username: '',
+    turn: '',
+    winner: undefined,
+  };
+
   currentPlayerName = '';
   playerCrystals = 0;
   cardsInHand: Card[] = [];
@@ -81,12 +97,15 @@ export class GameBoardComponent implements OnInit, OnDestroy {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private socketService: SocketService
+    private socketService: SocketService,
+    private audioService: AudioService
   ) {
     this.socket = this.socketService.getSocket();
   }
   showEndModal = false;
   endImage;
+  drawnCard: any = null;
+  showCardAnim = false;
   ngOnInit(): void {
     this.frameSelected = JSON.parse(
       localStorage.getItem('frameSelected') ?? ''
@@ -97,7 +116,7 @@ export class GameBoardComponent implements OnInit, OnDestroy {
       this.socket.emit('leave-game', this.gameId);
     });
     console.log(this.frameSelected);
-    this.baseFrame = environment.assets;
+    this.baseFrame = environment.frame;
     this.baseFrameBack = environment.dorso;
     this.route.queryParams.subscribe((params) => {
       this.gameId = params['gameId'] || '';
@@ -110,6 +129,21 @@ export class GameBoardComponent implements OnInit, OnDestroy {
     });
     this.socket.on('player-id', (id: string) => {
       this.currentPlayerId = id;
+    });
+
+    this.socketService.cardDrawn$.subscribe(({ card, deckLength }) => {
+      // 👇 Puoi personalizzare con animazioni
+      console.log('Carta pescata:', card);
+      // esempio: this.showCardDrawAnimation(card);
+    });
+
+    this.socketService.gameResult$.subscribe(({ result, message }) => {
+      this.router.navigate(['/endgame'], {
+        state: { result, message },
+      });
+    });
+    this.socketService.cardDrawn$.subscribe(({ card }) => {
+      this.showCardDrawn(card);
     });
   }
 
@@ -392,5 +426,15 @@ export class GameBoardComponent implements OnInit, OnDestroy {
     }
 
     this.arrow = null;
+  }
+  showCardDrawn(card: any) {
+    this.drawnCard = card;
+    this.showCardAnim = true;
+    this.audioService.playNamed(SoundEffect.CardDraw);
+
+    setTimeout(() => {
+      this.showCardAnim = false;
+      this.drawnCard = null;
+    }, 1800); // durata dell'animazione
   }
 }

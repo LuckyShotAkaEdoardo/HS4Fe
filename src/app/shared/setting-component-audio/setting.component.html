@@ -1,0 +1,35 @@
+<div class="settings-panel">
+  <h2>Audio Settings</h2>
+  <label>Effetti Sonori (SFX)</label>
+  <input
+    type="range"
+    min="0"
+    max="1"
+    step="0.01"
+    [value]="sfxVolume"
+    (input)="setVolume('sfx', $event)"
+  />
+
+  <label>Musica</label>
+  <input
+    type="range"
+    min="0"
+    max="1"
+    step="0.01"
+    [value]="musicVolume"
+    (input)="setVolume('music', $event)"
+  />
+
+  <label>Voci</label>
+  <input
+    type="range"
+    min="0"
+    max="1"
+    step="0.01"
+    [value]="voiceVolume"
+    (input)="setVolume('voice', $event)"
+  />
+
+  <button (click)="resetVolumes()">Ripristina volume predefinito</button>
+  <button (click)="testAudio()">TestFx</button>
+</div>

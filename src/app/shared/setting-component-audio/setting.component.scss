@@ -1,0 +1,41 @@
+/* Sezione audio */
+.settings-content h4 {
+  font-size: 18px;
+  color: #00b4d8;
+  margin-bottom: 10px;
+}
+
+.settings-content label {
+  color: #ade8f4;
+  font-weight: 600;
+  margin-top: 10px;
+  display: block;
+}
+
+.settings-content input[type="range"] {
+  width: 100%;
+  margin: 4px 0 10px;
+  accent-color: #00b4d8; /* per browser moderni */
+  background: linear-gradient(to right, #00b4d8, #0096c7);
+  height: 6px;
+  border-radius: 3px;
+  outline: none;
+  cursor: pointer;
+}
+
+.settings-content button {
+  background-color: #0096c7;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  margin-top: 10px;
+  margin-right: 6px;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.settings-content button:hover {
+  background-color: #00b4d8;
+}

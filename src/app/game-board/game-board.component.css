@@ -115,3 +115,34 @@
   border-radius: 16px;
   box-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
 }
+.card-drawn-overlay {
+  position: fixed;
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.7);
+  animation: cardDrawZoom 1.8s ease-in-out forwards;
+  z-index: 10000;
+  pointer-events: none;
+  filter: drop-shadow(0 0 20px rgba(255, 255, 0, 0.8)); /* 💡 glow */
+}
+@keyframes cardDrawZoom {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.5);
+  }
+  20% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.1);
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+  80% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(0.95);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.7);
+  }
+}

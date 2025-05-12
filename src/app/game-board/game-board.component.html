@@ -7,7 +7,7 @@
   <section class="hand">
     <div style="display: flex">
       <div style="width: 30%">
-        <h4>Avversario: {{ getData() }}</h4>
+        <h4>Avversario: {{ opponentId }}</h4>
         <p>Carta in mano: {{ gameState.hands[opponentId] }} carte</p>
         <p>Vita: {{ gameState.health[opponentId] }}</p>
         <p *ngIf="gameState.crystals && gameState.maxCrystals">
@@ -61,7 +61,7 @@
             <div *ngIf="c.name" class="singleCardBoard">
               <app-card
                 [isVisibileText]="false"
-                [frameSrc]="baseFrame + frameSelected.img"
+                [frameTitle]="frameSelected.img"
                 [card]="c"
               ></app-card>
             </div>
@@ -88,7 +88,7 @@
           >
             <app-card
               [isVisibileText]="false"
-              [frameSrc]="baseFrame + frameSelected.img"
+              [frameTitle]="frameSelected.img"
               [card]="c"
             ></app-card>
             <!-- <button
@@ -125,14 +125,18 @@
       >
         <div *ngFor="let c of cardsInHand" class="singleCard" cdkDrag>
           <div class="drag-surface">
-            <app-card
-              [frameSrc]="baseFrame + frameSelected.img"
-              [card]="c"
-            ></app-card>
+            <app-card [frameTitle]="frameSelected.img" [card]="c"></app-card>
           </div>
         </div>
       </div>
     </section>
+  </div>
+  <div *ngIf="showCardAnim && drawnCard" class="card-drawn-overlay singleCard">
+    <app-card
+      [card]="drawnCard"
+      [frameTitle]="frameSelected.img"
+      [isVisibileText]="true"
+    ></app-card>
   </div>
 
   <!-- INSERIMENTO SVG PER LA FRECCIA -->
@@ -159,10 +163,8 @@
       marker-end="url(#arrowhead)"
     />
   </svg>
-  <div *ngIf="showEndModal" class="endgame-modal">
-    <div class="endgame-content">
-      <img [src]="endImage" alt="Esito partita" />
-    </div>
-  </div>
+
   <pre>{{ gameState | json }}</pre>
 </div>
+
+<app-settings></app-settings>

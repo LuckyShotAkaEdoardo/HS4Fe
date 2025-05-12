@@ -3,9 +3,10 @@ import { Component, inject, OnInit } from '@angular/core';
 import { Card, CardService } from '../../service/card.service';
 import { GameModuleModule } from '../game-module/game-module.module';
 import { Router } from '@angular/router';
-import { CardComponent } from './card-component/card.component';
+
 import { environment } from '../../environments/environment';
 import { DragDropModule } from '@angular/cdk/drag-drop';
+import { CardComponent } from '../shared/card-component/card.component';
 
 @Component({
   selector: 'app-deck-builder',
@@ -20,14 +21,13 @@ export class DeckBuilderComponent implements OnInit {
   cardService = inject(CardService);
   currentPage = 1;
   cardsPerPage = 10;
-  addpathart = '';
+
   allFrame: any[] = [];
   frameSelected;
 
   constructor(private router: Router) {}
 
   ngOnInit(): void {
-    this.addpathart = environment.allcard;
     this.cardService.loadCards();
     this.allFrame = this.cardService.getCorniciList();
     this.frameSelected = this.allFrame[0];
