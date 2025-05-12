@@ -1,4 +1,3 @@
-// settings.component.ts
 import { Component, OnInit } from '@angular/core';
 import { AudioService, SoundEffect } from '../../../service/audio-service';
 
@@ -9,29 +8,34 @@ import { AudioService, SoundEffect } from '../../../service/audio-service';
   styleUrl: './setting.component.scss',
 })
 export class SettingsAudioComponent implements OnInit {
-  sfxVolume;
-  musicVolume;
-  voiceVolume;
+  volumes = {
+    sfx: 0,
+    music: 0,
+    voice: 0,
+  };
+
   constructor(private audioService: AudioService) {}
+
   ngOnInit(): void {
-    this.sfxVolume = this.audioService.getVolume('sfx');
-    this.musicVolume = this.audioService.getVolume('music');
-    this.voiceVolume = this.audioService.getVolume('voice');
+    for (const key of Object.keys(this.volumes) as Array<
+      keyof typeof this.volumes
+    >) {
+      this.volumes[key] = this.audioService.getVolume(key);
+    }
   }
 
-  setVolume(type: 'sfx' | 'music' | 'voice', event: Event) {
-    const input = event.target as HTMLInputElement;
-    const vol = +input.value;
+  setVolume(type: 'sfx' | 'music' | 'voice', event: Event): void {
+    const vol = +(event.target as HTMLInputElement).value;
+    this.volumes[type] = vol;
     this.audioService.setVolume(type, vol);
-    this[`${type}Volume`] = vol;
   }
-  resetVolumes() {
+
+  resetVolumes(): void {
     this.audioService.resetVolumes();
-    this.sfxVolume = this.audioService.getVolume('sfx');
-    this.musicVolume = this.audioService.getVolume('music');
-    this.voiceVolume = this.audioService.getVolume('voice');
+    this.ngOnInit(); // ricarica i volumi default
   }
-  testAudio() {
+
+  testAudio(): void {
     this.audioService.playNamed(SoundEffect.CardDraw);
   }
 }
