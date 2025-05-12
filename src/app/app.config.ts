@@ -10,6 +10,7 @@ import {
 import { CardService } from '../service/card.service';
 import { CutoutService } from '../service/service-card';
 import { AudioService } from '../service/audio-service';
+import { DisplaySettingsService } from '../service/display-settings.service';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -20,5 +21,6 @@ export const appConfig: ApplicationConfig = {
     CardService,
     CutoutService,
     AudioService,
+    DisplaySettingsService,
   ],
 };

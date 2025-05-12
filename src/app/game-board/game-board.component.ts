@@ -17,9 +17,7 @@ import { getDecodedToken } from '../auth/login/jwt-decoder';
 import { RangePipe } from '../shared/range-pipe';
 import { CardComponent } from '../shared/card-component/card.component';
 import { GameState } from '../shared/model/game-model';
-import { ModalWinLooseComponent } from '../shared/modal-win-loose/modal-win-loose.component';
 import { AudioService, SoundEffect } from '../../service/audio-service';
-import { SettingsComponent } from '../shared/settings-component/settings-component.component';
 
 interface Card {
   id: string;
@@ -43,7 +41,6 @@ interface Card {
     FormsModule,
     MaterialModule,
     RangePipe,
-    SettingsComponent,
   ],
   providers: [RangePipe],
   templateUrl: './game-board.component.html',
@@ -65,6 +62,7 @@ export class GameBoardComponent implements OnInit, OnDestroy {
     username: '',
     turn: '',
     winner: undefined,
+    currentTurnIndex: 0,
   };
 
   currentPlayerName = '';

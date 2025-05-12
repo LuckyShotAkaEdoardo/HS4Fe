@@ -23,4 +23,5 @@ export interface GameState {
   username: string;
   turn: string; // username del giocatore di turno
   winner?: string; // se presente → username vincitore
+  currentTurnIndex;
 }

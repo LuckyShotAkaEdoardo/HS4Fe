@@ -10,21 +10,34 @@ export enum SoundEffect {
 
 @Injectable({ providedIn: 'root' })
 export class AudioService {
-  private audioMap: Record<string, { url: string; category: AudioCategory }> = {
-    'card-draw': { url: 'assets/audio/card-draw-flick.mp3', category: 'sfx' },
-    'turn-end': { url: 'assets/audio/turn-end.mp3', category: 'sfx' },
-    victory: { url: 'assets/audio/victory.mp3', category: 'music' },
-    // puoi aggiungere altri...
+  private readonly STORAGE_KEY = 'audioSettings';
+
+  private defaultVolumes: Record<AudioCategory, number> = {
+    sfx: 0.8,
+    music: 0.6,
+    voice: 1.0,
   };
-  private volumes: Record<AudioCategory, number> = {
-    sfx: parseFloat(localStorage.getItem('volume_sfx') ?? '0.8'),
-    music: parseFloat(localStorage.getItem('volume_music') ?? '0.6'),
-    voice: parseFloat(localStorage.getItem('volume_voice') ?? '1.0'),
-  };
+
+  private volumes: Record<AudioCategory, number>;
+
+  constructor() {
+    const saved = localStorage.getItem(this.STORAGE_KEY);
+    try {
+      this.volumes = saved ? JSON.parse(saved) : { ...this.defaultVolumes };
+    } catch (e) {
+      console.warn('Impostazioni audio corrotte, ripristino default.');
+      this.volumes = { ...this.defaultVolumes };
+      this.saveSettings(); // salva subito i default validi
+    }
+  }
+
+  private saveSettings() {
+    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.volumes));
+  }
 
   setVolume(category: AudioCategory, value: number) {
     this.volumes[category] = value;
-    localStorage.setItem(`volume_${category}`, value.toString());
+    this.saveSettings();
   }
 
   getVolume(category: AudioCategory): number {
@@ -39,13 +52,21 @@ export class AudioService {
 
   playNamed(effect: SoundEffect) {
     const entry = this.audioMap[effect];
-    console.log('sei qui');
     if (!entry) {
       console.warn(`Audio '${effect}' non trovato.`);
       return;
     }
-    console.log('sei qui');
     this.play(entry.url, entry.category);
   }
-  resetVolumes() {}
+
+  resetVolumes() {
+    this.volumes = { ...this.defaultVolumes };
+    this.saveSettings();
+  }
+
+  private audioMap: Record<string, { url: string; category: AudioCategory }> = {
+    'card-draw': { url: 'assets/audio/card-draw-flick.mp3', category: 'sfx' },
+    'turn-end': { url: 'assets/audio/turn-end.mp3', category: 'sfx' },
+    victory: { url: 'assets/audio/victory.mp3', category: 'music' },
+  };
 }

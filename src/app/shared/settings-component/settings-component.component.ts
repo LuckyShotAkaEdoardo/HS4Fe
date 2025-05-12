@@ -2,13 +2,14 @@
 import { NgIf } from '@angular/common';
 import { Component, ElementRef, HostListener } from '@angular/core';
 import { SettingsAudioComponent } from '../setting-component-audio/setting.component';
+import { DisplaySettingsComponent } from '../display-settings/display-settings.component';
 
 @Component({
   selector: 'app-settings',
   templateUrl: './settings-component.component.html',
   styleUrl: './settings-component.component.scss',
   standalone: true,
-  imports: [NgIf, SettingsAudioComponent],
+  imports: [NgIf, SettingsAudioComponent, DisplaySettingsComponent],
 })
 export class SettingsComponent {
   isOpen = false;

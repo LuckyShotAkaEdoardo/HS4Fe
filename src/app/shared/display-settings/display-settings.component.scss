@@ -1,0 +1,14 @@
+.display-settings button {
+  background-color: #00b4d8;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+
+.display-settings button:hover {
+  background-color: #0096c7;
+}

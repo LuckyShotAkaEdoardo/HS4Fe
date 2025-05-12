@@ -6,7 +6,7 @@ export interface DecodedToken {
 }
 
 export function getDecodedToken(): any {
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem('token') ?? '';
   if (!token) return {};
 
   try {

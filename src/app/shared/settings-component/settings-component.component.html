@@ -1,4 +1,3 @@
-// floating-settings.component.html
 <div class="settings-toggle" (click)="togglePanel()">⚙️</div>
 
 <div
@@ -25,7 +24,7 @@
 
       <div *ngIf="activeSection === 'style'">
         <h4>Aspetto</h4>
-        <p>Scelte di tema, animazioni, ecc.</p>
+        <app-display-settings></app-display-settings>
       </div>
 
       <div *ngIf="activeSection === 'general'">
