@@ -1,78 +1,36 @@
-import {
-  Directive,
-  EventEmitter,
-  HostListener,
-  Input,
-  OnInit,
-  Output,
-} from '@angular/core';
-import { CommandConfigService } from '../app/service/command-config.service';
+import { Directive, EventEmitter, HostListener, Output } from '@angular/core';
 
 @Directive({
-  selector: '[appLongPress]',
+  selector: '[appDoubleTap]',
+  standalone: true,
 })
-export class LongPressDirective implements OnInit {
-  @Input() context = ''; // es: "deck-builder"
-  @Input() commandData: any; // dati associati alla carta o entità
-  @Output() longPress = new EventEmitter<void>(); // utile se vuoi mantenere compatibilità
+export class DoubleTapDirective {
+  @Output() singleTap = new EventEmitter<void>();
+  @Output() doubleTap = new EventEmitter<void>();
 
-  private pressTimeout: any;
-  private longPressFired = false;
-
-  constructor(private commandService: CommandConfigService) {}
-
-  ngOnInit(): void {
-    if (!this.context) {
-      console.warn('Devi fornire un [context] a [appLongPress]');
-    }
-  }
-
-  @HostListener('touchstart', ['$event'])
-  @HostListener('mousedown', ['$event'])
-  onPressStart() {
-    this.longPressFired = false;
-    this.pressTimeout = setTimeout(() => {
-      this.longPressFired = true;
-      this.executeCommand('longPress');
-    }, 500);
-  }
-
-  @HostListener('touchend')
-  @HostListener('mouseup')
-  @HostListener('mouseleave')
-  cancelPress() {
-    clearTimeout(this.pressTimeout);
-  }
+  private lastTapTime = 0;
+  private timeout: ReturnType<typeof setTimeout> | null = null;
 
   @HostListener('click', ['$event'])
-  onClick(event: MouseEvent) {
-    if (this.longPressFired) {
-      event.preventDefault();
-      event.stopImmediatePropagation();
-      return;
-    }
-    this.executeCommand('click');
-  }
+  handleClick(event: MouseEvent): void {
+    const now = Date.now();
+    const timeDiff = now - this.lastTapTime;
 
-  private executeCommand(type: 'click' | 'longPress') {
-    const command = this.commandService.getCommand(this.context, type);
-    switch (command) {
-      case 'addToDeck':
-        console.log('👉 Aggiungi al mazzo:', this.commandData);
-        // Qui potresti emettere un evento o usare un servizio globale
-        break;
-      case 'zoom':
-        console.log('🔍 Zoom:', this.commandData);
-        // Apri modale zoom, esempio:
-        // this.dialog.open(...);
-        break;
-      case 'selectCard':
-        console.log('🎯 Seleziona:', this.commandData);
-        break;
-      case 'none':
-      default:
-        console.log('🚫 Nessuna azione definita');
-        break;
+    if (timeDiff < 300) {
+      // doppio tap: cancella singolo e emetti doppio
+      if (this.timeout) {
+        clearTimeout(this.timeout);
+        this.timeout = null;
+      }
+      this.doubleTap.emit();
+    } else {
+      // potenziale singolo: aspetta 300ms per vedere se ne arriva un altro
+      this.timeout = setTimeout(() => {
+        this.singleTap.emit();
+        this.timeout = null;
+      }, 300);
     }
+
+    this.lastTapTime = now;
   }
 }

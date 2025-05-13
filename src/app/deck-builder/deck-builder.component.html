@@ -1,8 +1,8 @@
 <div class="button-group">
-  <button mat-raised-button color="primary" (click)="goBack()">
+  <button mat-raised-button color="primary" appDoubleTap (click)="goBack()">
     torna indietro
   </button>
-  <button mat-raised-button color="primary" (click)="refresh()">
+  <button mat-raised-button color="primary" appDoubleTap (click)="refresh()">
     refresh()
   </button>
   <mat-form-field>
@@ -13,7 +13,9 @@
       }
     </mat-select>
   </mat-form-field>
-  <button mat-raised-button color="accent" (click)="salva()">salva</button>
+  <button mat-raised-button color="accent" appDoubleTap (click)="salva()">
+    salva
+  </button>
 </div>
 <div class="deck-builder">
   <div class="deck">
@@ -21,7 +23,7 @@
     <ul>
       <li *ngFor="let card of deck; let i = index">
         {{ card.name }}
-        <button (click)="removeFromDeck(i)">Rimuovi</button>
+        <button appDoubleTap (click)="removeFromDeck(i)">Rimuovi</button>
       </li>
     </ul>
   </div>
@@ -32,7 +34,8 @@
       <!-- <div class="card" *ngFor="let card of paginatedCards"> -->
 
       <app-card
-        (click)="addToDeck(n)"
+        appDoubleTap
+        (singleTap)="addToDeck(n)"
         *ngFor="let n of paginatedCards; let i = index"
         [frameTitle]="frameSelected.img"
         [card]="n"
@@ -44,6 +47,7 @@
 </div>
 <div class="pagination">
   <button
+    appDoubleTap
     (click)="currentPage = currentPage - 1"
     [disabled]="currentPage === 1"
   >
@@ -53,6 +57,7 @@
   <span>Pagina {{ currentPage }} di {{ totalPages }}</span>
 
   <button
+    appDoubleTap
     (click)="currentPage = currentPage + 1"
     [disabled]="currentPage === totalPages"
   >

@@ -7,11 +7,17 @@ import { Router } from '@angular/router';
 import { environment } from '../../environments/environment';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { CardComponent } from '../shared/card-component/card.component';
+import { DoubleTapDirective } from '../../directive/long-press.directive';
 
 @Component({
   selector: 'app-deck-builder',
   standalone: true,
-  imports: [GameModuleModule, DragDropModule, CardComponent],
+  imports: [
+    GameModuleModule,
+    DragDropModule,
+    CardComponent,
+    DoubleTapDirective,
+  ],
   templateUrl: './deck-builder.component.html',
   styleUrls: ['./deck-builder.component.scss'],
 })

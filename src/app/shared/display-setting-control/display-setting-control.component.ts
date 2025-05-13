@@ -50,19 +50,24 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
             </mat-select>
           </mat-form-field>
 
-          <button mat-button color="warn" (click)="removeKey(context, key)">
+          <button
+            mat-button
+            color="warn"
+            appDoubleTap
+            (click)="removeKey(context, key)"
+          >
             🗑️
           </button>
         </div>
 
         <div class="add-key">
-          <button mat-raised-button (click)="addKey(context)">
+          <button mat-raised-button appDoubleTap (click)="addKey(context)">
             ➕ Aggiungi Tasto
           </button>
         </div>
       </div>
 
-      <button mat-raised-button color="primary" (click)="save()">
+      <button mat-raised-button color="primary" appDoubleTap (click)="save()">
         💾 Salva
       </button>
     </div>

@@ -8,12 +8,17 @@
     <button mat-icon-button aria-label="User Info" [routerLink]="['/profile']">
       <mat-icon>account_circle</mat-icon>
     </button>
-    <button mat-button color="accent" (click)="logout()">
+    <button mat-button color="accent" appDoubleTap (click)="logout()">
       <mat-icon>logout</mat-icon>
       Logout
     </button>
   </mat-toolbar>
-  <button mat-raised-button color="primary" (click)="goToDeckBuild()">
+  <button
+    mat-raised-button
+    color="primary"
+    appDoubleTap
+    (click)="goToDeckBuild()"
+  >
     Crea Deck
   </button>
   <!-- Resto della dashboard -->
@@ -24,6 +29,7 @@
       <button
         mat-raised-button
         color="primary"
+        appDoubleTap
         (click)="joinQueue('1v1')"
         [disabled]="loading && disabled"
       >
@@ -32,6 +38,7 @@
       <button
         mat-raised-button
         color="accent"
+        appDoubleTap
         (click)="joinQueue('2v2')"
         [disabled]="loading && disabled"
       >
@@ -40,6 +47,7 @@
       <button
         mat-raised-button
         color="warn"
+        appDoubleTap
         (click)="joinQueue('vs-npc')"
         [disabled]="loading && disabled"
       >

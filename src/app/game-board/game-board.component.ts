@@ -19,6 +19,7 @@ import { CardComponent } from '../shared/card-component/card.component';
 import { GameState } from '../shared/model/game-model';
 import { AudioService, SoundEffect } from '../../service/audio-service';
 import { DisplaySettingsService } from '../../service/display-settings.service';
+import { DoubleTapDirective } from '../../directive/long-press.directive';
 
 interface Card {
   id: string;
@@ -42,6 +43,7 @@ interface Card {
     FormsModule,
     MaterialModule,
     RangePipe,
+    DoubleTapDirective,
   ],
   providers: [RangePipe],
   templateUrl: './game-board.component.html',
@@ -233,6 +235,7 @@ export class GameBoardComponent implements OnInit, OnDestroy {
   }
 
   endTurn(): void {
+    console.log('sono qui');
     if (!this.isMyTurn) return;
     this.socket.emit('end-turn', this.gameId);
   }

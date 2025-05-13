@@ -2,6 +2,7 @@
   <div class="endgame-content">
     <img [src]="isWin ? win : loser" alt="Esito partita" />
     <button
+      appDoubleTap
       (click)="goToDashboard()"
       [ngClass]="isWin ? 'victory-button' : 'defeat-button '"
       class=""

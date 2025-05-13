@@ -31,6 +31,8 @@
     (input)="setVolume('voice', $event)"
   />
 
-  <button (click)="resetVolumes()">Ripristina volume predefinito</button>
-  <button (click)="testAudio()">TestFx</button>
+  <button appDoubleTap (click)="resetVolumes()">
+    Ripristina volume predefinito
+  </button>
+  <button appDoubleTap (click)="testAudio()">TestFx</button>
 </div>

@@ -1,12 +1,18 @@
 // card.component.ts
-import { Component, Input, OnInit, SimpleChanges } from '@angular/core';
+import {
+  Component,
+  HostListener,
+  Input,
+  OnInit,
+  SimpleChanges,
+} from '@angular/core';
 import { GameModuleModule } from '../../game-module/game-module.module';
 import { CutoutService } from '../../../service/service-card';
 import { environment } from '../../../environments/environment';
 import { LessThanEqualPipe } from '../../shared/less-than-equal.pipe';
-import { LongPressDirective } from '../../../directive/long-press.directive';
 import { MatDialog } from '@angular/material/dialog';
 import { CardZoomDialogComponent } from '../card-zoom-dialog/card-zoom-dialog.component';
+import { DoubleTapDirective } from '../../../directive/long-press.directive';
 
 export interface Cutout {
   top: number;
@@ -18,7 +24,7 @@ export interface Cutout {
 @Component({
   selector: 'app-card',
   standalone: true,
-  imports: [GameModuleModule, LessThanEqualPipe, LongPressDirective],
+  imports: [GameModuleModule, LessThanEqualPipe, DoubleTapDirective],
   templateUrl: './card.component.html',
   styleUrls: ['./card.component.scss'],
   providers: [LessThanEqualPipe],
@@ -45,11 +51,6 @@ export class CardComponent implements OnInit {
   titleStyles: { [k: string]: string } | null = null;
   constructor(private cutoutSvc: CutoutService, private dialog: MatDialog) {}
   ngOnInit(): void {
-    // const addpath = '/images/card-img/';
-    // const addpathart = '/images/card-img/all-card/';
-
-    // const baseOath = environment.assets;
-    // const basePathFrame = environment.assets + this.frameTitle;
     const basePathIcon = environment.icon;
 
     this.contentSrc = environment.allcard + this.card.image;
@@ -83,37 +84,7 @@ export class CardComponent implements OnInit {
       ];
     }
   }
-  // ngOnChanges(changes: SimpleChanges) {
-  //   if (changes['frameSrc'] && this.frameSrc) {
-  //     // resetto prima di ricalcolare
 
-  //     this.cutoutStyles = null;
-  //     this.iconStyles = null;
-  //     this.cutoutSvc.getCutout(this.frameSrc!).then((c) => {
-  //       this.cutoutStyles = {
-  //         top: `${c.top}%`,
-  //         left: `${c.left}%`,
-  //         width: `${c.width}%`,
-  //         height: `${c.height}%`,
-  //       };
-
-  //       this.iconStyles = {
-  //         top: `${c.top + c.height + 3.5}%`,
-  //         left: `${c.left}%`,
-  //         width: `${c.width}%`,
-  //         'justify-content':
-  //           this.icons.length === 1 ? 'center' : 'space-around',
-  //       };
-  //       const center = c.left + c.width / 2;
-  //       this.titleStyles = {
-  //         top: `calc(${c.top + c.height}% - 2.5em)`,
-  //         left: `${center}%`,
-  //         transform: 'translateX(-50%)',
-  //         width: `${c.width}%`, // ← qui
-  //       };
-  //     });
-  //   }
-  // }
   getCutOutStyle() {
     this.cutoutStyles = null;
     this.iconStyles = null;
@@ -151,5 +122,11 @@ export class CardComponent implements OnInit {
       panelClass: 'card-zoom-dialog',
       backdropClass: 'card-zoom-backdrop',
     });
+  }
+
+  private lastTap = 0;
+
+  onDoubleTap() {
+    this.onLongPress();
   }
 }

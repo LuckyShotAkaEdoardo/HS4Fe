@@ -1,5 +1,5 @@
 <!-- src/app/components/card/card.component.html -->
-<div *ngIf="cutoutStyles" appLongPress (longPress)="onLongPress()" class="card">
+<div appDoubleTap *ngIf="cutoutStyles" (doubleTap)="onDoubleTap()" class="card">
   <!-- mostro la cutout wrapper solo se cutoutStyles è già calcolato -->
   <div class="cutout" *ngIf="cutoutStyles" [ngStyle]="cutoutStyles">
     <img

@@ -41,15 +41,19 @@ body {
   z-index: 2;
 }
 .singleCard {
-  width: 160px;
+  flex: 0 0 auto;
+  width: 15vw;
+  max-width: 140px;
   aspect-ratio: 2 / 3;
   position: relative;
   display: block;
 }
+
 .singleCardBoard {
-  width: 100px;
+  flex: 0 0 auto;
+  width: 10vw;
+  max-width: 100px;
   aspect-ratio: 2 / 3;
-  position: relative;
   display: block;
 }
 .singleCardEnemy {
@@ -75,11 +79,26 @@ body {
 .card-board {
   height: 100%;
 }
-.cards-board {
-  height: 100%;
+.board {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  height: 100%;
 }
+
+.cards-board {
+  flex: 1;
+  min-height: 0;
+
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 8px;
+}
+
 .cdk-drag-preview {
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
   border-radius: 4px;

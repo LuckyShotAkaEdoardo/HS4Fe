@@ -1,31 +1,43 @@
 .zoom-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(10, 10, 10, 0.7);
-  backdrop-filter: blur(8px);
+  inset: 0;
   display: flex;
-  align-items: center;
   justify-content: center;
-  z-index: 9999;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 1000;
 }
 
 .zoom-card {
-  background: #1e1e1e;
-  color: white;
+  display: flex;
   padding: 2rem;
-  border-radius: 20px;
-  box-shadow: 0 0 50px rgba(255, 255, 255, 0.2);
-  max-width: 90vw;
-  max-height: 90vh;
-  overflow: auto;
-  text-align: center;
+  border-radius: 12px;
+  background: #1e1e1e;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.6);
 
-  img {
-    max-width: 100%;
-    border-radius: 16px;
-    margin-bottom: 1rem;
-  }
+  // 🛠 IL VERO FIX: lascia che si adatti al contenuto!
+  width: fit-content;
+  max-width: 100%;
+}
+
+.zoom-content {
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+}
+.zoom-content img {
+  max-width: 20vw;            // 🔁 si adatta fino al 40% della viewport
+  width: 100%;
+  height: auto;               // 🔁 mantiene proporzioni
+  object-fit: contain;
+  border-radius: 8px;
+}
+.info-column {
+  flex: 2 1 70%;   // colonna info: più spazio
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+    max-width: 20vw;    
+    justify-content: center;
+    text-align: center;
 }

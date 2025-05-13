@@ -20,6 +20,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { MatSlider, MatSliderModule } from '@angular/material/slider';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { DoubleTapDirective } from '../directive/long-press.directive';
 
 @NgModule({
   imports: [
@@ -42,6 +43,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
     DragDropModule,
     MatSliderModule,
     MatCheckboxModule,
+    DoubleTapDirective,
   ],
   exports: [
     MatToolbarModule,
@@ -62,6 +64,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
     DragDropModule,
     MatSliderModule,
     MatCheckboxModule,
+    DoubleTapDirective,
   ],
 })
 export class MaterialModule {}

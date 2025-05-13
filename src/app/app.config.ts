@@ -11,7 +11,7 @@ import { CardService } from '../service/card.service';
 import { CutoutService } from '../service/service-card';
 import { AudioService } from '../service/audio-service';
 import { DisplaySettingsService } from '../service/display-settings.service';
-import { LongPressDirective } from '../directive/long-press.directive';
+import { DoubleTapDirective } from '../directive/long-press.directive';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -23,7 +23,7 @@ export const appConfig: ApplicationConfig = {
     CutoutService,
     AudioService,
     DisplaySettingsService,
-    LongPressDirective,
+    DoubleTapDirective,
     DisplaySettingsService,
   ],
 };

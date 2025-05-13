@@ -1,4 +1,9 @@
-<div id="setting-component" class="settings-toggle" (click)="togglePanel()">
+<div
+  id="setting-component"
+  class="settings-toggle"
+  appDoubleTap
+  (click)="togglePanel()"
+>
   ⚙️
 </div>
 
@@ -13,9 +18,9 @@
     <h3>Opzioni</h3>
 
     <div class="settings-nav">
-      <button (click)="setSection('audio')">🎧 Audio</button>
-      <button (click)="setSection('style')">🎨 Aspetto</button>
-      <button (click)="setSection('general')">⚙️ Generale</button>
+      <button appDoubleTap (click)="setSection('audio')">🎧 Audio</button>
+      <button appDoubleTap (click)="setSection('style')">🎨 Aspetto</button>
+      <button appDoubleTap (click)="setSection('general')">⚙️ Generale</button>
     </div>
 
     <div class="settings-content">
@@ -34,6 +39,6 @@
         <app-keybinding-settings></app-keybinding-settings>
       </div>
     </div>
-    <button (click)="save()">SALVA</button>
+    <button appDoubleTap (click)="save()">SALVA</button>
   </div>
 </div>

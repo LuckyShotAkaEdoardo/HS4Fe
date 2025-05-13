@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 
-export type CommandType = 'click' | 'longPress' | 'key';
+export type CommandType = 'click' | 'longPress' | 'doubleTap' | 'key';
 
 export interface CommandMapEntry {
   click: string;
@@ -19,27 +19,43 @@ export interface CommandSettings {
 @Injectable({ providedIn: 'root' })
 export class CommandConfigService {
   private config: CommandMap = {
-    'deck-builder': { click: 'addToDeck', longPress: 'zoom', key: {} },
-    'game-board': { click: 'selectCard', longPress: 'zoom', key: {} },
+    'deck-builder': {
+      click: 'addToDeck',
+      longPress: 'zoom',
+      key: {},
+    },
+    'game-board': {
+      click: 'selectCard',
+      longPress: 'zoom',
+      key: {},
+    },
+    'card-detail': {
+      click: 'selectCard',
+      longPress: 'none',
+      key: {},
+    },
+    default: {
+      click: 'none',
+      longPress: 'none',
+      key: {},
+    },
   };
 
   constructor() {
     this.loadFromLocalStorage();
   }
+
   getCommand(context: string, type: CommandType, key?: string): string {
-    const entry = this.config[context];
-    if (!entry) return 'none';
-
-    if (type === 'key') {
-      return key ? entry.key?.[key] ?? 'none' : 'none';
+    const entry = this.config[context] ?? this.config['default'];
+    if (type === 'key' && key) {
+      return entry.key?.[key] ?? 'none';
     }
-
-    if (type in entry && typeof entry[type] === 'string') {
-      return entry[type as keyof CommandMapEntry] as string;
-    }
-
+    if (type === 'click') return entry.click;
+    if (type === 'longPress') return entry.longPress;
+    if (type === 'doubleTap') return entry.longPress;
     return 'none';
   }
+
   setCommand(
     context: string,
     type: CommandType,
@@ -49,19 +65,16 @@ export class CommandConfigService {
     if (!this.config[context]) {
       this.config[context] = { click: 'none', longPress: 'none', key: {} };
     }
-
-    const entry = this.config[context];
-
-    if (type === 'key') {
-      if (key) {
-        entry.key[key] = command;
-      }
-    } else if (type in entry && typeof entry[type] === 'string') {
-      (entry[type as keyof Omit<CommandMapEntry, 'key'>] as string) = command;
+    if (type === 'key' && key) {
+      this.config[context].key[key] = command;
+    } else if (type === 'click') {
+      this.config[context].click = command;
+    } else if (type === 'longPress') {
+      this.config[context].longPress = command;
     }
-
     this.saveToLocalStorage();
   }
+
   getKeyBindings(context: string): Record<string, string> {
     return this.config[context]?.key ?? {};
   }
@@ -97,7 +110,7 @@ export class CommandConfigService {
       try {
         this.config = JSON.parse(saved);
       } catch {
-        console.warn('Configurazione comandi corrotta. Reset in corso.');
+        console.warn('⚠️ Configurazione comandi corrotta. Reset in corso.');
       }
     }
   }

@@ -34,12 +34,11 @@
 
   <div cdkDropListGroup>
     <!-- INFO TURNO + BOARD -->
-    <div
-      id="block-board"
-      [style.height.vh]="displaySettings().sizes.board"
-      style=""
-    >
-      <div style="height: 100%; display: flex">
+    <div id="block-board" [style.height.vh]="displaySettings().sizes.board">
+      <div
+        style="height: 100%; display: flex"
+        [style.height.vh]="displaySettings().sizes.board"
+      >
         <section style="width: 20%" class="turn-info">
           <h3>Turno Di: {{ currentPlayerName }}</h3>
           <!-- <p *ngIf="isMyTurn">💎 Cristalli: {{ playerCrystals }}</p> -->
@@ -67,7 +66,10 @@
           <h4>Plancia</h4>
 
           <!-- BOARD AVVERSARIO -->
-          <div class="cards-board">
+          <div
+            class="cards-board"
+            [style.height.vh]="displaySettings().sizes.board / 2"
+          >
             <div *ngFor="let c of opponentBoard">
               <div *ngIf="c.name" class="singleCardBoard">
                 <app-card
@@ -84,6 +86,7 @@
           <!-- TUA BOARD -->
           <div
             class="cards-board"
+            [style.height.vh]="displaySettings().sizes.board / 2"
             cdkDropList
             id="boardDropList"
             [cdkDropListData]="board"
@@ -105,7 +108,7 @@
               <!-- <button
               mat-mini-button
               color="warn"
-              (click)="attack(c, { type: 'HP', playerId: opponentId })"
+               appDoubleTap (click)="attack(c, { type: 'HP', playerId: opponentId })"
               [disabled]="!isMyTurn || c.justPlayed"
             >
               Attacca Team
