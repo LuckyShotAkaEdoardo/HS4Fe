@@ -20,6 +20,7 @@ import { GameState } from '../shared/model/game-model';
 import { AudioService, SoundEffect } from '../../service/audio-service';
 import { DisplaySettingsService } from '../../service/display-settings.service';
 import { DoubleTapDirective } from '../../directive/long-press.directive';
+import { CardService } from '../../service/card.service';
 
 interface Card {
   id: string;
@@ -99,7 +100,8 @@ export class GameBoardComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private router: Router,
     private socketService: SocketService,
-    private audioService: AudioService
+    private audioService: AudioService,
+    private cardService: CardService
   ) {
     this.socket = this.socketService.getSocket();
   }
@@ -109,9 +111,14 @@ export class GameBoardComponent implements OnInit, OnDestroy {
   showCardAnim = false;
   displaySettings = inject(DisplaySettingsService).settings;
   ngOnInit(): void {
-    this.frameSelected = JSON.parse(
-      localStorage.getItem('frameSelected') ?? ''
-    );
+    const raw = localStorage.getItem('frameSelected');
+    try {
+      this.frameSelected = raw ? JSON.parse(raw) : null;
+    } catch (e) {
+      console.error('Errore parsing frameSelected:', e);
+      const test = this.cardService.getCorniciList();
+      this.frameSelected = test[0].img;
+    }
 
     this.socket.on('game-over', (data: { winner: string }) => {
       this.showEndModal = true;
@@ -327,35 +334,7 @@ export class GameBoardComponent implements OnInit, OnDestroy {
       draggedCard.justPlayed = true;
 
       this.socketService.playCard(this.gameId, draggedCard);
-      // if (
-      //   event.container.id === 'handDropList' &&
-      //   event.previousContainer.id === 'handDropList'
-      // ) {
-      //   moveItemInArray(
-      //     this.cardsInHand,
-      //     event.previousIndex,
-      //     event.currentIndex
-      //   );
-      //   return;
-      // }
     }
-    // // Play sulla board
-    // if (
-    //   event.container.id === 'boardDropList' &&
-    //   event.previousContainer.id === 'handDropList'
-    // ) {
-    //   const draggedCard = event.item.data as Card;
-    //   if (!this.isMyTurn || draggedCard.cost > this.playerCrystals) return;
-    //   if (draggedCard.type === 'HERO' && this.board.length >= 6) {
-    //     alert('Board piena');
-    //     return;
-    //   }
-    //   transferArrayItem(
-    //     event.previousContainer.data,
-    //     event.container.data,
-    //     event.previousIndex,
-    //     event.currentIndex
-    //   );
   }
   startArrow(event: MouseEvent, card: any) {
     const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
