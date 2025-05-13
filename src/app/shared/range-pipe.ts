@@ -6,7 +6,9 @@ import { Pipe, PipeTransform } from '@angular/core';
   standalone: true, // Se usi Angular 15+ con standalone components
 })
 export class RangePipe implements PipeTransform {
-  transform(start: number, count: number): number[] {
-    return Array.from({ length: count }, (_, i) => start + i);
+  transform(start: number, count: number): any {
+    if (count && count > 0)
+      return Array.from({ length: count }, (_, i) => start + i);
+    else [];
   }
 }

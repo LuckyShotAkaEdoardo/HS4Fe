@@ -22,11 +22,13 @@
 
       <div style="width: 100%">
         <div class="cards-enemy">
+          @if(gameState.hands[opponentId]&&gameState.hands[opponentId]>0){
           <img
             *ngFor="let c of 0 | range : gameState.hands[opponentId]"
             class="singleCardEnemy"
             [src]="baseFrameBack + frameSelected.img"
           />
+          }
         </div>
       </div>
     </div>
