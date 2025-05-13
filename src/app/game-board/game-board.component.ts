@@ -113,10 +113,16 @@ export class GameBoardComponent implements OnInit, OnDestroy {
     const raw = localStorage.getItem('frameSelected');
     try {
       this.frameSelected = raw ? JSON.parse(raw) : null;
+
+      // fallback se è nullo o mancante proprietà
+      if (!this.frameSelected || !this.frameSelected.img) {
+        const fallback = this.cardService.getCorniciList();
+        this.frameSelected = fallback?.[0] || { img: 'default-frame.png' };
+      }
     } catch (e) {
       console.error('Errore parsing frameSelected:', e);
       const test = this.cardService.getCorniciList();
-      this.frameSelected = test[0];
+      this.frameSelected = test?.[0] || { img: 'default-frame.png' };
     }
 
     this.socket.on('game-over', (data: { winner: string }) => {
