@@ -12,8 +12,9 @@ import { DisplaySettingsService } from '../../../service/display-settings.servic
   template: `
     <div class="display-settings">
       <mat-checkbox
+        appDoubleTap
         [checked]="settings().fullscreen"
-        (change)="service.toggleFullscreen()"
+        (click)="service.toggleFullscreen()"
       >
         🔳 Schermo Intero
       </mat-checkbox>
