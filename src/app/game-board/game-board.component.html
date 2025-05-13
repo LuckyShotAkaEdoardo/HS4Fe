@@ -2,6 +2,8 @@
   style="height: 100vh"
   (mousemove)="updateArrow($event)"
   (mouseup)="endArrow($event)"
+  (touchmove)="updateArrow($event)"
+  (touchend)="endArrow($event)"
 >
   <!-- AVVERSARIO -->
   <section
@@ -101,6 +103,7 @@
               class="singleCardBoard"
               [attr.data-index]="i"
               (mousedown)="startArrow($event, c)"
+              (touchstart)="startArrow($event, c)"
             >
               <app-card
                 [isVisibileText]="false"

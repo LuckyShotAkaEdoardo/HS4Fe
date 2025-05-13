@@ -86,6 +86,7 @@ export class GameBoardComponent implements OnInit, OnDestroy {
     source: any;
   } | null = null;
   username;
+
   private socket: any;
 
   private reconnectSub: any;
@@ -341,35 +342,37 @@ export class GameBoardComponent implements OnInit, OnDestroy {
       this.socketService.playCard(this.gameId, draggedCard);
     }
   }
-  startArrow(event: MouseEvent, card: any) {
+  startArrow(event: MouseEvent | TouchEvent, card: Card) {
     const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+    const point = this.getClientPoint(event);
     this.arrow = {
       start: {
         x: rect.left + rect.width / 2,
         y: rect.top + rect.height / 2,
       },
       end: {
-        x: event.clientX,
-        y: event.clientY,
+        x: point.x,
+        y: point.y,
       },
       source: card,
     };
   }
 
-  updateArrow(event: MouseEvent) {
+  updateArrow(event: MouseEvent | TouchEvent): void {
     if (this.arrow) {
+      const point = this.getClientPoint(event);
       this.arrow.end = {
-        x: event.clientX,
-        y: event.clientY,
+        x: point.x,
+        y: point.y,
       };
     }
   }
 
-  endArrow(event: MouseEvent) {
+  endArrow(event: MouseEvent | TouchEvent): void {
     if (!this.arrow) return;
-
-    const mouseX = event.clientX;
-    const mouseY = event.clientY;
+    const point = this.getClientPoint(event);
+    const mouseX = point.x;
+    const mouseY = point.y;
 
     // 1. Controlla se ha colpito una creatura avversaria
     const enemyEls = document.querySelectorAll('.cards-board .singleCardBoard');
@@ -414,6 +417,18 @@ export class GameBoardComponent implements OnInit, OnDestroy {
     }
 
     this.arrow = null;
+  }
+
+  getClientPoint(event: MouseEvent | TouchEvent): { x: number; y: number } {
+    if (event instanceof MouseEvent) {
+      return { x: event.clientX, y: event.clientY };
+    } else if (event instanceof TouchEvent && event.touches.length > 0) {
+      return {
+        x: event.touches[0].clientX,
+        y: event.touches[0].clientY,
+      };
+    }
+    return { x: 0, y: 0 };
   }
   showCardDrawn(card: any) {
     this.drawnCard = card;
