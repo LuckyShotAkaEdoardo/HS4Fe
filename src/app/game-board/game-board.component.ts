@@ -44,7 +44,6 @@ interface Card {
     FormsModule,
     MaterialModule,
     RangePipe,
-    DoubleTapDirective,
   ],
   providers: [RangePipe],
   templateUrl: './game-board.component.html',
@@ -117,7 +116,7 @@ export class GameBoardComponent implements OnInit, OnDestroy {
     } catch (e) {
       console.error('Errore parsing frameSelected:', e);
       const test = this.cardService.getCorniciList();
-      this.frameSelected = test[0].img;
+      this.frameSelected = test[0];
     }
 
     this.socket.on('game-over', (data: { winner: string }) => {
