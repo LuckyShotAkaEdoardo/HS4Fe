@@ -61,15 +61,13 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
         </div>
 
         <div class="add-key">
-          <button mat-raised-button appDoubleTap (click)="addKey(context)">
+          <button appDoubleTap (click)="addKey(context)">
             ➕ Aggiungi Tasto
           </button>
         </div>
       </div>
 
-      <button mat-raised-button color="primary" appDoubleTap (click)="save()">
-        💾 Salva
-      </button>
+      <button color="primary" appDoubleTap (click)="save()">💾 Salva</button>
     </div>
   `,
   styles: [

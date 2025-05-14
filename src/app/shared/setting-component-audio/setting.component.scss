@@ -1,31 +1,20 @@
 /* Sezione audio */
 .settings-content h4 {
   font-size: 18px;
-  color: #00b4d8;
+  color: var(--accent-color); /* era #00b4d8 */
   margin-bottom: 10px;
 }
 
 .settings-content label {
-  color: #ade8f4;
+  color: var(--text-muted-color); /* era #ade8f4 */
   font-weight: 600;
   margin-top: 10px;
   display: block;
 }
 
-.settings-content input[type="range"] {
-  width: 100%;
-  margin: 4px 0 10px;
-  accent-color: #00b4d8; /* per browser moderni */
-  background: linear-gradient(to right, #00b4d8, #0096c7);
-  height: 6px;
-  border-radius: 3px;
-  outline: none;
-  cursor: pointer;
-}
-
 .settings-content button {
-  background-color: #0096c7;
-  color: white;
+  background-color: var(--button-bg); /* era #0096c7 */
+  color: var(--button-text);          /* era white */
   border: none;
   padding: 8px 12px;
   margin-top: 10px;
@@ -37,8 +26,9 @@
 }
 
 .settings-content button:hover {
-  background-color: #00b4d8;
+  background-color: var(--accent-color); /* era #00b4d8 */
 }
+
 .scrollable {
   max-height: 300px;
   overflow-y: auto;

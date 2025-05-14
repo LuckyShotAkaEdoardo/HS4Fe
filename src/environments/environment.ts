@@ -5,11 +5,15 @@ export const environment = {
   socketUrl: 'http://localhost:3000',
 
   // assets: 'assets',
-  allcard: 'http://localhost:3000/images/card-img/all-card/',
-  dorso: 'http://localhost:3000/images/card-img/dorso/',
-  icon: 'http://localhost:3000/images/card-img/icon/',
-  frame: 'http://localhost:3000/images/card-img/frame/',
+  allcard:
+    'https://rrcamyzbvljicmaaqwap.supabase.co/storage/v1/object/public/sw4img/card-img/all-card/',
+  dorso:
+    'https://rrcamyzbvljicmaaqwap.supabase.co/storage/v1/object/public/sw4img/card-img/dorso/',
+  icon: 'https://rrcamyzbvljicmaaqwap.supabase.co/storage/v1/object/public/sw4img/card-img/icon/',
+  frame:
+    'https://rrcamyzbvljicmaaqwap.supabase.co/storage/v1/object/public/sw4img/card-img/frame/',
 };
+// https://rrcamyzbvljicmaaqwap.supabase.co/storage/v1/object/public/sw4img/card-img/all-card/alchimista_errante.jpg
 // export const environment = {
 //   production: false,
 //   apiUrl: 'https://hs4be.onrender.com/auth',

@@ -18,6 +18,295 @@ html {
   ));
 }
 
+// input range
+input[type="range"] {
+  width: 100%;
+  margin: 4px 0 10px;
+  accent-color: var(--accent-color); /* per browser moderni */
+  background: var(--bg-gradient); /* era linear-gradient(to right, #00b4d8, #0096c7) */
+  height: 6px;
+  border-radius: 3px;
+  outline: none;
+  cursor: pointer;
+}
+// ---------
+// stile checkbox
+.checkbox-container {
+  padding: 1rem;
+}
+
+.magic-checkbox {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+  font-size: 1.1rem;
+  position: relative;
+  padding-left: 2.2em;
+  color: var(--text-color);
+}
+
+.magic-checkbox input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+.checkmark {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 1.4em;
+  width: 1.4em;
+  background-color: var(--card-bg);
+  border: 2px solid var(--border-color);
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 6px var(--accent-color);
+}
+
+.magic-checkbox:hover .checkmark {
+  background-color: var(--accent-color);
+  border-color: var(--button-bg);
+}
+
+.magic-checkbox input:checked ~ .checkmark {
+  background-color: var(--button-bg);
+  border-color: var(--accent-color);
+}
+
+.checkmark::after {
+  content: '';
+  position: absolute;
+  display: none;
+  left: 0.45em;
+  top: 0.1em;
+  width: 0.35em;
+  height: 0.7em;
+  border: solid var(--button-text);
+  border-width: 0 0.2em 0.2em 0;
+  transform: rotate(45deg);
+}
+
+.magic-checkbox input:checked ~ .checkmark::after {
+  display: block;
+}
+// --------
+// togle
+.toggle-container {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.magic-toggle {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+}
+
+.magic-toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: relative;
+  width: 60px;
+  height: 30px;
+  background-color: var(--card-bg);
+  border: 2px solid var(--border-color);
+  border-radius: 30px;
+  transition: background-color 0.3s, border-color 0.3s;
+  box-shadow: 0 0 10px var(--accent-color);
+}
+
+.slider::before {
+  content: "";
+  position: absolute;
+  height: 22px;
+  width: 22px;
+  left: 4px;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: var(--button-text);
+  border-radius: 50%;
+  transition: transform 0.3s;
+  box-shadow: 0 0 6px var(--button-text);
+}
+
+.magic-toggle input:checked + .slider {
+  background-color: var(--accent-color);
+  border-color: var(--button-bg);
+}
+
+.magic-toggle input:checked + .slider::before {
+  transform: translate(30px, -50%);
+  background-color: var(--bg-color);
+}
+
+.label-text {
+  margin-left: 12px;
+  font-size: 1rem;
+  color: var(--text-color);
+}
+// --------
+// button
+.button-b-size{
+    margin-top: 10px;
+  padding: 10px 18px;
+    font-size: 1rem;
+}
+
+button {
+  // margin-top: 10px;
+  // padding: 10px 18px;
+    // font-size: 1rem;
+  font-weight: bold;
+
+  font-family: 'Segoe UI', sans-serif;
+  cursor: pointer;
+  border-radius: 8px;
+  background-color: var(--button-bg);
+  color: var(--button-text);
+  border: none;
+  transition: background-color 0.3s, box-shadow 0.3s, transform 0.2s;
+  box-shadow: 0 0 8px var(--shadow-color);
+}
+
+button:hover:not(:disabled) {
+  background-color: var(--accent-color);
+  box-shadow: 0 0 12px var(--accent-color), 0 0 4px var(--button-text);
+}
+
+button:active:not(:disabled) {
+  transform: scale(0.98);
+  background-color: var(--border-color);
+}
+
+button:disabled {
+  background-color: var(--disabled-color);
+  color: var(--disabled-text-color);
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+button:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+}
+.magic-outline {
+  background-color: transparent;
+  color: var(--accent-color);
+  border: 2px solid var(--accent-color);
+  padding: 10px 18px;
+  font-weight: bold;
+  font-size: 1rem;
+  font-family: 'Segoe UI', sans-serif;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 6px rgba(156, 39, 176, 0.3);
+}
+
+.magic-outline:hover:not(:disabled) {
+  background-color: var(--accent-color);
+  color: var(--bg-color);
+  box-shadow: 0 0 10px var(--accent-color);
+}
+
+.magic-outline:active:not(:disabled) {
+  transform: scale(0.97);
+  background-color: var(--border-color);
+}
+
+.magic-outline:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+// ------
+// dropdown
+
+
+
+.dropdown {
+  position: relative;
+  width: 250px;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.dropdown-trigger {
+  display: block;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  color: var(--accent-color);
+  background-color: transparent;
+  border: 2px solid var(--accent-color);
+  transition: all 0.3s ease;
+}
+
+.dropdown-trigger:hover {
+  background-color: var(--accent-color);
+  color: var(--bg-color);
+}
+
+.dropdown-menu {
+  margin-top: 6px;
+  background-color: var(--dropdown-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(156, 39, 176, 0.4);
+  max-height: 200px;
+  overflow-y: auto;
+  display: none;
+  position: absolute;
+  width: 100%;
+  z-index: 1000;
+  top: 100%;
+  left: 0;
+  width: 100%;
+}
+
+#dropdown-toggle:checked + .dropdown-trigger + .dropdown-menu {
+  display: block;
+}
+
+.dropdown-item {
+  padding: 10px 16px;
+  color: var(--text-color);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.dropdown-item:hover {
+  background-color: var(--accent-color);
+  color: var(--bg-color);
+}
+input[type="checkbox"]:checked + .dropdown-trigger + .dropdown-menu {
+  display: block;
+}
+.dropdown-icon {
+  float: right;
+  transition: transform 0.3s ease;
+}
+
+/* Ruota l'icona se la dropdown è aperta */
+input[type="checkbox"]:checked + .dropdown-trigger .dropdown-icon {
+  transform: rotate(180deg);
+}
+
+// -----
+
 /* You can add global styles to this file, and also import other style files */
 
 html, body { height: 100%; }

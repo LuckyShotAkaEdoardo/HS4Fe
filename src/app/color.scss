@@ -1,0 +1,72 @@
+:root {
+  --bg-color: #111;
+  --text-color: #eee;
+  --accent-color: #3af;
+  --card-bg: #222;
+  --button-bg: #444;
+  --button-text: #fff;
+  --border-color: #666;
+}
+
+/* Azzurro Napoli */
+.theme-napoli {
+  --bg-color: #007bff;
+  --text-color: #ffffff;
+  --accent-color: #00d4ff;
+  --card-bg: #0056b3;
+}
+
+/* Nero su bianco */
+.theme-nwb {
+  --bg-color: #ffffff;
+  --text-color: #000000;
+  --accent-color: #444;
+  --card-bg: #f0f0f0;
+}
+
+/* Bianco su nero */
+.theme-bwn {
+  --bg-color: #000000;
+  --text-color: #ffffff;
+  --accent-color: #777;
+  --card-bg: #1a1a1a;
+}
+
+/* Fuoco */
+.theme-fire {
+  --bg-color: #2a0a0a;
+  --text-color: #ffb199;
+  --accent-color: #ff5722;
+  --card-bg: #4b1f1f;
+}
+/* Ghiaccio */
+.theme-ice {
+  --bg-color: #e0f7fa;
+  --text-color: #004d60;
+  --accent-color: #00acc1;
+  --card-bg: #b2ebf2;
+}
+
+/* Luce */
+.theme-light {
+  --bg-color: #fff8e1;
+  --text-color: #5e4b00;
+  --accent-color: #ffeb3b;
+  --card-bg: #fffde7;
+}
+
+/* Oscurità */
+.theme-dark {
+  --bg-color: #0a0a0a;
+  --text-color: #d8d8d8;
+  --accent-color: #7e57c2;
+  --card-bg: #1e1e1e;
+}
+
+/* Magia */
+.theme-magic {
+  --bg-color: #1b0032;
+  --text-color: #e6d1ff;
+  --accent-color: #9c27b0;
+  --card-bg: #2e0a4d;
+}

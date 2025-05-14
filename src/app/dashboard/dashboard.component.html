@@ -13,12 +13,7 @@
       Logout
     </button>
   </mat-toolbar>
-  <button
-    mat-raised-button
-    color="primary"
-    appDoubleTap
-    (click)="goToDeckBuild()"
-  >
+  <button color="primary" appDoubleTap (click)="goToDeckBuild()">
     Crea Deck
   </button>
   <!-- Resto della dashboard -->
@@ -27,7 +22,6 @@
 
     <div class="button-group">
       <button
-        mat-raised-button
         color="primary"
         appDoubleTap
         (click)="joinQueue('1v1')"
@@ -36,7 +30,6 @@
         1 vs 1
       </button>
       <button
-        mat-raised-button
         color="accent"
         appDoubleTap
         (click)="joinQueue('2v2')"
@@ -45,7 +38,6 @@
         2 vs 2
       </button>
       <button
-        mat-raised-button
         color="warn"
         appDoubleTap
         (click)="joinQueue('vs-npc')"

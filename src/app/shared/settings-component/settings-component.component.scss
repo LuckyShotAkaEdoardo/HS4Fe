@@ -1,12 +1,11 @@
-// floating-settings.component.css
 .settings-toggle {
   position: fixed;
   bottom: 20px;
   right: 20px;
   width: 50px;
   height: 50px;
-  background-color: #00b4d8; /* azzurro napoli */
-  color: #fff;
+  background-color: var(--accent-color); /* era #00b4d8 */
+  color: var(--button-text);             /* era #fff */
   font-size: 24px;
   border-radius: 50%;
   display: flex;
@@ -19,28 +18,28 @@
 }
 
 .settings-toggle:hover {
-  background-color: #0096c7;
+  background-color: var(--button-bg); /* era #0096c7 */
 }
 
 .settings-slideout {
   position: fixed;
   bottom: 80px;
   right: 80px;
-  background-color: #1e1e1e;
-  border: 1px solid #444;
+  background-color: var(--card-bg);      /* era #1e1e1e */
+  border: 1px solid var(--border-color); /* era #444 */
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
   border-radius: 12px;
   overflow: visible;
   transition: width 0.3s ease, height 0.3s ease;
   z-index: 999;
-  color: #fff;
+  color: var(--text-color); /* era #fff */
   display: flex;
   flex-direction: column;
 }
 
 .resize-handle {
   position: absolute;
-  background-color: rgba(0, 180, 216, 0.5);
+  background-color: var(--disabled-color); /* era rgba(0, 180, 216, 0.5) */
   z-index: 1001;
 }
 
@@ -69,13 +68,13 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
-  background-color: #1e1e1e;
+  background-color: var(--card-bg); /* era #1e1e1e */
   position: relative;
 }
 
 .settings-inner h3 {
   margin-top: 0;
-  color: #90e0ef;
+  color: var(--accent-color); /* era #90e0ef */
 }
 
 .settings-nav {
@@ -86,9 +85,9 @@
 }
 
 .settings-nav button {
-  background-color: #0096c7;
+  background-color: var(--button-bg);   /* era #0096c7 */
   border: none;
-  color: #fff;
+  color: var(--button-text);            /* era #fff */
   padding: 6px 10px;
   border-radius: 4px;
   cursor: pointer;
@@ -96,18 +95,18 @@
 }
 
 .settings-nav button:hover {
-  background-color: #00b4d8;
+  background-color: var(--accent-color); /* era #00b4d8 */
 }
 
 .settings-content {
   flex: 1;
   overflow-y: auto;
-  color: #fff;
+  color: var(--text-color); /* era #fff */
 }
 
 .settings-content h4 {
   margin-top: 0;
-  color: #90e0ef;
+  color: var(--accent-color); /* era #90e0ef */
 }
 
 input[type=range] {
@@ -115,7 +114,7 @@ input[type=range] {
 }
 
 label {
-  color: #caf0f8;
+  color: var(--text-muted-color); /* era #caf0f8 */
   font-weight: bold;
 }
 
@@ -125,12 +124,12 @@ button {
   font-weight: bold;
   cursor: pointer;
   border-radius: 6px;
-  background-color: #00b4d8;
-  color: #fff;
+  background-color: var(--button-bg);   /* era #00b4d8 */
+  color: var(--button-text);            /* era #fff */
   border: none;
   transition: background-color 0.3s;
 }
 
 button:hover {
-  background-color: #90e0ef;
+  background-color: var(--accent-color); /* era #90e0ef */
 }

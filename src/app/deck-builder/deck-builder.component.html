@@ -1,10 +1,8 @@
 <div class="button-group">
-  <button mat-raised-button color="primary" appDoubleTap (click)="goBack()">
+  <button color="primary" appDoubleTap (click)="goBack()">
     torna indietro
   </button>
-  <button mat-raised-button color="primary" appDoubleTap (click)="refresh()">
-    refresh()
-  </button>
+  <button color="primary" appDoubleTap (click)="refresh()">refresh()</button>
   <mat-form-field>
     <mat-label>scegli set</mat-label>
     <mat-select (selectionChange)="onFrameChange($event)">
@@ -13,9 +11,7 @@
       }
     </mat-select>
   </mat-form-field>
-  <button mat-raised-button color="accent" appDoubleTap (click)="salva()">
-    salva
-  </button>
+  <button color="accent" appDoubleTap (click)="salva()">salva</button>
 </div>
 <div class="deck-builder">
   <div class="deck">

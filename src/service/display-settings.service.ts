@@ -1,4 +1,5 @@
 import { Injectable, signal } from '@angular/core';
+import { ThemeName, Themes } from './model';
 
 export interface DisplaySizes {
   enemy: number;
@@ -14,12 +15,14 @@ export interface DisplaySettings {
 @Injectable({ providedIn: 'root' })
 export class DisplaySettingsService {
   private _settings = signal<DisplaySettings>({
-    sizes: { enemy: 20, board: 50, player: 30 },
+    sizes: { enemy: 10, board: 60, player: 30 },
     fullscreen: false,
   });
 
   settings = this._settings.asReadonly();
-
+  constructor() {
+    this.setTheme('napoli');
+  }
   getSettings(): DisplaySettings {
     return this._settings();
   }
@@ -84,5 +87,32 @@ export class DisplaySettingsService {
     if (!data?.displaySettings) return false;
     this._settings.set(data.displaySettings);
     return true;
+  }
+
+  private readonly themes = Themes;
+  private currentTheme: ThemeName = 'napoli';
+
+  setTheme(theme: ThemeName): void {
+    const root = document.documentElement;
+    const vars = this.themes[theme];
+    if (!vars) return;
+
+    // Rimuovi tutte le variabili conosciute
+    const allKeys = Object.values(this.themes).flatMap((obj) =>
+      Object.keys(obj)
+    );
+    [...new Set(allKeys)].forEach((key) => root.style.removeProperty(key));
+
+    // Applica le nuove
+    Object.entries(vars).forEach(([key, value]) =>
+      root.style.setProperty(key, value)
+    );
+
+    this.currentTheme = theme;
+    localStorage.setItem('theme', theme);
+  }
+
+  getCurrentTheme(): ThemeName {
+    return this.currentTheme;
   }
 }

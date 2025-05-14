@@ -52,7 +52,7 @@ body {
 .singleCardBoard {
   flex: 0 0 auto;
   width: 10vw;
-  max-width: 100px;
+  max-width: 120px;
   aspect-ratio: 2 / 3;
   display: block;
 }
@@ -88,14 +88,14 @@ body {
 .cards-board {
   flex: 1;
   min-height: 0;
-
+  height: 45%;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
   align-items: center;
   gap: 8px;
-  overflow-y: auto;
-  overflow-x: hidden;
+  /* overflow-y: auto;
+  overflow-x: hidden; */
   padding: 8px;
 }
 
@@ -169,4 +169,26 @@ body {
     opacity: 0;
     transform: translate(-50%, -50%) scale(0.7);
   }
+}
+.turn-info {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding-left: 4px; /* per pareggiare il margine sinistro */
+}
+
+.turn-info > .dropdown {
+  flex: 0 0 auto;
+
+  /* stessa larghezza della dropdown avversario */
+  max-width: 220px;
+}
+
+.turn-center {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
 }
