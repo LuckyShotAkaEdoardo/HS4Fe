@@ -4,16 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
 import * as LZString from 'lz-string';
 import { environment } from '../environments/environment';
-export interface Card {
-  id: string;
-  name: string;
-  attack: number;
-  defense: number;
-  cost: number;
-  effect: string;
-  image: string;
-  type: string;
-}
+import { Card } from '../app/shared/model/game-model';
 
 @Injectable({
   providedIn: 'root',
@@ -27,28 +18,28 @@ export class CardService {
 
   // Funzione per ottenere le carte dal server
   getCards(): Observable<any> {
-    return this.http.get<any>(environment.apiUrlBase + this.apiUrlCard);
+    return this.http.get<any>(environment.apiUrlDeck + '/allcard');
   }
   // Funzione per caricare le carte e aggiornarle nel Signal
   loadCards(): void {
     // Controlla se le carte sono già memorizzate nel localStorage
-    const savedCards = localStorage.getItem('cards');
-    if (savedCards) {
-      // Se ci sono carte salvate, decompresse e caricale
-      const decompressed = LZString.decompress(savedCards);
-      const cards = JSON.parse(decompressed || '[]');
+    // const savedCards = localStorage.getItem('cards');
+    // if (savedCards) {
+    //   // Se ci sono carte salvate, decompresse e caricale
+    //   const decompressed = LZString.decompress(savedCards);
+    //   const cards = JSON.parse(decompressed || '[]');
+    //   this.cardsSubject.next(cards); // Imposta le carte nel BehaviorSubject
+    //   this.isCardsLoaded = true;
+    // } else {
+    // Altrimenti carica le carte dal server
+    this.getCards().subscribe((cards) => {
       this.cardsSubject.next(cards); // Imposta le carte nel BehaviorSubject
+      // Salva le carte nel localStorage (compresse)
+      // const compressed = LZString.compress(JSON.stringify(cards));
+      // localStorage.setItem('cards', compressed);
       this.isCardsLoaded = true;
-    } else {
-      // Altrimenti carica le carte dal server
-      this.getCards().subscribe((cards) => {
-        this.cardsSubject.next(cards); // Imposta le carte nel BehaviorSubject
-        // Salva le carte nel localStorage (compresse)
-        const compressed = LZString.compress(JSON.stringify(cards));
-        localStorage.setItem('cards', compressed);
-        this.isCardsLoaded = true;
-      });
-    }
+    });
+    // }
   }
   // Funzione per ottenere le carte come Observable (per la reattività)
   getCardsFromSubject(): Observable<Card[]> {

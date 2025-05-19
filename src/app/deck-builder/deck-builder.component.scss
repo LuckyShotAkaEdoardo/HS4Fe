@@ -53,3 +53,60 @@
       margin: 0 10px;
     }
   }
+
+
+  // <!-- deck-crud.component.css -->
+.deck-container {
+  display: grid;
+  grid-template-areas:
+    "d1 . d2"
+    ".  d3 ."
+    "d4 . d5";
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: auto auto auto;
+  gap: 16px;
+  padding: 24px;
+  justify-items: center;
+  align-items: center;
+  box-sizing: border-box;
+
+  /* Rende l’altezza auto e flessibile */
+  min-height: 100vh;
+  height: auto;
+  place-content: center;
+}
+
+.deck-card.selected {
+  outline: 2px solid var(--accent-color);
+  transform: scale(1.05);
+  box-shadow: 0 0 15px var(--accent-color);
+}
+.deck-card {
+  background-color: var(--dropdown-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(156, 39, 176, 0.4);
+  padding: 16px;
+  width: 180px;
+  text-align: center;
+  transition: transform 0.2s ease-in-out;
+}
+
+.deck-card.selected {
+  outline: 2px solid var(--accent-color, #9c27b0);
+  transform: scale(1.05);
+}
+@media screen and (max-width: 768px) {
+  .deck-container {
+    grid-template-areas:
+      "d1"
+      "d2"
+      "d3"
+      "d4"
+      "d5";
+    grid-template-columns: 1fr;
+  }
+}
+.deck-card button:hover {
+  opacity: 0.9;
+}

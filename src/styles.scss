@@ -317,3 +317,207 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   aspect-ratio: 2 / 3;
   display: block;
 }
+
+
+
+
+
+
+
+
+// --------animazioni
+
+.ability-divine-shield {
+  box-shadow: 0 0 10px gold;
+}
+
+.effect-damage {
+  animation: shake 0.4s ease;
+}
+
+@keyframes shake {
+  0% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  50% { transform: translateX(5px); }
+  75% { transform: translateX(-5px); }
+  100% { transform: translateX(0); }
+}
+
+.effect-damage {
+  animation: shake-red 0.5s;
+}
+
+@keyframes shake-red {
+  0%, 100% { transform: translateX(0); box-shadow: 0 0 0 red; }
+  20% { transform: translateX(-4px); box-shadow: 0 0 5px red; }
+  50% { transform: translateX(4px); box-shadow: 0 0 10px red; }
+  80% { transform: translateX(-2px); box-shadow: 0 0 5px red; }
+}
+.effect-heal {
+  animation: glow-green 1s ease-out;
+}
+
+@keyframes glow-green {
+  0% { box-shadow: 0 0 0 lime; }
+  50% { box-shadow: 0 0 20px lime; }
+  100% { box-shadow: 0 0 0 lime; }
+}
+.effect-kill-death {
+  animation: fade-kill 0.6s forwards;
+}
+
+@keyframes fade-kil-death {
+  0% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.8); }
+  100% { opacity: 0; transform: scale(0.5); }
+}
+.effect-draw {
+  animation: pop-draw 0.6s;
+}
+
+@keyframes pop-draw {
+  0% { transform: scale(1); opacity: 0.7; }
+  30% { transform: scale(1.15); opacity: 1; }
+  100% { transform: scale(1); }
+}
+.effect-summon {
+  animation: glow-summon 0.7s;
+}
+
+@keyframes glow-summon {
+  0% { box-shadow: 0 0 0px cyan; }
+  50% { box-shadow: 0 0 20px cyan; }
+  100% { box-shadow: 0 0 0px cyan; }
+}
+.effect-lifesteal {
+  animation: pulse-red-green 0.8s;
+}
+
+@keyframes pulse-red-green {
+  0% { box-shadow: 0 0 0 red; }
+  50% { box-shadow: 0 0 15px green; }
+  100% { box-shadow: 0 0 0 green; }
+}
+.effect-buff {
+  animation: flash-buff 1s;
+}
+
+@keyframes flash-buff {
+  0% { border: 2px solid #00f; }
+  50% { border: 2px solid #0ff; }
+  100% { border: 2px solid #00f; }
+}
+.effect-debuff {
+  animation: pulse-debuff 0.6s;
+}
+
+@keyframes pulse-debuff {
+  0% { filter: grayscale(0); }
+  50% { filter: grayscale(1); }
+  100% { filter: grayscale(0); }
+}
+.effect-stun {
+  animation: blink-stun 0.6s;
+}
+
+@keyframes blink-stun {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.5); }
+}
+// =========================
+// 🛡️ EFFECT: SHIELD
+// =========================
+.effect-shield {
+  animation: glow-shield 0.7s;
+}
+
+@keyframes glow-shield {
+  0% { box-shadow: 0 0 0 #66f; }
+  50% { box-shadow: 0 0 12px #66f; }
+  100% { box-shadow: 0 0 0 #66f; }
+}
+
+// =========================
+// 🕵️ ABILITY: STEALTH
+// =========================
+.ability-stealth {
+  opacity: 0.4;
+  filter: grayscale(0.7) blur(1px);
+  transition: filter 0.3s, opacity 0.3s;
+}
+
+// =========================
+// 🧱 ABILITY: WALL
+// =========================
+.ability-wall {
+  border: 2px solid #777;
+  box-shadow: inset 0 0 10px #444;
+  background: linear-gradient(#2c2c2c, #1a1a1a);
+}
+
+// =========================
+// 🚀 ABILITY: RUSH
+// =========================
+.ability-rush {
+  border: 2px dashed crimson;
+  animation: pulse-rush 0.8s ease-in-out infinite alternate;
+}
+
+@keyframes pulse-rush {
+  0% { box-shadow: 0 0 4px crimson; }
+  100% { box-shadow: 0 0 12px crimson; }
+}
+
+// =========================
+// ⚡ ABILITY: CHARGE
+// =========================
+.ability-charge {
+  animation: flicker-charge 0.6s infinite alternate;
+}
+
+@keyframes flicker-charge {
+  0% { box-shadow: 0 0 0 red; }
+  100% { box-shadow: 0 0 10px red; }
+}
+.ability-can-attack {
+  outline: 2px solid limegreen;
+  animation: pulse-attackable 1s ease-in-out infinite alternate;
+}
+
+@keyframes pulse-attackable {
+  0% { box-shadow: 0 0 0 limegreen; }
+  100% { box-shadow: 0 0 10px limegreen; }
+}
+
+.ability-resting {
+  filter: grayscale(1) brightness(0.6);
+  opacity: 0.7;
+}
+
+.fx-border-top-gold {
+  border-top: 3px solid gold;
+}
+
+.fx-border-left-gray {
+  border-left: 3px solid gray;
+}
+
+.fx-border-right-red {
+  border-right: 3px solid red;
+}
+
+.fx-bottom-green-glow {
+  border-bottom: 3px solid limegreen;
+  box-shadow: 0 0 10px limegreen;
+}
+
+.fx-resting {
+  filter: grayscale(1) brightness(0.6);
+  opacity: 0.7;
+}
+
+.fx-stealth {
+  opacity: 0.4;
+  filter: grayscale(0.7) blur(1px);
+  transition: filter 0.3s, opacity 0.3s;
+}

@@ -1,4 +1,10 @@
-import { Component, inject, OnInit } from '@angular/core';
+import {
+  Component,
+  inject,
+  OnInit,
+  ViewChild,
+  ViewContainerRef,
+} from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { getDecodedToken } from './auth/login/jwt-decoder';
 import { SocketService } from '../service/socket.service';
@@ -13,6 +19,8 @@ import { DisplaySettingsService } from '../service/display-settings.service';
 })
 export class AppComponent implements OnInit {
   socketService = inject(SocketService);
+  @ViewChild('animOutlet', { read: ViewContainerRef })
+  vcRef!: ViewContainerRef;
 
   ngOnInit(): void {
     // const token = getDe

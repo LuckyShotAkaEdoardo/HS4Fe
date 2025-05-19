@@ -1,6 +1,6 @@
 // src/app/components/deck-builder/deck-builder.component.ts
 import { Component, inject, OnInit } from '@angular/core';
-import { Card, CardService } from '../../service/card.service';
+import { CardService } from '../../service/card.service';
 import { GameModuleModule } from '../game-module/game-module.module';
 import { Router } from '@angular/router';
 
@@ -8,6 +8,8 @@ import { environment } from '../../environments/environment';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { CardComponent } from '../shared/card-component/card.component';
 import { DoubleTapDirective } from '../../directive/long-press.directive';
+import { DeckService } from '../../service/deck-service';
+import { Card } from '../shared/model/game-model';
 
 @Component({
   selector: 'app-deck-builder',
@@ -25,24 +27,31 @@ export class DeckBuilderComponent implements OnInit {
   allCards: Card[] = [];
   deck: Card[] = [];
   cardService = inject(CardService);
+  deckService = inject(DeckService);
   currentPage = 1;
   cardsPerPage = 10;
-
+  positions = ['d1', 'd2', 'd3', 'd4', 'd5'];
   allFrame: any[] = [];
   frameSelected;
-
+  decks: any[] = [];
   constructor(private router: Router) {}
 
   ngOnInit(): void {
-    this.cardService.loadCards();
+    let username = localStorage.getItem('username') ?? '';
+    this.deckService.initDecks(username).subscribe((res: any) => {
+      console.log(res);
+      this.decks = res.decks;
+    });
     this.allFrame = this.cardService.getCorniciList();
-    this.frameSelected = this.allFrame[0];
+    this.frameSelected = this.allFrame[0].img;
+    this.cardService.loadCards();
+
     this.cardService.getCardsFromSubject().subscribe((cards) => {
       this.allCards = cards;
       this.allCards.sort((a, b) => a.cost - b.cost);
 
       console.log('all cards', this.allCards);
-      this.deck = this.cardService.loadDeck();
+      // this.deck = this.cardService.loadDeck();
     });
   }
 
@@ -69,9 +78,17 @@ export class DeckBuilderComponent implements OnInit {
     this.router.navigate(['/dashboard']);
   }
   salva() {
-    localStorage.setItem('userDeck', JSON.stringify(this.deck));
-    localStorage.setItem('frameSelected', JSON.stringify(this.frameSelected));
-    alert('Deck salvato con successo!');
+    // localStorage.setItem('userDeck', JSON.stringify(this.deck));
+    // localStorage.setItem('frameSelected', JSON.stringify(this.frameSelected));
+    if (this.deckSelectedId !== undefined && this.deckSelectedId !== null) {
+      const IdToSave = this.deck.map((x) => x._id);
+      this.decks[this.deckSelectedId].cards = IdToSave;
+      this.decks[this.deckSelectedId].frame = this.frameSelected;
+    }
+    let username = localStorage.getItem('username') ?? '';
+    this.deckService.updateDecks(username, this.decks).subscribe((res: any) => {
+      alert('Deck salvato con successo!');
+    });
   }
   get paginatedCards(): Card[] {
     const startIndex = (this.currentPage - 1) * this.cardsPerPage;
@@ -85,6 +102,39 @@ export class DeckBuilderComponent implements OnInit {
     this.cardService.refresh();
   }
   onFrameChange(event) {
-    this.frameSelected = event.value;
+    console.log(event);
+    this.frameSelected = event;
+  }
+  selectDeck(count: number): void {
+    const deck = this.decks[count];
+    console.log('Deck selezionato:', deck);
+
+    if (deck.cards.length < 30) {
+      alert('Non puoi selezionare un deck con meno di 30 carte');
+      return;
+    }
+
+    this.decks.forEach((d, i) => {
+      d.isSelected = i === count;
+    });
+  }
+  showDeck = false;
+  deckSelectedId;
+  editDeck(deck) {
+    console.log(deck);
+    const cardIds = this.decks[deck].cards;
+
+    this.deck = cardIds
+      .map((id) => this.allCards.find((c) => c._id === id || c.id === id))
+      .filter((c) => c !== undefined);
+    this.deckSelectedId = deck;
+    this.showDeck = true;
+  }
+  showDeckMethod() {
+    const IdToSave = this.deck.map((x) => x._id);
+    this.decks[this.deckSelectedId].cards = IdToSave;
+    this.decks[this.deckSelectedId].frame = this.frameSelected;
+    this.showDeck = false;
+    this.deckSelectedId = '';
   }
 }

@@ -1,3 +1,4 @@
+@if(!isLoading){
 <div
   style="height: 100vh"
   (mousemove)="updateArrow($event)"
@@ -19,18 +20,15 @@
             Avversario: {{ opponentId }} <span class="dropdown-icon">▼</span>
           </label>
           <div class="dropdown-menu">
-            <div class="dropdown-item">
-              <p>Carta in mano: {{ gameState.hands[opponentId] }} carte</p>
-            </div>
-            <div class="dropdown-item">
-              <p>Vita: {{ gameState.health[opponentId] }}</p>
-            </div>
-            <div class="dropdown-item">
-              <p *ngIf="gameState.crystals && gameState.maxCrystals">
-                Cristalli: {{ gameState.crystals[opponentId] }} / max
-                {{ gameState.maxCrystals[opponentId] }}
-              </p>
-            </div>
+            <p>Carta in mano: {{ gameState.hands[opponentId] }} carte</p>
+
+            <p>Vita: {{ gameState.health[opponentId] }}</p>
+
+            <p *ngIf="gameState.crystals && gameState.maxCrystals">
+              Cristalli: {{ gameState.crystals[opponentId] }} / max
+              {{ gameState.maxCrystals[opponentId] }}
+            </p>
+            <p>barrier:{{ gameState.barrier[opponentId] }}</p>
           </div>
         </div>
       </div>
@@ -41,14 +39,16 @@
           <img
             *ngFor="let c of 0 | range : gameState.hands[opponentId]"
             class="singleCardEnemy"
-            [src]="baseFrameBack + frameSelected.img"
+            [src]="baseFrameBack + frameSelectedOpponent"
           />
           }
         </div>
       </div>
     </div>
   </section>
-
+  <div *ngIf="targetInstruction" class="target-instruction">
+    {{ targetInstruction }}
+  </div>
   <div cdkDropListGroup>
     <!-- INFO TURNO + BOARD -->
     <div id="block-board">
@@ -76,8 +76,6 @@
           </div>
           <div class="turn-center">
             <h3>Turno Di: {{ currentPlayerName }}</h3>
-            <!-- <p *ngIf="isMyTurn">💎 Cristalli: {{ playerCrystals }}</p> -->
-            <!-- Turno {{ gameState.currentTurnIndex }} -->
             <p *ngIf="!isMyTurn">⏳ Attendi...</p>
             <button
               class="button-b-size"
@@ -97,8 +95,9 @@
             <div *ngFor="let c of opponentBoard">
               <div *ngIf="c.name" class="singleCardBoard">
                 <app-card
+                  [attr.data-card-id]="c.id"
                   [isVisibileText]="false"
-                  [frameTitle]="frameSelected.img"
+                  [frameTitle]="frameSelectedOpponent"
                   [card]="c"
                 ></app-card>
               </div>
@@ -121,22 +120,15 @@
               *ngFor="let c of board; let i = index"
               class="singleCardBoard"
               [attr.data-index]="i"
+              [attr.data-card-id]="c.id"
               (mousedown)="startArrow($event, c)"
               (touchstart)="startArrow($event, c)"
             >
               <app-card
                 [isVisibileText]="false"
-                [frameTitle]="frameSelected.img"
+                [frameTitle]="frameSelected"
                 [card]="c"
               ></app-card>
-              <!-- <button
-              mat-mini-button
-              color="warn"
-               appDoubleTap (click)="attack(c, { type: 'HP', playerId: opponentId })"
-              [disabled]="!isMyTurn || c.justPlayed"
-            >
-              Attacca Team
-            </button> -->
             </div>
           </div>
         </section>
@@ -152,11 +144,12 @@
     >
       <div style="width: 10%">
         <h4>Mano ({{ cardsInHand.length }})</h4>
-        <p>Vita: {{ gameState.health[username] }}</p>
+        <p>Vita: {{ gameState.health[userId] }}</p>
         <p *ngIf="gameState.crystals && gameState.maxCrystals">
-          Cristalli: {{ gameState.crystals[username] }} / max
-          {{ gameState.maxCrystals[username] }}
+          Cristalli: {{ gameState.crystals[userId] }} / max
+          {{ gameState.maxCrystals[userId] }}
         </p>
+        <p>barrier:{{ gameState.barrier[userId] }}</p>
       </div>
       <div
         cdkDropList
@@ -169,22 +162,22 @@
       >
         <div *ngFor="let c of cardsInHand" class="singleCard" cdkDrag>
           <div class="drag-surface">
-            <app-card [frameTitle]="frameSelected.img" [card]="c"></app-card>
+            <app-card [frameTitle]="frameSelected" [card]="c"></app-card>
           </div>
         </div>
       </div>
     </section>
   </div>
-  <!-- animazioni -------------    -->
+
   <!-- animazioni -->
-  <div *ngIf="showCardAnim && drawnCard" class="card-drawn-overlay singleCard">
+  <!-- <div *ngIf="showCardAnim && drawnCard" class="card-drawn-overlay singleCard">
     <app-card
       [card]="drawnCard"
-      [frameTitle]="frameSelected.img"
+      [frameTitle]="frameSelected"
       [isVisibileText]="true"
     ></app-card>
-  </div>
-
+  </div> -->
+  <ng-template cdkPortalOutlet></ng-template>
   <!-- INSERIMENTO SVG PER LA FRECCIA -->
   <svg class="arrow-layer" *ngIf="arrow">
     <defs>
@@ -209,5 +202,6 @@
       marker-end="url(#arrowhead)"
     />
   </svg>
-  <!-- s -->
 </div>
+<pre>{{ gameState | json }}</pre>
+} @else{ spinner }

@@ -65,7 +65,7 @@ export const Themes = [
         <input
           type="range"
           min="10"
-          max="50"
+          max="100"
           step="1"
           [value]="settings().sizes.board"
           (input)="

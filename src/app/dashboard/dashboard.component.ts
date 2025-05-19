@@ -18,7 +18,7 @@ import { getDecodedToken } from '../auth/login/jwt-decoder';
 export class DashboardComponent implements OnInit {
   loading = false;
   cards: any[] = []; // Per memorizzare le carteù
-  deck = [];
+  // deck = [];
   disabled = true;
   constructor(
     private socketService: SocketService,
@@ -28,16 +28,19 @@ export class DashboardComponent implements OnInit {
     // Naviga automaticamente quando la partita inizia
   }
   ngOnInit(): void {
-    this.cardService.loadCards();
-    this.loadCards();
+    // this.cardService.loadCards();
+    // this.loadCards();
+
     this.socketService.getwaitLogin().subscribe((gameInfo) => {
       this.disabled = false;
     });
     this.socketService.onGameStarted().subscribe((gameInfo) => {
+      if (gameInfo) {
+        this.router.navigate(['/game'], {
+          queryParams: { gameId: gameInfo.gameId, team: gameInfo.team },
+        });
+      }
       this.loading = false;
-      this.router.navigate(['/game'], {
-        queryParams: { gameId: gameInfo.gameId, team: gameInfo.team },
-      });
     });
     this.socketService.onReconnect().subscribe((gameInfo: any) => {
       this.loading = false;
@@ -52,16 +55,9 @@ export class DashboardComponent implements OnInit {
       this.cards = cards;
     });
   }
-  joinQueue(mode: '1v1' | '2v2' | 'vs-npc') {
+  joinQueue(mode: '1v1' | '2v2' | 'vsBot') {
     this.loading = true;
-    this.deck = this.cardService.loadDeck();
-    if (this.deck && this.deck.length == 30) {
-      if (mode === '1v1') this.socketService.matchmaking1v1(this.deck);
-      else if (mode === '2v2') this.socketService.matchmaking2v2();
-      else this.socketService.matchmakingVsNpc();
-    } else {
-      alert('crea un deck');
-    }
+    this.socketService.matchmaking(mode);
   }
 
   isAuthenticated(): boolean {

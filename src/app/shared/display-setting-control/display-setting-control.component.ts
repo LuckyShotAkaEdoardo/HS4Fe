@@ -21,7 +21,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
     FormsModule,
   ],
   template: `
-    <div class="keybinding-panel">
+    <!-- <div class="keybinding-panel">
       <h2>⌨️ Assegna Tasti a Comandi</h2>
       <div *ngFor="let context of contexts" class="context-section">
         <h3>{{ context }}</h3>
@@ -68,7 +68,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
       </div>
 
       <button color="primary" appDoubleTap (click)="save()">💾 Salva</button>
-    </div>
+    </div> -->
   `,
   styles: [
     `

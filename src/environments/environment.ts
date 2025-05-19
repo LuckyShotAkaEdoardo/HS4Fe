@@ -1,6 +1,7 @@
 export const environment = {
   production: false,
   apiUrlAut: 'http://localhost:3000/auth',
+  apiUrlDeck: 'http://localhost:3000/decks',
   apiUrlBase: 'http://localhost:3000',
   socketUrl: 'http://localhost:3000',
 

@@ -192,3 +192,24 @@ body {
   align-items: center;
   text-align: center;
 }
+.highlight-selectable {
+  outline: 3px solid gold;
+  cursor: pointer;
+  transition: outline 0.2s ease-in-out;
+}
+.target-instruction {
+  position: absolute;
+  top: 22vh;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.85);
+  color: #ffd700;
+  font-size: 1.4rem;
+  font-weight: bold;
+  padding: 12px 24px;
+  border-radius: 12px;
+  box-shadow: 0 0 15px rgba(255, 215, 0, 0.7);
+  z-index: 1100;
+  pointer-events: none;
+  animation: fadeInOut 0.3s ease-in-out;
+}

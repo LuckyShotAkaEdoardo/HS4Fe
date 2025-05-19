@@ -14,14 +14,18 @@
     z-index: 0;
   }
   
-  .content {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.3s ease;
-    transform-origin: center center;
-      pointer-events: none;
-  }
+.image-wrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+}
+
+.fill-img {
+  position: absolute;
+  inset: 0;
+  object-fit: cover;
+}
   .card:hover .content {
     transform: scale(1.1);
   }
@@ -79,4 +83,3 @@
         -moz-osx-font-smoothing: grayscale;
       }
   }
-  

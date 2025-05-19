@@ -16,23 +16,13 @@ import {
 import { getDecodedToken } from '../auth/login/jwt-decoder';
 import { RangePipe } from '../shared/range-pipe';
 import { CardComponent } from '../shared/card-component/card.component';
-import { GameState } from '../shared/model/game-model';
+import { Card, GameState } from '../shared/model/game-model';
 import { AudioService, SoundEffect } from '../../service/audio-service';
 import { DisplaySettingsService } from '../../service/display-settings.service';
 import { DoubleTapDirective } from '../../directive/long-press.directive';
 import { CardService } from '../../service/card.service';
-
-interface Card {
-  id: string;
-  name: string;
-  attack: number;
-  defense: number;
-  cost: number;
-  effect: string;
-  image: string;
-  type: 'HERO' | 'MAGIC';
-  justPlayed?: boolean;
-}
+import { VisualEvent } from '../../service/effect-mapper';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-game-board',
@@ -66,18 +56,26 @@ export class GameBoardComponent implements OnInit, OnDestroy {
     turn: '',
     winner: undefined,
     currentTurnIndex: 0,
+    turnInfo: {},
+    userIds: '',
+    barrier: [],
   };
 
+  selectedTargets: string[] = [];
+  maxSelectableTargets = 0;
+  awaitingTargetForCard: Card | null = null;
   currentPlayerName = '';
   playerCrystals = 0;
-  cardsInHand: Card[] = [];
-  board: Card[] = [];
+  // cardsInHand: Card[] = [];
+  // board: Card[] = [];
   isLoading = true;
   team = '';
   selectedCards: any[] = [];
-  opponentBoard: Card[] = [];
-  opponentId = '';
+  // opponentBoard: Card[] = [];
+
+  // opponentId = '';
   frameSelected;
+  frameSelectedOpponent;
   baseFrame;
   baseFrameBack;
   arrow: {
@@ -105,33 +103,83 @@ export class GameBoardComponent implements OnInit, OnDestroy {
   ) {
     this.socket = this.socketService.getSocket();
   }
+  userId: string = '';
   showEndModal = false;
   endImage;
   drawnCard: any = null;
   showCardAnim = false;
   displaySettings = inject(DisplaySettingsService).settings;
-  ngOnInit(): void {
-    const raw = localStorage.getItem('frameSelected');
-    try {
-      this.frameSelected = raw ? JSON.parse(raw) : null;
+  opponentCrystals;
+  targetInstruction: string | null = null;
 
-      // fallback se è nullo o mancante proprietà
-      if (!this.frameSelected || !this.frameSelected.img) {
-        const fallback = this.cardService.getCorniciList();
-        this.frameSelected = fallback?.[0] || { img: 'default-frame.png' };
-      }
-    } catch (e) {
-      console.error('Errore parsing frameSelected:', e);
-      const test = this.cardService.getCorniciList();
-      this.frameSelected = test?.[0] || { img: 'default-frame.png' };
-    }
+  private subscriptions: Subscription[] = [];
+
+  ngOnInit(): void {
+    const token = getDecodedToken();
+    console.log(token);
+
+    this.subscriptions.push(
+      this.socketService.onGameStarted().subscribe((state) => {
+        this.gameState = state;
+        this.userId = state.userId;
+        this.username = state.username;
+        this.gameState = state;
+        this.frameSelected = state.frames?.[this.userId] || '';
+        this.frameSelectedOpponent = state.frames?.[this.opponentId] || '';
+        this.playerCrystals = state.crystals?.[this.userId] || 0;
+        this.opponentCrystals = state.crystals?.[this.opponentId] || 0;
+        this._currentTurnPlayerId = state.turnInfo?.currentPlayerId;
+        this.currentPlayerName =
+          state.usernames?.[this._currentTurnPlayerId] || '';
+        this.isLoading = false;
+      })
+    );
+
+    this.subscriptions.push(
+      this.socketService.onGameUpdate().subscribe((state) => {
+        if (!state?.gameId) return;
+        this.gameState = state;
+        this.frameSelected = state.frames?.[this.userId] || '';
+        this.frameSelectedOpponent = state.frames?.[this.opponentId] || '';
+        this.playerCrystals = state.crystals?.[this.userId] || 0;
+        this.opponentCrystals = state.crystals?.[this.opponentId] || 0;
+
+        this._currentTurnPlayerId = state.turnInfo?.currentPlayerId;
+        this.currentPlayerName =
+          state.usernames?.[this._currentTurnPlayerId] || '';
+        this.isLoading = false;
+
+        if (state.visualEvents) {
+          state.visualEvents.forEach((ev: any) => {
+            if (ev.cardId) {
+              this.highlightCard(ev.cardId, ev.type.toLowerCase());
+            }
+          });
+        }
+      })
+    );
+
+    this.subscriptions.push(
+      this.socketService.onCardDrawn().subscribe(({ card }) => {
+        this.drawnCard = null;
+        this.showCardAnim = false;
+
+        setTimeout(() => {
+          this.drawnCard = card;
+          this.showCardAnim = true;
+          setTimeout(() => {
+            this.showCardAnim = false;
+          }, 1800);
+        }, 10); // breve delay per forzare cambio DOM
+      })
+    );
 
     this.socket.on('game-over', (data: { winner: string }) => {
       this.showEndModal = true;
       this.endImage = data.winner === this.username ? true : false;
       this.socket.emit('leave-game', this.gameId);
     });
-    console.log(this.frameSelected);
+    // console.log(this.frameSelected);
     this.baseFrame = environment.frame;
     this.baseFrameBack = environment.dorso;
     this.route.queryParams.subscribe((params) => {
@@ -147,29 +195,15 @@ export class GameBoardComponent implements OnInit, OnDestroy {
       this.currentPlayerId = id;
     });
 
-    this.socketService.cardDrawn$.subscribe(({ card, deckLength }) => {
-      // 👇 Puoi personalizzare con animazioni
-      console.log('Carta pescata:', card);
-      // esempio: this.showCardDrawAnimation(card);
-    });
-
     this.socketService.gameResult$.subscribe(({ result, message }) => {
       this.router.navigate(['/endgame'], {
         state: { result, message },
       });
     });
-    this.socketService.cardDrawn$.subscribe(({ card }) => {
-      this.showCardDrawn(card);
-    });
   }
 
   private connectSocket(): void {
     this.socket.emit('join-game', this.gameId);
-
-    this.socketService.onGameUpdate().subscribe((state) => {
-      this.updateState(state);
-      this.isLoading = false;
-    });
 
     this.socket.on('turn-update', (data: any) => {
       this.playerCrystals = data.crystals;
@@ -179,42 +213,32 @@ export class GameBoardComponent implements OnInit, OnDestroy {
       }
     });
 
-    this.socket.on('player-id', (data: any) => {
-      this.currentPlayerId = data;
-    });
     this.socket.on('error', (msg: string) => alert(msg));
   }
-  private updateState(state: any) {
-    const token = getDecodedToken();
-    const username = token.username;
-    this.username = username;
-    this.currentPlayerId = username;
-    this.gameId = state.id;
-    this.gameState = state;
 
-    // ⚠️ importante: inizializza opponentId PRIMA di usarlo
-    this.opponentId = state.opponentId;
-
-    // Accesso con chiavi username
-    this.cardsInHand = state.hands?.[username] || [];
-    this.board = state.boards?.[username] || [];
-    this.opponentBoard = state.boards?.[this.opponentId] || [];
-    this.playerCrystals = state.crystals?.[this.currentPlayerId] || 0;
-    this.opponentCrystals = state.crystals?.[this.opponentId] || 0;
-    this.playerCrystals = state.crystals?.[username] || 0;
-    this.currentPlayerName = state.currentPlayerId;
-    // this.isMyTurn = state.currentPlayerId === username;
-
-    this.isLoading = false;
-  }
-  opponentCrystals;
-  // Getter per verificare se è il turno del giocatore
   get isMyTurn(): boolean {
     return (
-      !!this._currentTurnPlayerId &&
-      !!this.currentPlayerId &&
-      this._currentTurnPlayerId === this.currentPlayerId
+      String(this.gameState?.turnInfo?.currentPlayerId) === String(this.userId)
     );
+  }
+
+  get opponentId(): string {
+    const ids = this.gameState?.userIds;
+    return Array.isArray(ids)
+      ? ids.find((id: string) => id !== this.userId) || ''
+      : '';
+  }
+
+  get cardsInHand(): Card[] {
+    return (this.gameState?.hands?.[this.userId] as any) || [];
+  }
+
+  get board(): Card[] {
+    return (this.gameState?.boards?.[this.userId] as any) || [];
+  }
+
+  get opponentBoard(): Card[] {
+    return (this.gameState?.boards?.[this.opponentId] as any) || [];
   }
 
   playCard(card: Card): void {
@@ -231,6 +255,20 @@ export class GameBoardComponent implements OnInit, OnDestroy {
       alert('Plancia piena');
       return;
     }
+    if (
+      card.effect &&
+      typeof card.effect.target === 'string' &&
+      card.effect.target.startsWith('CHOOSE') &&
+      card.effect.count &&
+      card.effect.count > 0
+    ) {
+      this.awaitingTargetForCard = card;
+      this.maxSelectableTargets = card.effect.count;
+      this.selectedTargets = [];
+      this.enableTargetSelectionMode(card.effect.target);
+      return;
+    }
+
     this.socket.emit('play-card', { gameId: this.gameId, card });
   }
 
@@ -287,12 +325,8 @@ export class GameBoardComponent implements OnInit, OnDestroy {
     // Riordino nella mano
     if (this.showEndModal) return;
     if (event.previousContainer === event.container) {
-      // riordino nella stessa lista
-      moveItemInArray(
-        event.container.data,
-        event.previousIndex,
-        event.currentIndex
-      );
+      return;
+      // // riordino nella stessa lista
     } else {
       const draggedCard = event.previousContainer.data[event.previousIndex];
       console.log(draggedCard);
@@ -309,9 +343,15 @@ export class GameBoardComponent implements OnInit, OnDestroy {
 
       if (cardElements.length === 0) {
         // Se la board è vuota
-        this.board.splice(0, 0, draggedCard);
-        event.previousContainer.data.splice(event.previousIndex, 1);
-        this.socketService.playCard(this.gameId, draggedCard);
+        const cardId = event.previousContainer.data[event.previousIndex]
+          ?.id as any;
+
+        if (!cardId) return console.warn('Card ID mancante');
+
+        this.socketService.playCard(this.gameId, {
+          cardId, // 👈 solo id
+          index: event.currentIndex,
+        });
         return;
       }
 
@@ -331,15 +371,13 @@ export class GameBoardComponent implements OnInit, OnDestroy {
           insertAfter = dropX > centerX;
         }
       }
-
-      const insertIndex = insertAfter ? closestIndex + 1 : closestIndex;
-
-      // Rimuovi e inserisci
-      event.previousContainer.data.splice(event.previousIndex, 1);
-
-      draggedCard.justPlayed = true;
-
-      this.socketService.playCard(this.gameId, draggedCard);
+      const cardId = event.previousContainer.data[event.previousIndex]?.id;
+      if (!cardId) return console.warn('Card ID mancante');
+      console.log('guarda qui', cardId);
+      this.socketService.playCard(this.gameId, {
+        cardId, // 👈 solo id
+        index: insertAfter ? closestIndex + 1 : closestIndex, // ✅ corretto
+      });
     }
   }
   startArrow(event: MouseEvent | TouchEvent, card: Card) {
@@ -439,5 +477,94 @@ export class GameBoardComponent implements OnInit, OnDestroy {
       this.showCardAnim = false;
       this.drawnCard = null;
     }, 1800); // durata dell'animazione
+  }
+
+  highlightCard(cardId: string, cssClass: string) {
+    const el = document.querySelector(`[data-card-id="${cardId}"]`);
+    if (!el) return;
+    el.classList.add(`effect-${cssClass}`);
+    setTimeout(() => el.classList.remove(`effect-${cssClass}`), 1000);
+  }
+  enableTargetSelectionMode(targetType: string) {
+    const validTargetIds = this.getValidTargetIds(targetType);
+    this.targetInstruction = this.getTargetInstructionLabel(targetType);
+    for (const id of validTargetIds) {
+      const el = document.querySelector(`[data-card-id="${id}"]`);
+      if (el) el.classList.add('highlight-selectable');
+      el?.addEventListener('click', this.onTargetClick.bind(this, id), {
+        once: true,
+      });
+    }
+  }
+  onTargetClick(cardId: string) {
+    this.selectedTargets.push(cardId);
+
+    if (this.selectedTargets.length >= this.maxSelectableTargets) {
+      this.finalizeCardPlayWithTargets();
+    }
+  }
+  finalizeCardPlayWithTargets() {
+    const card = this.awaitingTargetForCard;
+    const targets = [...this.selectedTargets];
+
+    this.resetTargetSelection();
+    if (!card) return;
+    this.socket.emit('play-card', {
+      gameId: this.gameId,
+      cardId: card.id,
+      targets,
+    });
+  }
+  resetTargetSelection() {
+    this.awaitingTargetForCard = null;
+    this.maxSelectableTargets = 0;
+    this.selectedTargets = [];
+    this.targetInstruction = null;
+
+    document.querySelectorAll('.highlight-selectable').forEach((el) => {
+      el.classList.remove('highlight-selectable');
+      const newEl = el.cloneNode(true);
+      el.replaceWith(newEl); // remove all listeners
+    });
+  }
+  getValidTargetIds(targetType: string): string[] {
+    const myId = this.userId;
+    const opponentId = this.gameState.opponentId;
+    const myBoard = this.gameState.boards[myId] || [];
+    const oppBoard = this.gameState.boards[opponentId] || [];
+
+    switch (targetType) {
+      case 'CHOOSE_ANY':
+        return [...myBoard, ...oppBoard].map((c) => c.id);
+
+      case 'CHOOSE_ENEMY':
+        return oppBoard.map((c) => c.id);
+
+      case 'CHOOSE_ALLY':
+        return myBoard.map((c) => c.id);
+
+      default:
+        return [];
+    }
+  }
+  getTargetInstructionLabel(type: string): string {
+    switch (type) {
+      case 'CHOOSE_ALLY':
+        return 'Scegli una tua creatura';
+      case 'CHOOSE_ENEMY':
+        return 'Scegli un nemico';
+      case 'CHOOSE_ANY':
+        return 'Scegli un bersaglio';
+      default:
+        return 'Scegli bersaglio';
+    }
+  }
+  isTargetSelectable(id: string): boolean {
+    return (
+      this.targetInstruction != null &&
+      this.getValidTargetIds(
+        (this.awaitingTargetForCard?.effect?.target || '') as any
+      ).includes(id)
+    );
   }
 }

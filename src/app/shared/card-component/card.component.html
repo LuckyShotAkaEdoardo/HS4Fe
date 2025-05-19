@@ -1,20 +1,36 @@
 <!-- src/app/components/card/card.component.html -->
-<div appDoubleTap *ngIf="cutoutStyles" (doubleTap)="onDoubleTap()" class="card">
+<div
+  appDoubleTap
+  *ngIf="cutoutStyles; else loading"
+  [ngClass]="card.canAttack ? 'ability-can-attack' : ''"
+  (doubleTap)="onDoubleTap()"
+  class="card"
+>
+  <div
+    *ngIf="frameBorderStyles"
+    [ngStyle]="frameBorderStyles"
+    [ngClass]="card | cardEffectClass"
+  ></div>
   <!-- mostro la cutout wrapper solo se cutoutStyles è già calcolato -->
   <div class="cutout" *ngIf="cutoutStyles" [ngStyle]="cutoutStyles">
-    <img
+    <!-- <img
       class="content"
       [src]="contentSrc"
+      [alt]="card.name"
       alt="Artwork"
       loading="lazy"
       (error)="onImgError($event)"
-    />
+    /> -->
+    <div class="image-wrapper">
+      <img [ngSrc]="contentSrc" fill [alt]="card.name" class="fill-img" />
+    </div>
   </div>
-
   <!-- Cornice vera in primo piano -->
   <img
+    #frameRef
     class="frame"
     [src]="frameSrc"
+    [alt]="card.name"
     alt="Cornice"
     loading="lazy"
     (error)="onImgError($event)"
@@ -33,3 +49,9 @@
     </ng-container>
   </div>
 </div>
+
+<ng-template #loading>
+  <div class="card-loading">
+    <div class="spinner"></div>
+  </div>
+</ng-template>

@@ -1,9 +1,11 @@
 import { Injectable } from '@angular/core';
 import { io, Socket } from 'socket.io-client';
-import { Subject } from 'rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
 import { Router } from '@angular/router'; // Importa Router per la navigazione
 import { environment } from '../environments/environment';
 import { getDecodedToken } from '../app/auth/login/jwt-decoder';
+import { GameState } from '../app/shared/model/game-model';
+import { AnimationOverlayService } from './animation-service';
 
 @Injectable({
   providedIn: 'root',
@@ -11,12 +13,12 @@ import { getDecodedToken } from '../app/auth/login/jwt-decoder';
 export class SocketService {
   private socket: Socket;
 
-  private gameStartedSubject = new Subject<any>(); // Nuovo subject per quando la partita inizia
-  private gameUpdateSubject = new Subject<any>(); // Per aggiornamenti sullo stato della partita
+  private gameStartedSubject = new BehaviorSubject<any | null>(null); // Nuovo subject per quando la partita inizia
+  gameUpdateSubject = new BehaviorSubject<any | null>(null);
+  // Per aggiornamenti sullo stato della partita
   private reconnectSubject = new Subject<void>();
   private waitLogin = new Subject<void>();
   private cardDrawnSubject = new Subject<any>();
-  cardDrawn$ = this.cardDrawnSubject.asObservable();
 
   private gameResultSubject = new Subject<{
     result: 'win' | 'lose';
@@ -25,12 +27,16 @@ export class SocketService {
   gameResult$ = this.gameResultSubject.asObservable();
 
   username;
-  constructor(private router: Router) {
+  constructor(
+    private router: Router,
+    private overlay: AnimationOverlayService
+  ) {
     // Assicurati di avere il URL corretto per il tuo server
     this.socket = io(environment.socketUrl);
 
     this.socket.on('card-drawn', (data) => {
-      this.cardDrawnSubject.next(data);
+      console.log('stai pescando', data);
+      this.overlay.showCardDrawn(data.card, data.frame);
     });
 
     this.socket.on('you-won', (data) => {
@@ -53,9 +59,10 @@ export class SocketService {
     this.socket.on('reconnect', () => {
       this.reconnectSubject.next();
     });
-    this.socket.on('login-error', () => {
+    this.socket.on('login-error', (error) => {
       localStorage.removeItem('token');
       // Qui puoi aggiungere anche la logica di logout vera e propria
+      alert(error);
       this.router.navigate(['/login']);
     });
     this.socket.on('do-login', () => {
@@ -65,37 +72,39 @@ export class SocketService {
       this.waitLogin.next(val);
     });
     this.socket.on('abort-match', (val) => {});
+    this.socket.on('matchmaking-error', (val) => {
+      this.gameStartedSubject.next(false);
+      console.log(val);
+      alert(val.error);
+    });
+    this.socket.on('action-error', (val) => {
+      // this.gameStartedSubject.next(false);
+      console.log(val);
+      alert(val.error);
+    });
   }
-  playCard(gameId, draggedCard) {
+
+  playCard(gameId: string, data: { cardId: string; index: number }) {
     this.socket.emit('play-card', {
-      gameId: gameId,
-      card: draggedCard,
+      gameId,
+      cardId: data.cardId,
+      index: data.index,
     });
   }
   //socketLogin
   socketLogin() {
-    const token = getDecodedToken();
-    console.log();
-    this.username = localStorage.getItem('username');
-    if (token.username) this.socket.emit('login', { username: token.username });
-  }
-  // Matchmaking 1v1
-  matchmaking1v1(deck) {
-    if (!this.username) {
-      return this.socket.emit('error', 'Devi prima effettuare il login.');
-    } else {
-      this.socket.emit('matchmaking-1v1', deck);
-      return 'start';
+    const token = localStorage.getItem('token');
+    console.log(token);
+    if (token) this.socket.emit('login', { token: token });
+    else {
+      localStorage.removeItem('token');
+      //   Qui puoi aggiungere anche la logica di logout vera e propria
+      this.router.navigate(['/login']);
     }
   }
-  // Matchmaking 2v2
-  matchmaking2v2() {
-    this.socket.emit('matchmaking-2v2');
-  }
-
-  // Matchmaking contro NPC
-  matchmakingVsNpc() {
-    this.socket.emit('matchmaking-vs-npc');
+  // Matchmaking 1v1
+  matchmaking(mode) {
+    this.socket.emit('matchmaking', { mode: mode });
   }
 
   // Ascolta per l'inizio della partita
@@ -108,6 +117,9 @@ export class SocketService {
     return this.gameUpdateSubject.asObservable();
   }
 
+  onCardDrawn() {
+    return this.cardDrawnSubject.asObservable();
+  }
   // Metodo per disconnettersi dal server
   disconnect() {
     this.socket.disconnect();
