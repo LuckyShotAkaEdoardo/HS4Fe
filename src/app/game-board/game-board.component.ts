@@ -60,6 +60,8 @@ export class GameBoardComponent implements OnInit, OnDestroy {
     userIds: '',
     barrier: [],
   };
+  previewIndex: number | null = null;
+  isDraggingFromHand: boolean = false;
 
   selectedTargets: string[] = [];
   maxSelectableTargets = 0;
@@ -374,9 +376,10 @@ export class GameBoardComponent implements OnInit, OnDestroy {
       const cardId = event.previousContainer.data[event.previousIndex]?.id;
       if (!cardId) return console.warn('Card ID mancante');
       console.log('guarda qui', cardId);
+      const index = insertAfter ? closestIndex + 1 : closestIndex;
       this.socketService.playCard(this.gameId, {
         cardId, // 👈 solo id
-        index: insertAfter ? closestIndex + 1 : closestIndex, // ✅ corretto
+        index: index, // ✅ corretto
       });
     }
   }
@@ -566,5 +569,31 @@ export class GameBoardComponent implements OnInit, OnDestroy {
         (this.awaitingTargetForCard?.effect?.target || '') as any
       ).includes(id)
     );
+  }
+  updatePreviewIndex(event: MouseEvent | TouchEvent): void {
+    if (!this.isDraggingFromHand) return;
+    const boardEl = document.getElementById('boardDropList');
+    if (!boardEl) return;
+
+    const x =
+      event instanceof MouseEvent
+        ? event.clientX
+        : event.touches?.[0]?.clientX ?? 0;
+
+    const cards = Array.from(boardEl.querySelectorAll('.singleCardBoard'));
+
+    for (let i = 0; i < cards.length; i++) {
+      const rect = (cards[i] as HTMLElement).getBoundingClientRect();
+      if (x < rect.left + rect.width / 2) {
+        this.previewIndex = i;
+        return;
+      }
+    }
+
+    this.previewIndex = cards.length;
+  }
+
+  clearPreviewIndex(): void {
+    this.previewIndex = null;
   }
 }

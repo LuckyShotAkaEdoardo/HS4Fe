@@ -1,10 +1,11 @@
 @if(!isLoading){
 <div
   style="height: 100vh"
-  (mousemove)="updateArrow($event)"
-  (mouseup)="endArrow($event)"
-  (touchmove)="updateArrow($event)"
-  (touchend)="endArrow($event)"
+  (mousemove)="updateArrow($event); updatePreviewIndex($event)"
+  (mouseup)="endArrow($event); clearPreviewIndex()"
+  (touchmove)="updateArrow($event); updatePreviewIndex($event)"
+  (touchend)="endArrow($event); clearPreviewIndex()"
+  (mouseleave)="clearPreviewIndex()"
 >
   <!-- AVVERSARIO -->
   <section
@@ -116,7 +117,34 @@
             (cdkDropListDropped)="onDrop($event)"
             [cdkDropListSortingDisabled]="true"
           >
+            <ng-container *ngFor="let c of board; let i = index">
+              <div
+                *ngIf="isDraggingFromHand && previewIndex === i"
+                class="singleCardBoard placeholder-slot"
+              ></div>
+
+              <div
+                class="singleCardBoard"
+                [attr.data-index]="i"
+                [attr.data-card-id]="c.id"
+                (mousedown)="startArrow($event, c)"
+                (touchstart)="startArrow($event, c)"
+              >
+                <app-card
+                  [isVisibileText]="false"
+                  [frameTitle]="frameSelected"
+                  [card]="c"
+                ></app-card>
+              </div>
+            </ng-container>
+
+            <!-- Aggiungi anche questo DOPO il ng-container -->
             <div
+              *ngIf="isDraggingFromHand && previewIndex === board.length"
+              class="singleCardBoard placeholder-slot"
+            ></div>
+
+            <!-- <div
               *ngFor="let c of board; let i = index"
               class="singleCardBoard"
               [attr.data-index]="i"
@@ -129,7 +157,7 @@
                 [frameTitle]="frameSelected"
                 [card]="c"
               ></app-card>
-            </div>
+            </div> -->
           </div>
         </section>
       </div>
@@ -160,7 +188,13 @@
         (cdkDropListDropped)="onDrop($event)"
         class="cards-hand"
       >
-        <div *ngFor="let c of cardsInHand" class="singleCard" cdkDrag>
+        <div
+          *ngFor="let c of cardsInHand"
+          (cdkDragStarted)="isDraggingFromHand = true"
+          (cdkDragEnded)="isDraggingFromHand = false; clearPreviewIndex()"
+          class="singleCard"
+          cdkDrag
+        >
           <div class="drag-surface">
             <app-card [frameTitle]="frameSelected" [card]="c"></app-card>
           </div>
@@ -177,7 +211,7 @@
       [isVisibileText]="true"
     ></app-card>
   </div> -->
-  <ng-template cdkPortalOutlet></ng-template>
+  <!-- <ng-template cdkPortalOutlet></ng-template> -->
   <!-- INSERIMENTO SVG PER LA FRECCIA -->
   <svg class="arrow-layer" *ngIf="arrow">
     <defs>

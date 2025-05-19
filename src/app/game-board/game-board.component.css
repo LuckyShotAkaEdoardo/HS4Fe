@@ -213,3 +213,6 @@ body {
   pointer-events: none;
   animation: fadeInOut 0.3s ease-in-out;
 }
+.cards-board .cdk-drag-placeholder {
+  display: none !important;
+}

@@ -25,6 +25,9 @@
   position: absolute;
   inset: 0;
   object-fit: cover;
+    user-select: none;
+  -webkit-user-drag: none;
+  -webkit-user-select: none;
 }
   .card:hover .content {
     transform: scale(1.1);
