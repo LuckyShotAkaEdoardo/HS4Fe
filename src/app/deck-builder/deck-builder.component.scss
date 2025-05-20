@@ -1,61 +1,81 @@
+
 .deck-builder {
-    display: flex;
-    gap: 20px;
-    height: 70vh;
-  }
-  
-  .deck {
-    width: 30%;
-    border: 1px solid #ccc;
-    padding: 1rem;
-    overflow-y: auto;
-  }
-  .card-pool {
-    width: 70%;
-    border: 1px solid #ccc;
-    padding: 1rem;
-    overflow-y: auto;
-  }
-  .singleCard{
-    width: 10;
-  }
-  .cards {
+  display: flex;
+  gap: 20px;
+  height: 70vh;
+}
+
+.deck {
+  width: 30%;
+  border: 1px solid var(--border-color);
+  background-color: var(--card-bg);
+  color: var(--text-color);
+  padding: 1rem;
+  overflow-y: auto;
+}
+
+.card-pool {
+  width: 70%;
+  border: 1px solid var(--border-color);
+  background-color: var(--card-bg);
+  color: var(--text-color);
+  padding: 1rem;
+  overflow-y: auto;
+}
+
+.singleCard {
+  width: 10;
+}
+
+.cards {
   display: grid;
-  /* Ogni colonna avrà almeno 120px, al più 1fr, e si ripete fino a
-     contenere tutte le carte. Su viewport larghe puoi avere 15 colonne
-     se 15×120px rientrano, altrimenti scatta l’auto-fit. */
   grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
   gap: 10px;
-  }
-  
-  .card {
-    width: 150px;
-    border: 1px solid #ddd;
-    padding: 0.5rem;
-    text-align: center;
-  
-    img {
-      width: 75%;
-      height: auto;
-    }
-  
-    button {
-      margin-top: 5px;
-    }
-  }
-  .pagination {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-top: 20px;
-  
-    button {
-      margin: 0 10px;
-    }
-  }
+}
 
+.card {
+  width: 150px;
+  border: 1px solid var(--border-color);
+  background-color: var(--dropdown-bg);
+  color: var(--text-color);
+  padding: 0.5rem;
+  text-align: center;
+}
 
-  // <!-- deck-crud.component.css -->
+.card img {
+  width: 75%;
+  height: auto;
+}
+
+.card button {
+  margin-top: 5px;
+  background-color: var(--button-bg);
+  color: var(--button-text);
+  border: none;
+  padding: 0.4rem 0.6rem;
+  cursor: pointer;
+}
+
+.card button:hover {
+  opacity: 0.9;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.pagination button {
+  margin: 0 10px;
+  background-color: var(--button-bg);
+  color: var(--button-text);
+  border: none;
+  padding: 0.4rem 0.6rem;
+  cursor: pointer;
+}
+
 .deck-container {
   display: grid;
   grid-template-areas:
@@ -69,18 +89,11 @@
   justify-items: center;
   align-items: center;
   box-sizing: border-box;
-
-  /* Rende l’altezza auto e flessibile */
   min-height: 90vh;
   height: auto;
   place-content: center;
 }
 
-.deck-card.selected {
-  outline: 2px solid var(--accent-color);
-  transform: scale(1.05);
-  box-shadow: 0 0 15px var(--accent-color);
-}
 .deck-card {
   background-color: var(--dropdown-bg);
   border: 1px solid var(--border-color);
@@ -91,12 +104,15 @@
   height: 100%;
   text-align: center;
   transition: transform 0.2s ease-in-out;
+  color: var(--text-color);
 }
 
 .deck-card.selected {
-  outline: 2px solid var(--accent-color, #9c27b0);
+  outline: 2px solid var(--accent-color);
   transform: scale(1.05);
+  box-shadow: 0 0 15px var(--accent-color);
 }
+
 @media screen and (max-width: 768px) {
   .deck-container {
     grid-template-areas:
@@ -108,56 +124,59 @@
     grid-template-columns: 1fr;
   }
 }
+
 .deck-card button:hover {
   opacity: 0.9;
 }
+
 .deck-code-box {
   margin-top: 20px;
   font-family: monospace;
+  color: var(--text-color);
+}
 
-  label {
-    display: block;
-    margin-bottom: 6px;
-    font-weight: bold;
-    color: #555;
-  }
+.deck-code-box label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: bold;
+  color: var(--text-color);
+}
 
-  .code-container {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
+.code-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
 
-  .deck-code-input {
-    flex-grow: 1;
-    padding: 8px 12px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    font-family: monospace;
-    font-size: 0.9rem;
-    background: #f5f5f5;
-    color: #333;
-  }
+.deck-code-input {
+  flex-grow: 1;
+  padding: 8px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  font-family: monospace;
+  font-size: 0.9rem;
+  background: var(--card-bg);
+  color: var(--text-color);
+}
 
-  .copy-button {
-    padding: 8px 14px;
-    border: none;
-    background: #3f51b5;
-    color: white;
-    font-weight: bold;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: background 0.2s;
-  }
+.copy-button {
+  padding: 8px 14px;
+  border: none;
+  background: var(--button-bg);
+  color: var(--button-text);
+  font-weight: bold;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
 
-  .copy-button:hover {
-    background: #303f9f;
-  }
+.copy-button:hover {
+  opacity: 0.9;
+}
 
-  .copy-feedback {
-    margin-top: 5px;
-    display: inline-block;
-    color: green;
-    font-size: 0.85rem;
-  }
+.copy-feedback {
+  margin-top: 5px;
+  display: inline-block;
+  color: lightgreen;
+  font-size: 0.85rem;
 }
