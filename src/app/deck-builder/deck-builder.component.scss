@@ -71,7 +71,7 @@
   box-sizing: border-box;
 
   /* Rende l’altezza auto e flessibile */
-  min-height: 100vh;
+  min-height: 90vh;
   height: auto;
   place-content: center;
 }
@@ -87,7 +87,8 @@
   border-radius: 8px;
   box-shadow: 0 0 10px rgba(156, 39, 176, 0.4);
   padding: 16px;
-  width: 180px;
+  width: 100%;
+  height: 100%;
   text-align: center;
   transition: transform 0.2s ease-in-out;
 }

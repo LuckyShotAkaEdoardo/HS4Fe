@@ -6,7 +6,9 @@
 
     <button color="accent" appDoubleTap (click)="salva()">salva</button>
   </div>
+
   @if(!showDeck){
+  <br />
   <div class="deck-container">
     <ng-container *ngFor="let pos of positions; let i = index">
       <div
