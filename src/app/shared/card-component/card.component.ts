@@ -21,6 +21,7 @@ import { CardEffectHighlightDirective } from '../../../directive/card-effect.dir
 
 import { NgOptimizedImage } from '@angular/common';
 import { CardImageCachePipe } from './img-cash.pipe';
+import { of } from 'rxjs';
 
 export interface Cutout {
   top: number;
@@ -57,6 +58,7 @@ export class CardComponent implements OnInit {
     left: string;
     width: string;
     height: string;
+    color: string;
   } | null = null;
 
   // assets: 'assets',
@@ -166,7 +168,7 @@ export class CardComponent implements OnInit {
   onDoubleTap() {
     this.onLongPress();
   }
-  frameVisibleStyles;
+
   getFrameVisibleStyles() {
     this.getVisibleFrameBounds(this.frameSrc!).then((bounds) => {
       this.frameBorderStyles = {
@@ -175,7 +177,9 @@ export class CardComponent implements OnInit {
         left: `${bounds.left}%`,
         width: `${bounds.width}%`,
         height: `${bounds.height}%`,
+        color: 'red',
       };
+      console.log('guarda bordi', this.frameBorderStyles);
     });
   }
 
@@ -184,7 +188,7 @@ export class CardComponent implements OnInit {
   ): Promise<{ top: number; left: number; width: number; height: number }> {
     return new Promise((resolve, reject) => {
       const img = new Image();
-      img.crossOrigin = 'anonymous'; // se necessario
+      img.crossOrigin = 'anonymous';
       img.onload = () => {
         const canvas = document.createElement('canvas');
         canvas.width = img.width;
@@ -193,24 +197,54 @@ export class CardComponent implements OnInit {
         if (!ctx) return reject('No 2D context');
 
         ctx.drawImage(img, 0, 0);
+        let imageData;
+        try {
+          imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        } catch (e) {
+          return reject('CORS violation – canvas is tainted');
+        }
 
-        const { data, width, height } = ctx.getImageData(
-          0,
-          0,
-          canvas.width,
-          canvas.height
-        );
+        const { data, width, height } = imageData;
+        const mask = new Uint8Array(width * height);
+        const threshold = 10;
+
+        // 1. Costruisci maschera binaria: 1 se alpha > 10, 0 altrimenti
+        for (let i = 0; i < data.length; i += 4) {
+          const alpha = data[i + 3];
+          mask[i / 4] = alpha > threshold ? 1 : 0;
+        }
+
+        // 2. Filtro: rimuovi pixel isolati (tipo apertura base)
+        const filtered = new Uint8Array(mask.length);
+        for (let y = 1; y < height - 1; y++) {
+          for (let x = 1; x < width - 1; x++) {
+            const i = y * width + x;
+            const neighbors =
+              mask[i - 1] +
+              mask[i + 1] +
+              mask[i - width] +
+              mask[i + width] +
+              mask[i - width - 1] +
+              mask[i - width + 1] +
+              mask[i + width - 1] +
+              mask[i + width + 1];
+
+            filtered[i] = mask[i] && neighbors >= 3 ? 1 : 0;
+          }
+        }
+
+        // 3. Calcola il bounding box sui pixel filtrati
         let top = height,
           left = width,
-          bottom = 0,
-          right = 0;
+          right = 0,
+          bottom = 0;
+        let found = false;
 
         for (let y = 0; y < height; y++) {
           for (let x = 0; x < width; x++) {
-            const i = (y * width + x) * 4;
-            const alpha = data[i + 3];
-            if (alpha > 10) {
-              // pixel visibile
+            const i = y * width + x;
+            if (filtered[i]) {
+              found = true;
               if (x < left) left = x;
               if (x > right) right = x;
               if (y < top) top = y;
@@ -219,16 +253,17 @@ export class CardComponent implements OnInit {
           }
         }
 
-        const result = {
+        if (!found) return reject('No visible pixels found');
+
+        resolve({
           top: (top / height) * 100,
           left: (left / width) * 100,
           width: ((right - left) / width) * 100,
           height: ((bottom - top) / height) * 100,
-        };
-
-        resolve(result);
+        });
       };
-      img.onerror = reject;
+
+      img.onerror = () => reject('Image load failed');
       img.src = src;
     });
   }

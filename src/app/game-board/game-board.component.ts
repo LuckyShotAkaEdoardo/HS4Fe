@@ -100,7 +100,7 @@ export class GameBoardComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private router: Router,
     private socketService: SocketService,
-    private audioService: AudioService,
+
     private cardService: CardService
   ) {
     this.socket = this.socketService.getSocket();
@@ -158,21 +158,6 @@ export class GameBoardComponent implements OnInit, OnDestroy {
             }
           });
         }
-      })
-    );
-
-    this.subscriptions.push(
-      this.socketService.onCardDrawn().subscribe(({ card }) => {
-        this.drawnCard = null;
-        this.showCardAnim = false;
-
-        setTimeout(() => {
-          this.drawnCard = card;
-          this.showCardAnim = true;
-          setTimeout(() => {
-            this.showCardAnim = false;
-          }, 1800);
-        }, 10); // breve delay per forzare cambio DOM
       })
     );
 
@@ -278,12 +263,6 @@ export class GameBoardComponent implements OnInit, OnDestroy {
     attacker: Card,
     target: { type: 'HERO' | 'FACE'; id?: string; playerId?: string }
   ): void {
-    if (this.showEndModal) return;
-    if (!this.isMyTurn) return;
-    if (attacker.justPlayed) {
-      alert('Questa pedina non può attaccare questo turno');
-      return;
-    }
     this.socket.emit('attack', { gameId: this.gameId, attacker, target });
   }
 
@@ -471,16 +450,15 @@ export class GameBoardComponent implements OnInit, OnDestroy {
     }
     return { x: 0, y: 0 };
   }
-  showCardDrawn(card: any) {
-    this.drawnCard = card;
-    this.showCardAnim = true;
-    this.audioService.playNamed(SoundEffect.CardDraw);
+  // showCardDrawn(card: any) {
+  //   this.drawnCard = card;
+  //   this.showCardAnim = true;
 
-    setTimeout(() => {
-      this.showCardAnim = false;
-      this.drawnCard = null;
-    }, 1800); // durata dell'animazione
-  }
+  //   setTimeout(() => {
+  //     this.showCardAnim = false;
+  //     this.drawnCard = null;
+  //   }, 1800); // durata dell'animazione
+  // }
 
   highlightCard(cardId: string, cssClass: string) {
     const el = document.querySelector(`[data-card-id="${cardId}"]`);

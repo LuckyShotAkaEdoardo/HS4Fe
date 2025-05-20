@@ -1,97 +1,99 @@
-<div class="button-group">
-  <button color="primary" appDoubleTap (click)="goBack()">
-    torna indietro
-  </button>
+<div style="height: 100vh">
+  <div class="button-group">
+    <button color="primary" appDoubleTap (click)="goBack()">
+      torna indietro
+    </button>
 
-  <button color="accent" appDoubleTap (click)="salva()">salva</button>
-</div>
-@if(!showDeck){
-<div class="deck-container">
-  <ng-container *ngFor="let pos of positions; let i = index">
-    <div
-      class="deck-card"
-      [style.gridArea]="pos"
-      [class.selected]="decks[i]?.isSelected"
-      *ngIf="decks[i]"
+    <button color="accent" appDoubleTap (click)="salva()">salva</button>
+  </div>
+  @if(!showDeck){
+  <div class="deck-container">
+    <ng-container *ngFor="let pos of positions; let i = index">
+      <div
+        class="deck-card"
+        [style.gridArea]="pos"
+        [class.selected]="decks[i]?.isSelected"
+        *ngIf="decks[i]"
+      >
+        <h3>Deck {{ i + 1 }}</h3>
+        <p><strong>ID:</strong> {{ i }}</p>
+        <p><strong>Frame:</strong> {{ decks[i].frame }}</p>
+        <p><strong>Carte:</strong> {{ decks[i].cards.length }}</p>
+        <p><strong>Carte:</strong> {{ decks[i].cards.length }}</p>
+
+        <div class="actions">
+          <button (click)="selectDeck(i)">Seleziona</button>
+          <button (click)="editDeck(i)">Modifica</button>
+        </div>
+      </div>
+    </ng-container>
+  </div>
+
+  } @if(showDeck){
+  <button (click)="showDeckMethod()">torna alla selezione dei deck</button>
+
+  <div class="dropdown ghost">
+    <input type="checkbox" id="action-toggle" hidden />
+    <label for="action-toggle" class="dropdown-trigger"
+      >scegli set <span class="dropdown-icon">▼</span></label
     >
-      <h3>Deck {{ i + 1 }}</h3>
-      <p><strong>ID:</strong> {{ i }}</p>
-      <p><strong>Frame:</strong> {{ decks[i].frame }}</p>
-      <p><strong>Carte:</strong> {{ decks[i].cards.length }}</p>
-      <p><strong>Carte:</strong> {{ decks[i].cards.length }}</p>
+    <div class="dropdown-menu">
+      @for (f of allFrame; track f) {
+      <div (click)="onFrameChange(f.img)" class="dropdown-item">
+        {{ f.lable }}
+      </div>
 
-      <div class="actions">
-        <button (click)="selectDeck(i)">Seleziona</button>
-        <button (click)="editDeck(i)">Modifica</button>
+      }
+    </div>
+  </div>
+
+  <div class="deck-builder">
+    <div class="deck">
+      <h3>Il tuo Deck ({{ deck.length }}/30)</h3>
+      <ul>
+        <li *ngFor="let card of deck; let i = index">
+          {{ card.name }}
+          <button appDoubleTap (click)="removeFromDeck(i)">Rimuovi</button>
+        </li>
+      </ul>
+    </div>
+
+    <div class="card-pool">
+      <h3>Tutte le Carte</h3>
+      <div class="cards">
+        <!-- <div class="card" *ngFor="let card of paginatedCards"> -->
+
+        <app-card
+          appDoubleTap
+          (singleTap)="addToDeck(n)"
+          *ngFor="let n of paginatedCards; let i = index"
+          [card]="n"
+          [frameTitle]="frameSelected"
+        >
+        </app-card>
       </div>
     </div>
-  </ng-container>
-</div>
-
-} @if(showDeck){
-<button (click)="showDeckMethod()">torna alla selezione dei deck</button>
-
-<div class="dropdown ghost">
-  <input type="checkbox" id="action-toggle" hidden />
-  <label for="action-toggle" class="dropdown-trigger"
-    >scegli set <span class="dropdown-icon">▼</span></label
-  >
-  <div class="dropdown-menu">
-    @for (f of allFrame; track f) {
-    <div (click)="onFrameChange(f.img)" class="dropdown-item">
-      {{ f.lable }}
-    </div>
-
-    }
+    <!-- </div> -->
   </div>
-</div>
+  <div class="pagination">
+    <button
+      appDoubleTap
+      (click)="currentPage = currentPage - 1"
+      [disabled]="currentPage === 1"
+    >
+      « Prev
+    </button>
 
-<div class="deck-builder">
-  <div class="deck">
-    <h3>Il tuo Deck ({{ deck.length }}/30)</h3>
-    <ul>
-      <li *ngFor="let card of deck; let i = index">
-        {{ card.name }}
-        <button appDoubleTap (click)="removeFromDeck(i)">Rimuovi</button>
-      </li>
-    </ul>
+    <span>Pagina {{ currentPage }} di {{ totalPages }}</span>
+
+    <button
+      appDoubleTap
+      (click)="currentPage = currentPage + 1"
+      [disabled]="currentPage === totalPages"
+    >
+      Next »
+    </button>
   </div>
-
-  <div class="card-pool">
-    <h3>Tutte le Carte</h3>
-    <div class="cards">
-      <!-- <div class="card" *ngFor="let card of paginatedCards"> -->
-
-      <app-card
-        appDoubleTap
-        (singleTap)="addToDeck(n)"
-        *ngFor="let n of paginatedCards; let i = index"
-        [card]="n"
-        [frameTitle]="frameSelected"
-      >
-      </app-card>
-    </div>
-  </div>
-  <!-- </div> -->
+  <br />
+  }
 </div>
-<div class="pagination">
-  <button
-    appDoubleTap
-    (click)="currentPage = currentPage - 1"
-    [disabled]="currentPage === 1"
-  >
-    « Prev
-  </button>
-
-  <span>Pagina {{ currentPage }} di {{ totalPages }}</span>
-
-  <button
-    appDoubleTap
-    (click)="currentPage = currentPage + 1"
-    [disabled]="currentPage === totalPages"
-  >
-    Next »
-  </button>
-</div>
-<br />
-}

@@ -1,7 +1,7 @@
 .deck-builder {
     display: flex;
     gap: 20px;
-    height: 90vh;
+    height: 70vh;
   }
   
   .deck {
@@ -24,7 +24,7 @@
   /* Ogni colonna avrà almeno 120px, al più 1fr, e si ripete fino a
      contenere tutte le carte. Su viewport larghe puoi avere 15 colonne
      se 15×120px rientrano, altrimenti scatta l’auto-fit. */
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
   gap: 10px;
   }
   
