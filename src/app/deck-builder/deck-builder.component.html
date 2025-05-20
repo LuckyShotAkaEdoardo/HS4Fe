@@ -1,7 +1,7 @@
 <div style="height: 100vh">
-  <div class="button-group">
+  <div style="display: flex; justify-self: start; gap: 3rem">
     <button color="primary" appDoubleTap (click)="goBack()">
-      torna indietro
+      torna indietro alla Dashboard
     </button>
 
     <button color="accent" appDoubleTap (click)="salva()">salva</button>
@@ -19,34 +19,35 @@
         <p><strong>ID:</strong> {{ i }}</p>
         <p><strong>Frame:</strong> {{ decks[i].frame }}</p>
         <p><strong>Carte:</strong> {{ decks[i].cards.length }}</p>
-        <p><strong>Carte:</strong> {{ decks[i].cards.length }}</p>
 
         <div class="actions">
-          <button (click)="selectDeck(i)">Seleziona</button>
-          <button (click)="editDeck(i)">Modifica</button>
+          <button (click)="selectDeck(i)">Seleziona Per Partita</button>
+          <button (click)="editDeck(i)">Crea/Modifica</button>
+          <button (click)="importFromClipboard()">Aggiungi da link</button>
         </div>
       </div>
     </ng-container>
   </div>
 
   } @if(showDeck){
-  <button (click)="showDeckMethod()">torna alla selezione dei deck</button>
+  <div style="display: flex; justify-self: end; gap: 3rem">
+    <button (click)="showDeckMethod()">torna alla selezione dei deck</button>
 
-  <div class="dropdown ghost">
-    <input type="checkbox" id="action-toggle" hidden />
-    <label for="action-toggle" class="dropdown-trigger"
-      >scegli set <span class="dropdown-icon">▼</span></label
-    >
-    <div class="dropdown-menu">
-      @for (f of allFrame; track f) {
-      <div (click)="onFrameChange(f.img)" class="dropdown-item">
-        {{ f.lable }}
+    <div class="dropdown ghost">
+      <input type="checkbox" id="action-toggle" hidden />
+      <label for="action-toggle" class="dropdown-trigger"
+        >scegli set <span class="dropdown-icon">▼</span></label
+      >
+      <div class="dropdown-menu">
+        @for (f of allFrame; track f) {
+        <div (click)="onFrameChange(f.img)" class="dropdown-item">
+          {{ f.lable }}
+        </div>
+
+        }
       </div>
-
-      }
     </div>
   </div>
-
   <div class="deck-builder">
     <div class="deck">
       <h3>Il tuo Deck ({{ deck.length }}/30)</h3>
@@ -95,5 +96,21 @@
     </button>
   </div>
   <br />
+  <div (click)="encodeCompactDeck()">Genera link</div>
+  <div class="deck-code-box">
+    <label for="deck-code">Codice del Deck</label>
+    <div class="code-container">
+      <input
+        id="deck-code"
+        type="text"
+        [value]="base64"
+        readonly
+        class="deck-code-input"
+      />
+      <button class="copy-button" (click)="copyDeckCode()">Copia</button>
+    </div>
+    <span class="copy-feedback" *ngIf="copied">Copiato!</span>
+  </div>
+
   }
 </div>

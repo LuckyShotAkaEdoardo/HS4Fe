@@ -131,10 +131,104 @@ export class DeckBuilderComponent implements OnInit {
     this.showDeck = true;
   }
   showDeckMethod() {
-    const IdToSave = this.deck.map((x) => x._id);
-    this.decks[this.deckSelectedId].cards = IdToSave;
-    this.decks[this.deckSelectedId].frame = this.frameSelected;
+    if (this.deckSelectedId !== undefined && this.deckSelectedId !== null) {
+      const IdToSave = this.deck.map((x) => x._id);
+      this.decks[this.deckSelectedId].cards = IdToSave;
+      this.decks[this.deckSelectedId].frame = this.frameSelected;
+    }
     this.showDeck = false;
     this.deckSelectedId = '';
+  }
+  base64: string = '';
+  encodeCompactDeck() {
+    const idBytes = new Uint8Array(
+      this.decks[this.deckSelectedId].cards.length * 12
+    );
+    console.log('GURADA Qui', this.decks[this.deckSelectedId].cards);
+    this.decks[this.deckSelectedId].cards.forEach((hexId, i) => {
+      if (hexId.length !== 24)
+        throw new Error('Invalid MongoDB ObjectId: ' + hexId);
+      for (let j = 0; j < 12; j++) {
+        const byte = parseInt(hexId.substr(j * 2, 2), 16);
+        idBytes[i * 12 + j] = byte;
+      }
+    });
+
+    const base64 = this.base64urlEncode(idBytes);
+    this.base64 = `D:${base64}`;
+  }
+  decodeCompactDeck(code: string): string[] {
+    if (!code.startsWith('D:')) throw new Error('Invalid deck code');
+
+    const base64 = code.slice(2);
+    const bytes = this.base64urlDecode(base64);
+
+    if (bytes.length % 12 !== 0) throw new Error('Corrupted deck code');
+
+    const deck: string[] = [];
+    for (let i = 0; i < bytes.length; i += 12) {
+      let hex = '';
+      for (let j = 0; j < 12; j++) {
+        hex += bytes[i + j].toString(16).padStart(2, '0');
+      }
+      deck.push(hex);
+    }
+    return deck;
+  }
+  base64urlEncode(bytes: Uint8Array): string {
+    const bin = String.fromCharCode(...bytes);
+    return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  }
+
+  base64urlDecode(base64: string): Uint8Array {
+    const padded = base64
+      .padEnd(Math.ceil(base64.length / 4) * 4, '=')
+      .replace(/-/g, '+')
+      .replace(/_/g, '/');
+    const bin = atob(padded);
+    const bytes = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) {
+      bytes[i] = bin.charCodeAt(i);
+    }
+    return bytes;
+  }
+  copied: boolean = false;
+
+  copyDeckCode(): void {
+    const input = document.getElementById('deck-code') as HTMLInputElement;
+    if (!input) return;
+
+    input.select();
+    input.setSelectionRange(0, 99999); // For mobile
+    document.execCommand('copy');
+
+    this.copied = true;
+    setTimeout(() => (this.copied = false), 2000);
+  }
+  importFromClipboard(): void {
+    if (!navigator.clipboard) {
+      alert('Clipboard API non supportata dal browser.');
+      return;
+    }
+
+    navigator.clipboard.readText().then((text) => {
+      if (!text.startsWith('D:')) {
+        alert('Nessun codice deck valido negli appunti.');
+        return;
+      }
+
+      try {
+        const deck = this.decodeCompactDeck(text);
+        console.log(deck); // usa la tua funzione esistente
+
+        this.deck = deck
+          .map((id) => this.allCards.find((c) => c._id === id || c.id === id))
+          .filter((c) => c !== undefined);
+        this.deckSelectedId = deck;
+        this.showDeck = true; // this.deck = deck.map((id) => ({ _id: id })); // o struttura che ti serve
+      } catch (e) {
+        alert("Errore durante l'import del deck.");
+      }
+    });
   }
 }
