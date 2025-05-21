@@ -32,7 +32,11 @@ export class DashboardComponent implements OnInit {
     // this.loadCards();
 
     this.socketService.getwaitLogin().subscribe((gameInfo) => {
-      this.disabled = false;
+      if (gameInfo) {
+        this.disabled = false;
+      } else {
+        this.disabled = true;
+      }
     });
     this.socketService.onGameStarted().subscribe((gameInfo) => {
       if (gameInfo) {
@@ -43,10 +47,12 @@ export class DashboardComponent implements OnInit {
       this.loading = false;
     });
     this.socketService.onReconnect().subscribe((gameInfo: any) => {
-      this.loading = false;
-      this.router.navigate(['/game'], {
-        queryParams: { gameId: gameInfo.gameId, team: gameInfo.team },
-      });
+      if (gameInfo) {
+        this.loading = false;
+        this.router.navigate(['/game'], {
+          queryParams: { gameId: gameInfo.gameId, team: gameInfo.team },
+        });
+      }
     });
   }
   // Funzione per caricare le carte

@@ -25,7 +25,7 @@
         color="primary"
         appDoubleTap
         (click)="joinQueue('1v1')"
-        [disabled]="loading && disabled"
+        [disabled]="loading || disabled"
       >
         1 vs 1
       </button>

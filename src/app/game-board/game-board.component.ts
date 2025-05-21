@@ -161,11 +161,6 @@ export class GameBoardComponent implements OnInit, OnDestroy {
       })
     );
 
-    this.socket.on('game-over', (data: { winner: string }) => {
-      this.showEndModal = true;
-      this.endImage = data.winner === this.username ? true : false;
-      this.socket.emit('leave-game', this.gameId);
-    });
     // console.log(this.frameSelected);
     this.baseFrame = environment.frame;
     this.baseFrameBack = environment.dorso;
@@ -274,7 +269,6 @@ export class GameBoardComponent implements OnInit, OnDestroy {
 
   leaveGame(): void {
     this.socket.emit('leave-game', this.gameId);
-    this.router.navigate(['/dashboard']);
   }
 
   setCurrentPlayerName() {

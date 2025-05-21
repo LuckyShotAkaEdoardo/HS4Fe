@@ -1,10 +1,11 @@
 import { Component, Input } from '@angular/core';
 import { GameModuleModule } from '../../game-module/game-module.module';
 import { Router } from '@angular/router';
+import { DoubleTapDirective } from '../../../directive/long-press.directive';
 
 @Component({
   selector: 'app-modal-win-loose',
-  imports: [GameModuleModule],
+  imports: [GameModuleModule, DoubleTapDirective],
   templateUrl: './modal-win-loose.component.html',
   styleUrl: './modal-win-loose.component.scss',
 })

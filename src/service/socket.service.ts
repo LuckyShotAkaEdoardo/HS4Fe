@@ -17,7 +17,7 @@ export class SocketService {
   gameUpdateSubject = new BehaviorSubject<any | null>(null);
   // Per aggiornamenti sullo stato della partita
   private reconnectSubject = new Subject<void>();
-  private waitLogin = new Subject<void>();
+  private waitLogin = new BehaviorSubject<any | null>(null);
   private cardDrawnSubject = new Subject<any>();
 
   private gameResultSubject = new Subject<{
@@ -41,10 +41,12 @@ export class SocketService {
 
     this.socket.on('you-won', (data) => {
       this.gameResultSubject.next({ result: 'win', message: data.message });
+      this.endGame();
     });
 
     this.socket.on('you-lost', (data) => {
       this.gameResultSubject.next({ result: 'lose', message: data.message });
+      this.endGame();
     });
     // Ascolta quando la partita è pronta e redirige al game board
     this.socket.on('game-started', (gameData) => {
@@ -69,7 +71,7 @@ export class SocketService {
       this.socketLogin();
     });
     this.socket.on('login-succes', (val) => {
-      this.waitLogin.next(val);
+      this.waitLogin.next(true);
     });
     this.socket.on('abort-match', (val) => {});
     this.socket.on('matchmaking-error', (val) => {
@@ -137,5 +139,9 @@ export class SocketService {
   }
   getwaitLogin() {
     return this.waitLogin.asObservable();
+  }
+  endGame() {
+    this.gameStartedSubject.next(false); // Notifica l'inizio della partita
+    this.gameUpdateSubject.next(false);
   }
 }

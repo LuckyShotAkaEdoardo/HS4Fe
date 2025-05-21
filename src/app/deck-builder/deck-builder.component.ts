@@ -205,7 +205,7 @@ export class DeckBuilderComponent implements OnInit {
     this.copied = true;
     setTimeout(() => (this.copied = false), 2000);
   }
-  importFromClipboard(): void {
+  importFromClipboard(i): void {
     if (!navigator.clipboard) {
       alert('Clipboard API non supportata dal browser.');
       return;
@@ -224,7 +224,7 @@ export class DeckBuilderComponent implements OnInit {
         this.deck = deck
           .map((id) => this.allCards.find((c) => c._id === id || c.id === id))
           .filter((c) => c !== undefined);
-        this.deckSelectedId = deck;
+        this.deckSelectedId = i;
         this.showDeck = true; // this.deck = deck.map((id) => ({ _id: id })); // o struttura che ti serve
       } catch (e) {
         alert("Errore durante l'import del deck.");
