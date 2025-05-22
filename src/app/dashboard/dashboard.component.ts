@@ -81,6 +81,10 @@ export class DashboardComponent implements OnInit {
   goToDeckBuild() {
     this.router.navigate(['/deck-build']);
   }
+  abortMatchmaking() {
+    this.socketService.matchmakingAbort();
+    this.loading = false;
+  }
   // // Un giocatore entra in una partita esistente
   // joinGame(gameId: string) {
   //   this.socket.emit("join-game", gameId);

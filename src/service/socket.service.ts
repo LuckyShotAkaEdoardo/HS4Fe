@@ -79,6 +79,10 @@ export class SocketService {
       console.log(val);
       alert(val.error);
     });
+    this.socket.on('matchmaking-cancelled', (val) => {
+      // this.gameStartedSubject.next(false);
+      console.log(val);
+    });
     this.socket.on('action-error', (val) => {
       // this.gameStartedSubject.next(false);
       console.log(val);
@@ -107,6 +111,9 @@ export class SocketService {
   // Matchmaking 1v1
   matchmaking(mode) {
     this.socket.emit('matchmaking', { mode: mode });
+  }
+  matchmakingAbort() {
+    this.socket.emit('cancel-matchmaking');
   }
 
   // Ascolta per l'inizio della partita
