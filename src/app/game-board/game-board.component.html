@@ -1,10 +1,16 @@
 @if(!isLoading){
-<div
+<!-- <div
   style="height: 100vh"
   (mousemove)="updateArrow($event); updatePreviewIndex($event)"
   (mouseup)="endArrow($event); clearPreviewIndex()"
   (touchmove)="updateArrow($event); updatePreviewIndex($event)"
   (touchend)="endArrow($event); clearPreviewIndex()"
+  (mouseleave)="clearPreviewIndex()"
+> -->
+<div
+  style="height: 100vh"
+  (mousemove)="onMouseMove($event)"
+  (click)="onBackgroundClick()"
   (mouseleave)="clearPreviewIndex()"
 >
   <!-- AVVERSARIO -->
@@ -12,6 +18,9 @@
     id="block-enemy"
     [style.height.vh]="displaySettings().sizes.enemy"
     class="hand"
+    (mouseenter)="onHoverFaceTarget()"
+    (mouseleave)="onLeaveFaceTarget()"
+    (click)="confirmArrowToFace($event)"
   >
     <div style="display: flex">
       <div style="width: 30%">
@@ -69,6 +78,24 @@
                   concedi
                 </button>
               </div>
+              <div class="dropdown-item">
+                <div class="game-history-panel" *ngIf="gameHistory?.length">
+                  <h3>🧾 Storico</h3>
+                  <div
+                    class="history-entry"
+                    *ngFor="let entry of gameHistory; let i = index"
+                    [@fadeSlideIn]
+                  >
+                    <span class="type-icon">{{ getIcon(entry.type) }}</span>
+                    <div class="entry-content">
+                      <p>
+                        <strong>{{ formatEntry(entry) }}</strong>
+                      </p>
+                      <small>{{ entry.timestamp | date : "shortTime" }}</small>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
           <div class="turn-center">
@@ -90,7 +117,13 @@
           <!-- BOARD AVVERSARIO -->
           <div class="cards-board">
             <div *ngFor="let c of opponentBoard">
-              <div *ngIf="c.name" class="singleCardBoard">
+              <div
+                *ngIf="c.name"
+                (mouseenter)="onHoverTarget(c)"
+                (mouseleave)="onLeaveTarget(c)"
+                (click)="confirmArrow(c, $event)"
+                class="singleCardBoard"
+              >
                 <app-card
                   [attr.data-card-id]="c.id"
                   [isVisibileText]="false"
@@ -123,9 +156,9 @@
                 class="singleCardBoard"
                 [attr.data-index]="i"
                 [attr.data-card-id]="c.id"
-                (mousedown)="startArrow($event, c)"
-                (touchstart)="startArrow($event, c)"
+                (click)="startArrow($event, c)"
               >
+                <!-- (touchstart)="startArrow($event, c)" -->
                 <app-card
                   [isVisibileText]="false"
                   [frameTitle]="frameSelected"
@@ -209,7 +242,15 @@
   </div> -->
   <ng-template cdkPortalOutlet></ng-template>
   <!-- INSERIMENTO SVG PER LA FRECCIA -->
-  <svg class="arrow-layer" *ngIf="arrow">
+  <div
+    *ngIf="arrowStartCard && hoveredTargetCardId && arrowPreviewPos"
+    class="target-x-on-arrow"
+    [style.left.px]="arrowPreviewPos.x"
+    [style.top.px]="arrowPreviewPos.y"
+  >
+    ✖
+  </div>
+  <svg class="arrow-layer" *ngIf="arrowStartPos && arrowPreviewPos">
     <defs>
       <marker
         id="arrowhead"
@@ -219,18 +260,18 @@
         refY="3.5"
         orient="auto"
       >
-        <polygon points="0 0, 10 3.5, 0 7" fill="red" />
+        <polygon points="0 0, 10 3.5, 0 7" fill="red"></polygon>
       </marker>
     </defs>
     <line
-      [attr.x1]="arrow.start.x"
-      [attr.y1]="arrow.start.y"
-      [attr.x2]="arrow.end.x"
-      [attr.y2]="arrow.end.y"
+      [attr.x1]="arrowStartPos.x"
+      [attr.y1]="arrowStartPos.y"
+      [attr.x2]="arrowPreviewPos.x"
+      [attr.y2]="arrowPreviewPos.y"
       stroke="red"
       stroke-width="3"
       marker-end="url(#arrowhead)"
-    />
+    ></line>
   </svg>
 </div>
 <pre>{{ gameState | json }}</pre>

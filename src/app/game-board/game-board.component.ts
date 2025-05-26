@@ -23,6 +23,7 @@ import { DoubleTapDirective } from '../../directive/long-press.directive';
 import { CardService } from '../../service/card.service';
 import { VisualEvent } from '../../service/effect-mapper';
 import { Subscription } from 'rxjs';
+import { trigger, transition, style, animate } from '@angular/animations';
 
 @Component({
   selector: 'app-game-board',
@@ -38,6 +39,17 @@ import { Subscription } from 'rxjs';
   providers: [RangePipe],
   templateUrl: './game-board.component.html',
   styleUrls: ['./game-board.component.css'],
+  animations: [
+    trigger('fadeSlideIn', [
+      transition(':enter', [
+        style({ opacity: 0, transform: 'translateX(20px)' }),
+        animate(
+          '300ms ease-out',
+          style({ opacity: 1, transform: 'translateX(0)' })
+        ),
+      ]),
+    ]),
+  ],
 })
 export class GameBoardComponent implements OnInit, OnDestroy {
   gameId = '';
@@ -86,6 +98,10 @@ export class GameBoardComponent implements OnInit, OnDestroy {
     source: any;
   } | null = null;
   username;
+  arrowStartCard: any = null;
+  arrowStartPos: { x: number; y: number } | null = null;
+  arrowPreviewPos: { x: number; y: number } | null = null;
+  hoveredTargetCardId: string | null = null;
 
   private socket: any;
 
@@ -113,7 +129,7 @@ export class GameBoardComponent implements OnInit, OnDestroy {
   displaySettings = inject(DisplaySettingsService).settings;
   opponentCrystals;
   targetInstruction: string | null = null;
-
+  gameHistory: any[] = [];
   private subscriptions: Subscription[] = [];
 
   ngOnInit(): void {
@@ -181,6 +197,14 @@ export class GameBoardComponent implements OnInit, OnDestroy {
       this.router.navigate(['/endgame'], {
         state: { result, message },
       });
+    });
+    this.socket.on('history-update', (entry) => {
+      this.gameHistory.push(entry);
+    });
+
+    this.socket.emit('request-history', { gameId: this.gameId });
+    this.socket.on('history-data', (history) => {
+      this.gameHistory = history;
     });
   }
 
@@ -356,29 +380,103 @@ export class GameBoardComponent implements OnInit, OnDestroy {
       });
     }
   }
-  startArrow(event: MouseEvent | TouchEvent, card: Card) {
+  // startArrow(event: MouseEvent | TouchEvent, card: Card) {
+  //   const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+  //   const point = this.getClientPoint(event);
+  //   this.arrow = {
+  //     start: {
+  //       x: rect.left + rect.width / 2,
+  //       y: rect.top + rect.height / 2,
+  //     },
+  //     end: {
+  //       x: point.x,
+  //       y: point.y,
+  //     },
+  //     source: card,
+  //   };
+  // }
+  startArrow(event: MouseEvent | TouchEvent, card: any) {
+    this.arrowStartCard = card;
+
     const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
-    const point = this.getClientPoint(event);
-    this.arrow = {
-      start: {
-        x: rect.left + rect.width / 2,
-        y: rect.top + rect.height / 2,
-      },
-      end: {
-        x: point.x,
-        y: point.y,
-      },
-      source: card,
+    this.arrowStartPos = {
+      x: rect.left + rect.width / 2,
+      y: rect.top + rect.height / 2,
     };
+
+    this.arrowPreviewPos = null;
+    this.hoveredTargetCardId = null;
+
+    event.stopPropagation(); // evita click bubbling
   }
 
-  updateArrow(event: MouseEvent | TouchEvent): void {
-    if (this.arrow) {
-      const point = this.getClientPoint(event);
-      this.arrow.end = {
-        x: point.x,
-        y: point.y,
-      };
+  // updateArrow(event: MouseEvent | TouchEvent): void {
+  //   if (this.arrow) {
+  //     const point = this.getClientPoint(event);
+  //     this.arrow.end = {
+  //       x: point.x,
+  //       y: point.y,
+  //     };
+  //   }
+  // }
+  onBackgroundClick() {
+    this.arrowStartCard = null;
+    this.arrowStartPos = null;
+    this.arrowPreviewPos = null;
+    this.hoveredTargetCardId = null;
+  }
+  onHoverTarget(card: any) {
+    if (this.arrowStartCard) {
+      this.hoveredTargetCardId = card.id;
+    }
+  }
+
+  onLeaveTarget(card: any) {
+    if (this.hoveredTargetCardId === card.id) {
+      this.hoveredTargetCardId = null;
+    }
+  }
+  onMouseMove(event: MouseEvent) {
+    if (!this.arrowStartCard || !this.arrowStartPos) {
+      return; // non fare nulla se la freccia non è iniziata
+    }
+
+    this.arrowPreviewPos = {
+      x: event.clientX,
+      y: event.clientY,
+    };
+  }
+  onHoverFaceTarget() {
+    if (this.arrowStartCard) {
+      this.hoveredTargetCardId = 'face';
+    }
+  }
+
+  onLeaveFaceTarget() {
+    if (this.hoveredTargetCardId === 'face') {
+      this.hoveredTargetCardId = null;
+    }
+  }
+  confirmArrowToFace(event: MouseEvent) {
+    if (this.arrowStartCard && this.hoveredTargetCardId === 'face') {
+      this.attack(this.arrowStartCard, {
+        type: 'FACE',
+        playerId: this.opponentId,
+      });
+
+      this.onBackgroundClick();
+      event.stopPropagation();
+    }
+  }
+  confirmArrow(targetCard: any, event: MouseEvent) {
+    if (this.arrowStartCard && this.hoveredTargetCardId === targetCard.id) {
+      this.attack(this.arrowStartCard, {
+        type: 'HERO',
+        playerId: targetCard.id,
+      });
+
+      this.onBackgroundClick();
+      event.stopPropagation();
     }
   }
 
@@ -423,10 +521,6 @@ export class GameBoardComponent implements OnInit, OnDestroy {
         mouseY <= rect.bottom;
 
       if (isInside) {
-        this.attack(this.arrow.source, {
-          type: 'FACE',
-          playerId: this.opponentId,
-        });
       }
     }
 
@@ -471,6 +565,7 @@ export class GameBoardComponent implements OnInit, OnDestroy {
       });
     }
   }
+
   onTargetClick(cardId: string) {
     this.selectedTargets.push(cardId);
 
@@ -567,5 +662,39 @@ export class GameBoardComponent implements OnInit, OnDestroy {
 
   clearPreviewIndex(): void {
     this.previewIndex = null;
+  }
+  getIcon(type: string): string {
+    switch (type) {
+      case 'PLAY_CARD':
+        return '🃏';
+      case 'ATTACK':
+        return '⚔️';
+      case 'END_TURN':
+        return '🔄';
+      case 'EFFECT':
+        return '✨';
+      case 'DRAW':
+        return '📥';
+      default:
+        return '❔';
+    }
+  }
+
+  formatEntry(entry: any): string {
+    const who = entry.actor === this.userId ? 'Tu' : 'Avversario';
+    switch (entry.type) {
+      case 'PLAY_CARD':
+        return `${who} ha giocato ${entry.details.cardName}`;
+      case 'ATTACK':
+        return `${who} ha attaccato ${entry.details.targetId}`;
+      case 'END_TURN':
+        return `${who} ha terminato il turno`;
+      case 'EFFECT':
+        return `${who} ha attivato ${entry.details.effectType}`;
+      case 'DRAW':
+        return `${who} ha pescato una carta`;
+      default:
+        return `${who} ha fatto qualcosa`;
+    }
   }
 }

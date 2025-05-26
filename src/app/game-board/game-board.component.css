@@ -216,3 +216,68 @@ body {
 .cards-board .cdk-drag-placeholder {
   display: none !important;
 }
+
+.game-history-panel {
+  position: fixed;
+  top: 70px;
+  right: 10px;
+  width: 300px;
+  max-height: 80vh;
+  overflow-y: auto;
+  background: #1e1e2f;
+  border-radius: 12px;
+  padding: 10px;
+  box-shadow: 0 0 10px #0008;
+  color: #fff;
+  z-index: 99;
+}
+
+.history-entry {
+  display: flex;
+  align-items: start;
+  margin-bottom: 8px;
+  background: #2a2a3d;
+  padding: 6px 10px;
+  border-radius: 8px;
+  transition: background 0.3s ease;
+
+  &:hover {
+    background: #3b3b4f;
+  }
+
+  .type-icon {
+    font-size: 20px;
+    margin-right: 8px;
+  }
+
+  .entry-content {
+    flex-grow: 1;
+  }
+}
+.target-x-icon {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(255, 0, 0, 0.85);
+  color: white;
+  font-size: 1.2rem;
+  font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 50%;
+  z-index: 10;
+  pointer-events: none;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.6);
+}
+.target-x-on-arrow {
+  position: fixed;
+  transform: translate(-50%, -50%);
+  background: rgba(255, 0, 0, 0.85);
+  color: white;
+  font-size: 1.6rem;
+  font-weight: bold;
+  padding: 4px 8px;
+  border-radius: 50%;
+  z-index: 1101;
+  pointer-events: none;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.7);
+}

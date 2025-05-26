@@ -12,7 +12,7 @@ export type ThemeName =
   | 'plain';
 export const Themes: Record<ThemeName, Record<string, string>> = {
   napoli: {
-    '--bg-color': '#007bff',
+    '--bg-color': '#000000',
     '--text-color': '#ffffff',
     '--accent-color': '#00d4ff',
     '--card-bg': '#0056b3',
