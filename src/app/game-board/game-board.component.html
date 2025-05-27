@@ -244,14 +244,54 @@
       [style.height.vh]="displaySettings().sizes.player"
       class="hand"
     >
-      <div style="width: 10%">
-        <h4>Mano ({{ cardsInHand.length }})</h4>
+      <div style="width: 20%; height: 100%">
+        <div style="height: 100%">
+          <div class="styled-menu" style="height: 100%">
+            <!-- Avatar avversario -->
+            <div class="avatar-container">
+              <img
+                class="avatar"
+                [src]="'assets/avatar/hero.png'"
+                alt="Avatar avversario"
+                title="Avversario"
+              />
+            </div>
+
+            <!-- Griglia 2x2 -->
+            <div class="grid">
+              <div class="item" title="Carte nella mano avversaria">
+                <i class="fa-solid fa-hand"></i>
+                <span>{{ cardsInHand.length }} carte</span>
+              </div>
+              <div class="item" title="Punti vita dell'avversario">
+                <i class="fa-solid fa-heart"></i>
+                <span>{{ gameState.health[userId] }}</span>
+              </div>
+              <div
+                class="item"
+                *ngIf="gameState.crystals && gameState.maxCrystals"
+                title="Cristalli"
+              >
+                <i class="fa-solid fa-gem"></i>
+                <span
+                  >{{ gameState.crystals[userId] }} /
+                  {{ gameState.maxCrystals[userId] }}</span
+                >
+              </div>
+              <div class="item" title="Barriera">
+                <i class="fa-solid fa-shield-halved"></i>
+                <span>{{ gameState.barrier[userId] }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- <h4>Mano ({{ cardsInHand.length }})</h4>
         <p>Vita: {{ gameState.health[userId] }}</p>
         <p *ngIf="gameState.crystals && gameState.maxCrystals">
           Cristalli: {{ gameState.crystals[userId] }} / max
           {{ gameState.maxCrystals[userId] }}
         </p>
-        <p>barrier:{{ gameState.barrier[userId] }}</p>
+        <p>barrier:{{ gameState.barrier[userId] }}</p> -->
       </div>
       <div
         cdkDropList
