@@ -24,7 +24,7 @@
   >
     <div style="display: flex">
       <div style="width: 30%">
-        <div class="dropdown ghost">
+        <!-- <div class="dropdown ghost">
           <input type="checkbox" id="dropdown-toggle" hidden />
           <label for="dropdown-toggle" class="dropdown-trigger">
             Avversario: {{ opponentId }} <span class="dropdown-icon">▼</span>
@@ -40,20 +40,64 @@
             </p>
             <p>barrier:{{ gameState.barrier[opponentId] }}</p>
           </div>
-        </div>
+        </div> -->
       </div>
 
       <div style="width: 100%">
-        <div class="cards-enemy">
-          @if(gameState.hands[opponentId]&&gameState.hands[opponentId]>0){
+        <div style="display: flex">
+          <div class="cards-enemy">
+            @if(gameState.hands[opponentId]&&gameState.hands[opponentId]>0){
 
-          <img
-            *ngFor="let c of 0 | range : gameState.hands[opponentId]"
-            class="singleCardEnemy"
-            [src]="baseFrameBack + frameSelectedOpponent"
-          />
-          }
+            <img
+              *ngFor="let c of 0 | range : gameState.hands[opponentId]"
+              class="singleCardEnemy"
+              [src]="baseFrameBack + frameSelectedOpponent"
+            />
+            }
+          </div>
+          <!-- HERO  -->
+          <div>
+            <div class="styled-menu">
+              <!-- Avatar avversario -->
+              <div class="avatar-container">
+                <img
+                  class="avatar"
+                  [src]="'assets/avatar/1.png'"
+                  alt="Avatar avversario"
+                  title="Avversario"
+                />
+              </div>
+
+              <!-- Griglia 2x2 -->
+              <div class="grid">
+                <div class="item" title="Carte nella mano avversaria">
+                  <i class="fa-solid fa-hand"></i>
+                  <span>{{ gameState.hands[opponentId] }} carte</span>
+                </div>
+                <div class="item" title="Punti vita dell'avversario">
+                  <i class="fa-solid fa-heart"></i>
+                  <span>{{ gameState.health[opponentId] }}</span>
+                </div>
+                <div
+                  class="item"
+                  *ngIf="gameState.crystals && gameState.maxCrystals"
+                  title="Cristalli"
+                >
+                  <i class="fa-solid fa-gem"></i>
+                  <span
+                    >{{ gameState.crystals[opponentId] }} /
+                    {{ gameState.maxCrystals[opponentId] }}</span
+                  >
+                </div>
+                <div class="item" title="Barriera">
+                  <i class="fa-solid fa-shield-halved"></i>
+                  <span>{{ gameState.barrier[opponentId] }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
+        <!-- fine hero -->
       </div>
     </div>
   </section>
@@ -113,7 +157,7 @@
         </section>
 
         <section style="width: 100%" class="board">
-          <h4>Plancia</h4>
+          <!-- <h4>Plancia</h4> -->
 
           <!-- BOARD AVVERSARIO -->
           <div class="cards-board">
@@ -275,5 +319,5 @@
     ></line>
   </svg>
 </div>
-<pre>{{ gameState | json }}</pre>
-} @else{ spinner }
+<!-- <pre>{{ gameState | json }}</pre> -->
+} @else{ Vai alla dashboard }

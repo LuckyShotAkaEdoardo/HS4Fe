@@ -296,12 +296,12 @@ export class GameBoardComponent implements OnInit, OnDestroy {
     this.socket.emit('leave-game', this.gameId);
   }
 
-  setCurrentPlayerName() {
-    const currentPlayer = this.players.find(
-      (player) => player.id === this.currentPlayerId
-    );
-    this.currentPlayerName = currentPlayer ? currentPlayer.name : '';
-  }
+  // setCurrentPlayerName() {
+  //   const currentPlayer = this.players.find(
+  //     (player) => player.id === this.currentPlayerId
+  //   );
+  //   this.currentPlayerName = currentPlayer ? currentPlayer.name : '';
+  // }
 
   ngOnDestroy(): void {
     this.socketService.disconnect();
