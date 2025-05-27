@@ -248,36 +248,37 @@ export class GameBoardComponent implements OnInit, OnDestroy {
     return (this.gameState?.boards?.[this.opponentId] as any) || [];
   }
 
-  playCard(card: Card): void {
-    if (this.showEndModal) return;
-    if (!this.isMyTurn) {
-      alert('Non è il tuo turno');
-      return;
-    }
-    if (card.cost > this.playerCrystals) {
-      alert('Cristalli insufficienti');
-      return;
-    }
-    if (card.type === 'HERO' && this.board.length >= 6) {
-      alert('Plancia piena');
-      return;
-    }
-    if (
-      card.effect &&
-      typeof card.effect.target === 'string' &&
-      card.effect.target.startsWith('CHOOSE') &&
-      card.effect.count &&
-      card.effect.count > 0
-    ) {
-      this.awaitingTargetForCard = card;
-      this.maxSelectableTargets = card.effect.count;
-      this.selectedTargets = [];
-      this.enableTargetSelectionMode(card.effect.target);
-      return;
-    }
+  // playCard(card: Card): void {
+  //   if (this.showEndModal) return;
+  //   if (!this.isMyTurn) {
+  //     alert('Non è il tuo turno');
+  //     return;
+  //   }
+  //   if (card.cost > this.playerCrystals) {
+  //     alert('Cristalli insufficienti');
+  //     return;
+  //   }
+  //   if (card.type === 'HERO' && this.board.length >= 6) {
+  //     alert('Plancia piena');
+  //     return;
+  //   }
+  //   if (
+  //     card.effect &&
+  //     typeof card.effect.target === 'string' &&
+  //     card.effect.target.startsWith('CHOOSE') &&
+  //     card.effect.count &&
+  //     card.effect.count > 0
+  //   ) {
+  //     console.log('scegli');
+  //     this.awaitingTargetForCard = card;
+  //     this.maxSelectableTargets = card.effect.count;
+  //     this.selectedTargets = [];
+  //     this.enableTargetSelectionMode(card.effect.target);
+  //     return;
+  //   }
 
-    this.socket.emit('play-card', { gameId: this.gameId, card });
-  }
+  //   this.socket.emit('play-card', { gameId: this.gameId, card });
+  // }
 
   attack(
     attacker: Card,
@@ -345,9 +346,24 @@ export class GameBoardComponent implements OnInit, OnDestroy {
         // Se la board è vuota
         const cardId = event.previousContainer.data[event.previousIndex]
           ?.id as any;
+        const card = event.previousContainer.data[event.previousIndex] as any;
 
         if (!cardId) return console.warn('Card ID mancante');
-
+        //// PROVA QUI
+        if (
+          card.effect &&
+          typeof card.effect.target === 'string' &&
+          card.effect.target.startsWith('CHOOSE') &&
+          card.effect.count &&
+          card.effect.count > 0
+        ) {
+          console.log('scegli');
+          this.awaitingTargetForCard = card;
+          this.maxSelectableTargets = card.effect.count;
+          this.selectedTargets = [];
+          this.enableTargetSelectionMode(card.effect.target);
+          return;
+        }
         this.socketService.playCard(this.gameId, {
           cardId, // 👈 solo id
           index: event.currentIndex,
@@ -372,8 +388,23 @@ export class GameBoardComponent implements OnInit, OnDestroy {
         }
       }
       const cardId = event.previousContainer.data[event.previousIndex]?.id;
+      const card = event.previousContainer.data[event.previousIndex];
       if (!cardId) return console.warn('Card ID mancante');
       console.log('guarda qui', cardId);
+      if (
+        card.effect &&
+        typeof card.effect.target === 'string' &&
+        card.effect.target.startsWith('CHOOSE') &&
+        card.effect.count &&
+        card.effect.count > 0
+      ) {
+        console.log('scegli');
+        this.awaitingTargetForCard = card;
+        this.maxSelectableTargets = card.effect.count;
+        this.selectedTargets = [];
+        this.enableTargetSelectionMode(card.effect.target);
+        return;
+      }
       const index = insertAfter ? closestIndex + 1 : closestIndex;
       this.socketService.playCard(this.gameId, {
         cardId, // 👈 solo id
@@ -571,10 +602,14 @@ export class GameBoardComponent implements OnInit, OnDestroy {
   onTargetClick(cardId: string) {
     this.selectedTargets.push(cardId);
 
+    const el = document.querySelector(`[data-card-id="${cardId}"]`);
+    if (el) el.classList.add('card-selected');
+
     if (this.selectedTargets.length >= this.maxSelectableTargets) {
       this.finalizeCardPlayWithTargets();
     }
   }
+
   finalizeCardPlayWithTargets() {
     const card = this.awaitingTargetForCard;
     const targets = [...this.selectedTargets];
@@ -586,6 +621,14 @@ export class GameBoardComponent implements OnInit, OnDestroy {
       cardId: card.id,
       targets,
     });
+    this.resetTargetSelectionUI();
+  }
+  resetTargetSelectionUI() {
+    const highlighted = document.querySelectorAll('.highlight-selectable');
+    highlighted.forEach((el) => el.classList.remove('highlight-selectable'));
+
+    const selected = document.querySelectorAll('.card-selected');
+    selected.forEach((el) => el.classList.remove('card-selected'));
   }
   resetTargetSelection() {
     this.awaitingTargetForCard = null;

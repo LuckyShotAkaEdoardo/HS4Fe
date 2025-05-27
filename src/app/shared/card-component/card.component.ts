@@ -77,7 +77,7 @@ export class CardComponent implements OnInit {
       this.getALl();
     }, 20);
 
-    console.log('frame', this.frameSrc, 'enviromentFrame', environment.frame);
+    // console.log('frame', this.frameSrc, 'enviromentFrame', environment.frame);
   }
   icons: { src: string; alt: string; value: string }[] = [];
   val = {
@@ -179,7 +179,7 @@ export class CardComponent implements OnInit {
         height: `${bounds.height}%`,
         color: 'red',
       };
-      console.log('guarda bordi', this.frameBorderStyles);
+      // console.log('guarda bordi', this.frameBorderStyles);
     });
   }
 
