@@ -143,9 +143,10 @@ export class GameBoardComponent implements OnInit, OnDestroy {
         this.username = state.username;
         this.gameState = state;
         this.frameSelected = state.frames?.[this.userId] || '';
-        this.frameSelectedOpponent = state.frames?.[this.opponentId] || '';
+        const opponentId = this.opponentId;
+        this.frameSelectedOpponent = state.frames?.[opponentId] || '';
         this.playerCrystals = state.crystals?.[this.userId] || 0;
-        this.opponentCrystals = state.crystals?.[this.opponentId] || 0;
+        this.opponentCrystals = state.crystals?.[opponentId] || 0;
         this._currentTurnPlayerId = state.turnInfo?.currentPlayerId;
         this.currentPlayerName =
           state.usernames?.[this._currentTurnPlayerId] || '';
@@ -472,7 +473,8 @@ export class GameBoardComponent implements OnInit, OnDestroy {
     if (this.arrowStartCard && this.hoveredTargetCardId === targetCard.id) {
       this.attack(this.arrowStartCard, {
         type: 'HERO',
-        playerId: targetCard.id,
+        playerId: this.opponentId,
+        id: targetCard.id,
       });
 
       this.onBackgroundClick();

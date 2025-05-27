@@ -12,7 +12,7 @@ export class CardEffectClassPipe implements PipeTransform {
     const fxClasses: string[] = [];
 
     // === Mappa effetti visivi ===
-    if (card.divineShield) {
+    if (card.abilities?.includes('DIVINE_SHIELD')) {
       legacyClasses.push('ability-divine-shield');
       fxClasses.push('fx-border-top-gold');
     }
@@ -22,7 +22,7 @@ export class CardEffectClassPipe implements PipeTransform {
       fxClasses.push('fx-stealth');
     }
 
-    if (card.abilities?.includes('WALL')) {
+    if (card.abilities?.includes('TAUNT')) {
       legacyClasses.push('ability-wall');
       fxClasses.push('fx-border-left-gray');
     }

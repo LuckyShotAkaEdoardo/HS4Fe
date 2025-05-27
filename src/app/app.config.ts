@@ -20,6 +20,7 @@ import { CardEffectHighlightDirective } from '../directive/card-effect.directive
 import { CardImageCacheService } from './shared/card-component/card.service';
 import { CardImageCachePipe } from './shared/card-component/img-cash.pipe';
 import { AnimationOverlayService } from '../service/animation-service';
+import { provideAnimations } from '@angular/platform-browser/animations';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -39,6 +40,7 @@ export const appConfig: ApplicationConfig = {
     CardImageCacheService,
     CardImageCachePipe,
     AnimationOverlayService,
+    provideAnimations(),
     {
       provide: HTTP_INTERCEPTORS,
       useClass: HttpErrorInterceptor,
