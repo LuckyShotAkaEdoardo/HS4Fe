@@ -20,7 +20,7 @@ body {
   height: 100%;
   object-fit: cover;
 }
-.title {
+/* .title {
   position: absolute;
   bottom: 10%;
   width: 100%;
@@ -30,7 +30,23 @@ body {
   color: white;
   text-shadow: 0 0 3px black;
   z-index: 2;
+} */
+.title {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2; /* massimo 2 righe */
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  text-align: center;
+  padding: 0 4px;
+
+  font-weight: bold;
+  line-height: 1.2em;
+  font-size: clamp(10px, 1.4vw, 16px);
+  max-height: calc(1.2em * 2); /* 2 righe massimo */
 }
+
 .icons {
   position: absolute;
   bottom: 5%;
@@ -42,22 +58,23 @@ body {
 }
 .singleCard {
   flex: 0 0 auto;
-  width: 15vw;
-  max-width: 140px;
+  width: clamp(40px, 9.5vw, 120px); /* dinamico ma limitato */
   aspect-ratio: 2 / 3;
   position: relative;
   display: block;
 }
 
 .singleCardBoard {
+  height: clamp(140px, 16vh, 300px);
+  width: clamp(140px, calc(16vh * 2 / 3), 300px);
   flex: 0 0 auto;
-  width: 10vw;
-  max-width: 120px;
+  /* width: 10vw; */
+  /* max-width: 120px; */
   aspect-ratio: 2 / 3;
   display: block;
 }
 .singleCardEnemy {
-  width: 60px;
+  max-width: 60px;
 }
 .cards-hand {
   display: flex;
@@ -78,6 +95,9 @@ body {
 }
 .card-board {
   height: 100%;
+}
+.card-enemy {
+  grid-template-columns: repeat(auto-fit, minmax(10px, 60px));
 }
 /* .board {
   display: flex;
@@ -106,7 +126,7 @@ body {
   box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.6);
   overflow: hidden;
 }
-
+/* 
 .cards-board {
   flex: 1;
   min-height: 0;
@@ -116,10 +136,30 @@ body {
   justify-content: center;
   align-items: center;
   gap: 8px;
-  /* overflow-y: auto;
-  overflow-x: hidden; */
+
   padding: 8px;
+} */
+/* overflow-y: auto;
+  overflow-x: hidden; */
+.cards-board {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+
+  gap: 8px;
+  height: 100%;
+  width: 100%;
 }
+
+/* .singleCardBoard {
+  flex: 0 1 auto;
+  height: 100%;
+  aspect-ratio: 2 / 3;
+  max-height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+} */
 
 .cdk-drag-preview {
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);

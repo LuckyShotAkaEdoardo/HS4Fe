@@ -20,6 +20,7 @@
     class="hand"
     (mouseenter)="onHoverFaceTarget()"
     (mouseleave)="onLeaveFaceTarget()"
+    [attr.data-card-id]="'FACE:' + opponentId"
     (click)="confirmArrowToFace($event)"
   >
     <div style="display: flex">
@@ -160,7 +161,7 @@
           <!-- <h4>Plancia</h4> -->
 
           <!-- BOARD AVVERSARIO -->
-          <div class="cards-board">
+          <div class="cards-board board-min">
             <div *ngFor="let c of opponentBoard">
               <div
                 *ngIf="c.name"
@@ -183,7 +184,7 @@
 
           <!-- TUA BOARD -->
           <div
-            class="cards-board"
+            class="cards-board board-min"
             cdkDropList
             id="boardDropList"
             [cdkDropListData]="board"
@@ -240,6 +241,7 @@
     <!-- MANO GIOCATORE -->
     <section
       id="block-player"
+      [attr.data-card-id]="'FACE:' + userId"
       style="display: flex"
       [style.height.vh]="displaySettings().sizes.player"
       class="hand"

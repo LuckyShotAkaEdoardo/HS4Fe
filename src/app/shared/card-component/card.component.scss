@@ -5,7 +5,7 @@
                /* ereditata dal parent grid/flex */
     aspect-ratio: 2 / 3;       /* 512×768 */
     overflow: visible;         /* per eventuali ombre */
-    max-width: 160px;
+  
   }
   
   .cutout {
@@ -17,7 +17,7 @@
 .image-wrapper {
   position: relative;
   width: 100%;
-  aspect-ratio: 3 / 4;
+  aspect-ratio: 2/3;
   overflow: hidden;
 }
 

@@ -26,8 +26,9 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
-    SocketService,
+
     provideHttpClient(withInterceptorsFromDi()),
+    SocketService,
     CardService,
     CutoutService,
     AudioService,

@@ -43,7 +43,7 @@ export class DeckBuilderComponent implements OnInit {
       this.decks = res.decks;
     });
     this.allFrame = this.cardService.getCorniciList();
-    this.frameSelected = this.allFrame[0].img;
+    this.frameSelected = this.allFrame[1].img;
     this.cardService.loadCards();
 
     this.cardService.getCardsFromSubject().subscribe((cards) => {

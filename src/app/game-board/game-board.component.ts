@@ -118,9 +118,7 @@ export class GameBoardComponent implements OnInit, OnDestroy {
     private socketService: SocketService,
 
     private cardService: CardService
-  ) {
-    this.socket = this.socketService.getSocket();
-  }
+  ) {}
   userId: string = '';
   showEndModal = false;
   endImage;
@@ -133,9 +131,7 @@ export class GameBoardComponent implements OnInit, OnDestroy {
   private subscriptions: Subscription[] = [];
 
   ngOnInit(): void {
-    const token = getDecodedToken();
-    console.log(token);
-
+    this.socket = this.socketService.getSocket();
     this.subscriptions.push(
       this.socketService.onGameStarted().subscribe((state) => {
         this.gameState = state;
@@ -321,7 +317,7 @@ export class GameBoardComponent implements OnInit, OnDestroy {
     const card = drag.data;
     return this.isMyTurn && card.cost <= this.playerCrystals;
   };
-
+  awaitingTargetForCardIndex;
   onDrop(event: CdkDragDrop<Card[]>): void {
     // Riordino nella mano
     if (this.showEndModal) return;
@@ -359,6 +355,7 @@ export class GameBoardComponent implements OnInit, OnDestroy {
         ) {
           console.log('scegli');
           this.awaitingTargetForCard = card;
+          this.awaitingTargetForCardIndex = event.currentIndex;
           this.maxSelectableTargets = card.effect.count;
           this.selectedTargets = [];
           this.enableTargetSelectionMode(card.effect.target);
@@ -389,6 +386,7 @@ export class GameBoardComponent implements OnInit, OnDestroy {
       }
       const cardId = event.previousContainer.data[event.previousIndex]?.id;
       const card = event.previousContainer.data[event.previousIndex];
+      const index = insertAfter ? closestIndex + 1 : closestIndex;
       if (!cardId) return console.warn('Card ID mancante');
       console.log('guarda qui', cardId);
       if (
@@ -400,12 +398,13 @@ export class GameBoardComponent implements OnInit, OnDestroy {
       ) {
         console.log('scegli');
         this.awaitingTargetForCard = card;
+        this.awaitingTargetForCardIndex = index;
         this.maxSelectableTargets = card.effect.count;
         this.selectedTargets = [];
         this.enableTargetSelectionMode(card.effect.target);
         return;
       }
-      const index = insertAfter ? closestIndex + 1 : closestIndex;
+
       this.socketService.playCard(this.gameId, {
         cardId, // 👈 solo id
         index: index, // ✅ corretto
@@ -590,12 +589,16 @@ export class GameBoardComponent implements OnInit, OnDestroy {
   enableTargetSelectionMode(targetType: string) {
     const validTargetIds = this.getValidTargetIds(targetType);
     this.targetInstruction = this.getTargetInstructionLabel(targetType);
+    this.selectedTargets = [];
+
     for (const id of validTargetIds) {
       const el = document.querySelector(`[data-card-id="${id}"]`);
-      if (el) el.classList.add('highlight-selectable');
-      el?.addEventListener('click', this.onTargetClick.bind(this, id), {
-        once: true,
-      });
+      if (el) {
+        el.classList.add('highlight-selectable');
+        el.addEventListener('click', this.onTargetClick.bind(this, id), {
+          once: true,
+        });
+      }
     }
   }
 
@@ -619,6 +622,7 @@ export class GameBoardComponent implements OnInit, OnDestroy {
     this.socket.emit('play-card', {
       gameId: this.gameId,
       cardId: card.id,
+      index: this.awaitingTargetForCardIndex,
       targets,
     });
     this.resetTargetSelectionUI();
@@ -658,6 +662,12 @@ export class GameBoardComponent implements OnInit, OnDestroy {
       case 'CHOOSE_ALLY':
         return myBoard.map((c) => c.id);
 
+      case 'CHOOSE_ENEMY_OR_FACE':
+        return [...oppBoard.map((c) => c.id), `FACE:${opponentId}`];
+
+      case 'CHOOSE_ALLY_OR_FACE':
+        return [...myBoard.map((c) => c.id), `FACE:${myId}`];
+
       default:
         return [];
     }
@@ -670,10 +680,15 @@ export class GameBoardComponent implements OnInit, OnDestroy {
         return 'Scegli un nemico';
       case 'CHOOSE_ANY':
         return 'Scegli un bersaglio';
+      case 'CHOOSE_ENEMY_OR_FACE':
+        return 'Scegli un nemico o il volto avversario';
+      case 'CHOOSE_ALLY_OR_FACE':
+        return 'Scegli una tua creatura o il tuo volto';
       default:
         return 'Scegli bersaglio';
     }
   }
+
   isTargetSelectable(id: string): boolean {
     return (
       this.targetInstruction != null &&

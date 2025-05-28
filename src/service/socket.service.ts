@@ -11,8 +11,6 @@ import { AnimationOverlayService } from './animation-service';
   providedIn: 'root',
 })
 export class SocketService {
-  private socket: Socket;
-
   private gameStartedSubject = new BehaviorSubject<any | null>(null); // Nuovo subject per quando la partita inizia
   gameUpdateSubject = new BehaviorSubject<any | null>(null);
   // Per aggiornamenti sullo stato della partita
@@ -27,12 +25,24 @@ export class SocketService {
   gameResult$ = this.gameResultSubject.asObservable();
 
   username;
+  private _socket: Socket | null = null;
   constructor(
     private router: Router,
     private overlay: AnimationOverlayService
-  ) {
-    // Assicurati di avere il URL corretto per il tuo server
-    this.socket = io(environment.socketUrl);
+  ) {}
+  public get socket(): Socket {
+    if (!this._socket) throw new Error('Socket non inizializzato');
+    return this._socket;
+  }
+
+  // Assicurati di avere il URL corretto per il tuo server
+  // this.socket = io(environment.socketUrl);
+  connect(token: string): void {
+    if (this._socket?.connected) return;
+
+    this._socket = io(environment.socketUrl, {
+      auth: { token },
+    });
 
     this.socket.on('card-drawn', (data) => {
       console.log('stai pescando', data);
@@ -130,10 +140,10 @@ export class SocketService {
     return this.cardDrawnSubject.asObservable();
   }
   // Metodo per disconnettersi dal server
-  disconnect() {
-    this.socket.disconnect();
+  disconnect(): void {
+    this._socket?.disconnect();
+    this._socket = null;
   }
-
   getSocket() {
     return this.socket;
   }

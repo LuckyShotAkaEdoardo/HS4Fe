@@ -30,7 +30,9 @@ export class DashboardComponent implements OnInit {
   ngOnInit(): void {
     // this.cardService.loadCards();
     // this.loadCards();
-
+    const token = localStorage.getItem('token');
+    console.log(token);
+    if (token) this.socketService.connect(token);
     this.socketService.getwaitLogin().subscribe((gameInfo) => {
       if (gameInfo) {
         this.disabled = false;

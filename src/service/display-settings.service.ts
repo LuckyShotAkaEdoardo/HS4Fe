@@ -15,7 +15,7 @@ export interface DisplaySettings {
 @Injectable({ providedIn: 'root' })
 export class DisplaySettingsService {
   private _settings = signal<DisplaySettings>({
-    sizes: { enemy: 15, board: 60, player: 25 },
+    sizes: { enemy: 15, board: 60, player: 20 },
     fullscreen: false,
   });
 
