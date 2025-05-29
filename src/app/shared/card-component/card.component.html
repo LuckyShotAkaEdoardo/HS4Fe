@@ -12,6 +12,7 @@
     [ngClass]="card | cardEffectClass"
     cardEffectClass
   ></div>
+  <!-- [cardEffectHighlight]="card.effect?.type" -->
   <!-- mostro la cutout wrapper solo se cutoutStyles è già calcolato -->
   <div class="cutout" *ngIf="cutoutStyles" [ngStyle]="cutoutStyles">
     <!-- <img

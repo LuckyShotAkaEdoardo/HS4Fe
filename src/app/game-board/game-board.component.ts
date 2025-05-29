@@ -616,7 +616,7 @@ export class GameBoardComponent implements OnInit, OnDestroy {
   finalizeCardPlayWithTargets() {
     const card = this.awaitingTargetForCard;
     const targets = [...this.selectedTargets];
-    const targetsId = targets.map((x: any) => x.id);
+    const targetsId = targets;
     console.log(targetsId);
     this.resetTargetSelection();
     if (!card) return;
@@ -624,7 +624,7 @@ export class GameBoardComponent implements OnInit, OnDestroy {
       gameId: this.gameId,
       cardId: card.id,
       index: this.awaitingTargetForCardIndex,
-      targetsId,
+      targets: targets,
     });
     this.resetTargetSelectionUI();
   }
