@@ -12,6 +12,7 @@ export interface Card {
   abilities?: string[];
   description?: string;
   justPlayed?: boolean;
+  canAttack;
   effect?: {
     type: string; // es. "DAMAGE", "HEAL"
     trigger?: string; // es. "ON_PLAY", "ON_TURN_START"

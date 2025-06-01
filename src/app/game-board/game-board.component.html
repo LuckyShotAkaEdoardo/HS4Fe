@@ -22,84 +22,64 @@
     (mouseleave)="onLeaveFaceTarget()"
     [attr.data-card-id]="'FACE:' + opponentId"
     (click)="confirmArrowToFace($event)"
+    #enemyHand
   >
     <div style="display: flex">
-      <div style="width: 30%">
-        <!-- <div class="dropdown ghost">
-          <input type="checkbox" id="dropdown-toggle" hidden />
-          <label for="dropdown-toggle" class="dropdown-trigger">
-            Avversario: {{ opponentId }} <span class="dropdown-icon">▼</span>
-          </label>
-          <div class="dropdown-menu">
-            <p>Carta in mano: {{ gameState.hands[opponentId] }} carte</p>
+      <div class="cards-enemy" style="display: flex">
+        @if(gameState.hands[opponentId]&&gameState.hands[opponentId]>0){
 
-            <p>Vita: {{ gameState.health[opponentId] }}</p>
-
-            <p *ngIf="gameState.crystals && gameState.maxCrystals">
-              Cristalli: {{ gameState.crystals[opponentId] }} / max
-              {{ gameState.maxCrystals[opponentId] }}
-            </p>
-            <p>barrier:{{ gameState.barrier[opponentId] }}</p>
-          </div>
-        </div> -->
+        <img
+          [style.width.px]="measureEnemyRatio()?.wi"
+          [style.height.px]="measureEnemyRatio()?.hi"
+          *ngFor="let c of 0 | range : gameState.hands[opponentId]"
+          class="singleCardEnemy"
+          [src]="baseFrameBack + frameSelectedOpponent"
+        />
+        }
       </div>
-
-      <div style="width: 100%">
-        <div style="display: flex">
-          <div class="cards-enemy">
-            @if(gameState.hands[opponentId]&&gameState.hands[opponentId]>0){
-
+      <!-- HERO  -->
+      <div>
+        <div class="styled-menu">
+          <!-- Avatar avversario -->
+          <div class="avatar-container">
             <img
-              *ngFor="let c of 0 | range : gameState.hands[opponentId]"
-              class="singleCardEnemy"
-              [src]="baseFrameBack + frameSelectedOpponent"
+              class="avatar"
+              [src]="'assets/avatar/1.png'"
+              alt="Avatar avversario"
+              title="Avversario"
             />
-            }
           </div>
-          <!-- HERO  -->
-          <div>
-            <div class="styled-menu">
-              <!-- Avatar avversario -->
-              <div class="avatar-container">
-                <img
-                  class="avatar"
-                  [src]="'assets/avatar/1.png'"
-                  alt="Avatar avversario"
-                  title="Avversario"
-                />
-              </div>
 
-              <!-- Griglia 2x2 -->
-              <div class="grid">
-                <div class="item" title="Carte nella mano avversaria">
-                  <i class="fa-solid fa-hand"></i>
-                  <span>{{ gameState.hands[opponentId] }} carte</span>
-                </div>
-                <div class="item" title="Punti vita dell'avversario">
-                  <i class="fa-solid fa-heart"></i>
-                  <span>{{ gameState.health[opponentId] }}</span>
-                </div>
-                <div
-                  class="item"
-                  *ngIf="gameState.crystals && gameState.maxCrystals"
-                  title="Cristalli"
-                >
-                  <i class="fa-solid fa-gem"></i>
-                  <span
-                    >{{ gameState.crystals[opponentId] }} /
-                    {{ gameState.maxCrystals[opponentId] }}</span
-                  >
-                </div>
-                <div class="item" title="Barriera">
-                  <i class="fa-solid fa-shield-halved"></i>
-                  <span>{{ gameState.barrier[opponentId] }}</span>
-                </div>
-              </div>
+          <!-- Griglia 2x2 -->
+          <div class="grid">
+            <div class="item" title="Carte nella mano avversaria">
+              <i class="fa-solid fa-hand"></i>
+              <span>{{ gameState.hands[opponentId] }} carte</span>
+            </div>
+            <div class="item" title="Punti vita dell'avversario">
+              <i class="fa-solid fa-heart"></i>
+              <span>{{ gameState.health[opponentId] }}</span>
+            </div>
+            <div
+              class="item"
+              *ngIf="gameState.crystals && gameState.maxCrystals"
+              title="Cristalli"
+            >
+              <i class="fa-solid fa-gem"></i>
+              <span
+                >{{ gameState.crystals[opponentId] }} /
+                {{ gameState.maxCrystals[opponentId] }}</span
+              >
+            </div>
+            <div class="item" title="Barriera">
+              <i class="fa-solid fa-shield-halved"></i>
+              <span>{{ gameState.barrier[opponentId] }}</span>
             </div>
           </div>
         </div>
-        <!-- fine hero -->
       </div>
+
+      <!-- fine hero -->
     </div>
   </section>
   <div *ngIf="targetInstruction" class="target-instruction">
@@ -159,9 +139,15 @@
 
         <section style="width: 100%" class="board">
           <!-- <h4>Plancia</h4> -->
+          <div class="board-background">
+            <img [src]="backgroundUrl" class="background-img" />
+          </div>
 
           <!-- BOARD AVVERSARIO -->
-          <div class="cards-board board-min">
+          <div
+            class="cards-board board-min"
+            [style.height.vh]="displaySettings().sizes.board / 2.5"
+          >
             <div *ngFor="let c of opponentBoard">
               <div
                 *ngIf="c.name"
@@ -169,6 +155,7 @@
                 (mouseleave)="onLeaveTarget(c)"
                 (click)="confirmArrow(c, $event)"
                 class="singleCardBoard"
+                [style.width.px]="measureBoardRatio()?.wi"
               >
                 <app-card
                   [attr.data-card-id]="c.id"
@@ -185,14 +172,17 @@
           <!-- TUA BOARD -->
           <div
             class="cards-board board-min"
+            [style.height.vh]="displaySettings().sizes.board / 2.5"
             cdkDropList
             id="boardDropList"
             [cdkDropListData]="board"
             [cdkDropListConnectedTo]="['handDropList']"
             (cdkDropListDropped)="onDrop($event)"
             [cdkDropListSortingDisabled]="true"
+            *ngIf="loading"
+            #myboardHeight
           >
-            <ng-container *ngFor="let c of board; let i = index">
+            <div #myboard *ngFor="let c of board; let i = index">
               <div
                 *ngIf="isDraggingFromHand && previewIndex === i"
                 class="singleCardBoard placeholder-slot"
@@ -203,6 +193,8 @@
                 [attr.data-index]="i"
                 [attr.data-card-id]="c.id"
                 (click)="startArrow($event, c)"
+                [style.width.px]="measureBoardRatio()?.wi"
+                [ngClass]="c.canAttack ? 'ability-can-attack' : ''"
               >
                 <!-- (touchstart)="startArrow($event, c)" -->
                 <app-card
@@ -211,7 +203,7 @@
                   [card]="c"
                 ></app-card>
               </div>
-            </ng-container>
+            </div>
 
             <!-- Aggiungi anche questo DOPO il ng-container -->
             <div
@@ -244,11 +236,12 @@
       [attr.data-card-id]="'FACE:' + userId"
       style="display: flex"
       [style.height.vh]="displaySettings().sizes.player"
+      #myCard
       class="hand"
     >
       <div style="width: 20%; height: 100%">
         <div style="height: 100%">
-          <div class="styled-menu" style="height: 100%">
+          <div class="styled-menu styled-menu-resp" style="height: 100%">
             <!-- Avatar avversario -->
             <div class="avatar-container">
               <img
@@ -303,14 +296,17 @@
         [cdkDropListSortingDisabled]="false"
         (cdkDropListDropped)="onDrop($event)"
         class="cards-hand"
+        #spaceHand
       >
         <div
           *ngFor="let c of cardsInHand"
           (cdkDragStarted)="isDraggingFromHand = true"
           (cdkDragEnded)="isDraggingFromHand = false; clearPreviewIndex()"
           class="singleCard"
+          [style.width.px]="measureHandRatio()?.wi"
           cdkDrag
         >
+          <!-- [style.height.px]="measureHeight()" -->
           <div class="drag-surface">
             <app-card [frameTitle]="frameSelected" [card]="c"></app-card>
           </div>

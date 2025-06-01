@@ -318,11 +318,7 @@ input[type="checkbox"]:checked + .dropdown-trigger .dropdown-icon {
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
-.singleCard {
-  width: 160px;
-  aspect-ratio: 2 / 3;
-  display: block;
-}
+
 
 
 
@@ -335,7 +331,13 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
 .ability-divine-shield {
   box-shadow: 0 0 10px gold;
-  z-index: 10;
+  z-index: 100;
+  
+  background-color: gold;
+  opacity: 0.3;
+  // filter: grayscale(0.7) blur(1px);
+  transition: filter 0.3s, opacity 0.9s;
+   border-radius: 10px 10px 10px 10px;
 }
 
 .effect-damage {
@@ -448,9 +450,13 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 // 🕵️ ABILITY: STEALTH
 // =========================
 .ability-stealth {
-  opacity: 0.4;
-  filter: grayscale(0.7) blur(1px);
-  transition: filter 0.3s, opacity 0.3s;
+  
+  background-color: black;
+  opacity: 0.3;
+  z-index: 1;
+  // filter: grayscale(0.7) blur(1px);
+  transition: filter 0.3s, opacity 0.9s;
+   border-radius: 10px 10px 10px 10px;
 }
 
 // =========================
@@ -468,6 +474,13 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 .ability-rush {
   border: 2px dashed crimson;
   animation: pulse-rush 0.8s ease-in-out infinite alternate;
+  
+
+  background-color: crimson;
+  opacity: 0.3;
+  // filter: grayscale(0.7) blur(1px);
+  transition: filter 0.3s, opacity 0.9s;
+   border-radius: 10px 10px 10px 10px;
 }
 
 @keyframes pulse-rush {
@@ -479,6 +492,9 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 // ⚡ ABILITY: CHARGE
 // =========================
 .ability-charge {
+  background-color: rgba(255, 0, 0, 0.3); /* rosso semi-trasparente */
+  z-index: 1;
+  border-radius: 10px;
   animation: flicker-charge 0.6s infinite alternate;
 }
 

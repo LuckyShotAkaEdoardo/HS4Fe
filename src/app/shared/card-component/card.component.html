@@ -2,9 +2,9 @@
 <div
   appDoubleTap
   *ngIf="cutoutStyles; else loading"
-  [ngClass]="card.canAttack ? 'ability-can-attack' : ''"
   (doubleTap)="onDoubleTap()"
   class="card"
+  [attr.data-card-id]="card.id"
 >
   <div
     *ngIf="frameBorderStyles"

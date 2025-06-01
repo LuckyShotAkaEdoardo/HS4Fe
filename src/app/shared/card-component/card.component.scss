@@ -99,3 +99,27 @@
   position: relative;
   pointer-events: none;
 }
+@media screen and (max-width: 768px) {
+    .title {
+    position: absolute;
+    z-index: 3;
+    /* permetti il wrap del testo */
+    white-space: normal;
+    word-wrap: break-word;
+    word-break: break-word;
+    text-align: center;        /* centra le righe multiple */
+    font-size: 0.5rem;
+    color: #fff;
+    text-shadow: 0 0 4px rgba(0,0,0,0.8);
+  
+    /* rimuovi overflow: hidden / text-overflow se c’erano */
+    overflow: visible;
+    font-family: 'Righteous', cursive;
+  }
+    .icons {
+
+    font-size: 0.3rem
+ 
+  }
+  
+}

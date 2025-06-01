@@ -1,5 +1,14 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, OnDestroy, inject } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  inject,
+  ChangeDetectorRef,
+  NgZone,
+  ViewChild,
+  ElementRef,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MaterialModule } from '../material.module';
@@ -22,8 +31,9 @@ import { DisplaySettingsService } from '../../service/display-settings.service';
 import { DoubleTapDirective } from '../../directive/long-press.directive';
 import { CardService } from '../../service/card.service';
 import { VisualEvent } from '../../service/effect-mapper';
-import { Subscription } from 'rxjs';
+import { fromEvent, Subscription } from 'rxjs';
 import { trigger, transition, style, animate } from '@angular/animations';
+import { CardEffectClassPipe } from '../../directive/card-effect.pipe';
 
 @Component({
   selector: 'app-game-board',
@@ -35,6 +45,7 @@ import { trigger, transition, style, animate } from '@angular/animations';
     FormsModule,
     MaterialModule,
     RangePipe,
+    CardEffectClassPipe,
   ],
   providers: [RangePipe],
   templateUrl: './game-board.component.html',
@@ -116,8 +127,9 @@ export class GameBoardComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private router: Router,
     private socketService: SocketService,
-
-    private cardService: CardService
+    private cdr: ChangeDetectorRef,
+    private cardService: CardService,
+    private zone: NgZone
   ) {}
   userId: string = '';
   showEndModal = false;
@@ -129,9 +141,25 @@ export class GameBoardComponent implements OnInit, OnDestroy {
   targetInstruction: string | null = null;
   gameHistory: any[] = [];
   private subscriptions: Subscription[] = [];
-
+  board: Card[] = [];
+  opponentBoard: Card[] = [];
+  loading = false;
+  boardStyle;
+  vh;
   ngOnInit(): void {
-    this.socket = this.socketService.getSocket();
+    console.log(this.socket);
+
+    try {
+      this.socket = this.socketService.getSocket();
+    } catch {
+      if (!this.socket) {
+        const token = localStorage.getItem('token');
+        this.socketService.connect(token ?? '');
+        this.socket = this.socketService.getSocket();
+      }
+    }
+
+    this.setBoardBackground('assets/boards/3.png');
     this.subscriptions.push(
       this.socketService.onGameStarted().subscribe((state) => {
         this.gameState = state;
@@ -152,12 +180,28 @@ export class GameBoardComponent implements OnInit, OnDestroy {
 
     this.subscriptions.push(
       this.socketService.onGameUpdate().subscribe((state) => {
+        this.loading = false;
         if (!state?.gameId) return;
         this.gameState = state;
         this.frameSelected = state.frames?.[this.userId] || '';
         this.frameSelectedOpponent = state.frames?.[this.opponentId] || '';
         this.playerCrystals = state.crystals?.[this.userId] || 0;
         this.opponentCrystals = state.crystals?.[this.opponentId] || 0;
+        this.board = [];
+        this.opponentBoard = [];
+        setTimeout(() => {
+          this.board = (state.boards?.[this.userId] || []).map((c) => ({
+            ...c,
+          }));
+
+          console.log('guarda board', this.board);
+          this.opponentBoard = [
+            ...(this.gameState.boards[this.opponentId] || []),
+          ];
+          this.cdr.detectChanges();
+          this.zone.run(() => {});
+          this.loading = true;
+        }, 100);
 
         this._currentTurnPlayerId = state.turnInfo?.currentPlayerId;
         this.currentPlayerName =
@@ -218,7 +262,10 @@ export class GameBoardComponent implements OnInit, OnDestroy {
 
     this.socket.on('error', (msg: string) => alert(msg));
   }
-
+  vhToPixels(vh: number): number {
+    console.log(window.innerHeight * vh);
+    return (window.innerHeight * vh) / 100;
+  }
   get isMyTurn(): boolean {
     return (
       String(this.gameState?.turnInfo?.currentPlayerId) === String(this.userId)
@@ -235,14 +282,32 @@ export class GameBoardComponent implements OnInit, OnDestroy {
   get cardsInHand(): Card[] {
     return (this.gameState?.hands?.[this.userId] as any) || [];
   }
+  updateBoard(newCards: Card[]) {
+    for (let i = 0; i < newCards.length; i++) {
+      const newCard = newCards[i];
+      const oldCard = this.board[i];
 
-  get board(): Card[] {
-    return (this.gameState?.boards?.[this.userId] as any) || [];
+      if (!oldCard || oldCard.id !== newCard.id) {
+        this.board[i] = { ...newCard }; // nuova carta
+      } else {
+        // aggiorno i campi mutabili: hp, freeze, ecc.
+        Object.assign(this.board[i], newCard);
+      }
+    }
+
+    // Rimuovo carte in eccesso se necessario
+    if (this.board.length > newCards.length) {
+      this.board.length = newCards.length;
+    }
   }
 
-  get opponentBoard(): Card[] {
-    return (this.gameState?.boards?.[this.opponentId] as any) || [];
-  }
+  // get board(): Card[] {
+  //   return (this.gameState?.boards?.[this.userId] as any) || [];
+  // }
+
+  // get opponentBoard(): Card[] {
+  //   return (this.gameState?.boards?.[this.opponentId] as any) || [];
+  // }
 
   // playCard(card: Card): void {
   //   if (this.showEndModal) return;
@@ -757,5 +822,133 @@ export class GameBoardComponent implements OnInit, OnDestroy {
       default:
         return `${who} ha fatto qualcosa`;
     }
+  }
+  backgroundUrl;
+  setBoardBackground(imageUrl: string) {
+    this.backgroundUrl = imageUrl;
+    this.boardStyle = {
+      'background-image': `url(${imageUrl})`,
+      'background-size': '120% auto', // <-- eccolo il trucco
+      'background-position': 'center',
+      'background-repeat': 'no-repeat',
+    };
+  }
+  @ViewChild('myCard') myDiv!: ElementRef<HTMLDivElement>;
+  @ViewChild('spaceHand') spaceHand!: ElementRef<HTMLDivElement>;
+
+  measureHandRatio() {
+    if (!this.myDiv || !this.spaceHand) return;
+
+    const cardRect = this.myDiv.nativeElement.getBoundingClientRect();
+    const handRect = this.spaceHand.nativeElement.getBoundingClientRect();
+
+    const containerHeight = cardRect.height;
+    let cardHeight = containerHeight;
+    let cardWidth = (2 / 3) * cardHeight;
+
+    const totalWidth = handRect.width;
+    const maxCards = 10;
+    const gap = 8;
+    const totalGaps = (maxCards - 1) * gap;
+    const totalRequiredWidth = cardWidth * maxCards + totalGaps;
+
+    if (totalRequiredWidth > totalWidth) {
+      const scale = (totalWidth - totalGaps) / (cardWidth * maxCards);
+      cardWidth *= scale;
+      cardHeight *= scale;
+    }
+
+    console.log('Card width:', cardWidth, 'Card height:', cardHeight);
+    return { wi: cardWidth, hi: cardHeight };
+  }
+
+  // measureHandRatio() {
+  //   if (!this.myboard) return;
+
+  //   const rect = this.myboard.nativeElement.getBoundingClientRect();
+  //   const width = rect.width;
+  //   const height = rect.height;
+
+  //   const ratio = width / height;
+  //   // console.log('Current ratio (width / height):', ratio);
+
+  //   // Verifica quanto sei distante dal rapporto ideale 2:3
+  //   const idealRatio = 2 / 3;
+  //   const delta = Math.abs(ratio - idealRatio);
+  //   // console.log('Delta rispetto a 2:3:', delta);
+  //   let wi = width / this.cardsInHand.length;
+  //   return { wi, height, ratio, delta };
+  // }
+
+  // @ViewChild('myboard') myboard!: ElementRef<HTMLDivElement>;
+  @ViewChild('myboardHeight') myboardHeight!: ElementRef<HTMLDivElement>;
+
+  measureBoardRatio() {
+    if (!this.myboardHeight) return;
+
+    const cardRect = this.myDiv.nativeElement.getBoundingClientRect();
+
+    const containerHeight = cardRect.height;
+    let cardHeight = containerHeight;
+    let cardWidth = (2 / 3) * cardHeight;
+
+    const totalWidth = cardRect.width;
+    const maxCards = 10;
+    const gap = 8;
+    const totalGaps = (maxCards - 1) * gap;
+    const totalRequiredWidth = cardWidth * maxCards + totalGaps;
+
+    if (totalRequiredWidth > totalWidth) {
+      const scale = (totalWidth - totalGaps) / (cardWidth * maxCards);
+      cardWidth *= scale;
+      cardHeight *= scale;
+    }
+
+    console.log('Card width:', cardWidth, 'Card height:', cardHeight);
+    return { wi: cardWidth, hi: cardHeight };
+  }
+  // measureBoardRatio() {
+  //   if (!this.myboard) return;
+
+  //   const rect = this.myboard.nativeElement.getBoundingClientRect();
+  //   const width = rect.width;
+  //   const height = rect.height;
+
+  //   const ratio = width / height;
+  //   // console.log('Current ratio (width / height):', ratio);
+
+  //   // Verifica quanto sei distante dal rapporto ideale 2:3
+  //   const idealRatio = 2 / 3;
+  //   const delta = Math.abs(ratio - idealRatio);
+  //   // console.log('Delta rispetto a 2:3:', delta);
+  //   let wi = Math.min(width, 10);
+  //   return { wi, height, ratio, delta };
+  // }
+
+  @ViewChild('enemyHand') enemyHand!: ElementRef<HTMLDivElement>;
+
+  measureEnemyRatio() {
+    if (!this.enemyHand) return;
+
+    const cardRect = this.enemyHand.nativeElement.getBoundingClientRect();
+
+    const containerHeight = cardRect.height;
+    let cardHeight = containerHeight;
+    let cardWidth = (2 / 3) * cardHeight;
+
+    const totalWidth = cardRect.width;
+    const maxCards = 10;
+    const gap = 8;
+    const totalGaps = (maxCards - 1) * gap;
+    const totalRequiredWidth = cardWidth * maxCards + totalGaps;
+
+    if (totalRequiredWidth > totalWidth) {
+      const scale = (totalWidth - totalGaps) / (cardWidth * maxCards);
+      cardWidth *= scale;
+      cardHeight *= scale;
+    }
+
+    console.log('Card width:', cardWidth, 'Card height:', cardHeight);
+    return { wi: cardWidth, hi: cardHeight };
   }
 }

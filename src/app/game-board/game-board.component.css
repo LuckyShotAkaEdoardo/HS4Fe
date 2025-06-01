@@ -58,15 +58,17 @@ body {
 }
 .singleCard {
   flex: 0 0 auto;
-  width: clamp(40px, 9.5vw, 120px); /* dinamico ma limitato */
+  /* width: clamp(40px, 9.5vw, 120px);  */
+  /* dinamico ma limitato */
   aspect-ratio: 2 / 3;
   position: relative;
   display: block;
 }
 
 .singleCardBoard {
-  height: clamp(140px, 16vh, 300px);
-  width: clamp(140px, calc(16vh * 2 / 3), 300px);
+  /* height: clamp(140px, 16vh, 300px);
+  width: clamp(140px, calc(16vh * 2 / 3), 300px); */
+  min-width: 10px;
   flex: 0 0 auto;
   /* width: 10vw; */
   /* max-width: 120px; */
@@ -74,11 +76,17 @@ body {
   display: block;
 }
 .singleCardEnemy {
-  max-width: 60px;
+  flex: 0 0 auto;
+  /* width: clamp(40px, 9.5vw, 120px);  */
+  /* dinamico ma limitato */
+  aspect-ratio: 2 / 3;
+  position: relative;
+  display: block;
 }
 .cards-hand {
   display: flex;
   justify-content: center;
+  width: 100%;
 }
 .drag-wrapper {
   width: 100%;
@@ -89,7 +97,6 @@ body {
   width: 100%;
   height: 100%;
   cursor: grab;
-
   align-items: center;
   justify-content: center;
 }
@@ -97,7 +104,8 @@ body {
   height: 100%;
 }
 .card-enemy {
-  grid-template-columns: repeat(auto-fit, minmax(10px, 60px));
+  /* grid-template-columns: repeat(auto-fit, minmax(10px, 60px)); */
+  display: flex;
 }
 /* .board {
   display: flex;
@@ -117,14 +125,15 @@ body {
   display: flex;
   flex-direction: column;
   position: relative;
-  background-image: url("./../../assets/boards/1.png");
-  background-size: 120% auto; /* <-- allarga orizzontalmente */
-  background-position: center;
-  background-repeat: no-repeat;
+  /* background-image: url("./../../assets/boards/1.png");
+  background-size: 120% auto; */
+  /* <-- allarga orizzontalmente */
+  /* background-position: center;
+  background-repeat: no-repeat; */
   padding: 1rem;
-  border-radius: 16px;
-  box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.6);
-  overflow: hidden;
+  /* border-radius: 16px; */
+  /* box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.6); */
+  /* overflow: hidden; */
 }
 /* 
 .cards-board {
@@ -409,4 +418,42 @@ body {
   border-radius: 50%;
   z-index: 3;
   box-shadow: 0 0 6px black;
+}
+.board-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: -10;
+  pointer-events: none;
+}
+.background-img {
+  position: absolute;
+  top: -11%;
+  left: -5%;
+  width: 105%;
+  height: 123%;
+  object-position: top;
+}
+
+@media screen and (max-width: 768px) {
+  .avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 2px solid var(--accent-color);
+    object-fit: cover;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 1rem;
+    width: 100%;
+  }
+  .styled-menu {
+    min-width: 50px;
+    display: flex;
+  }
 }

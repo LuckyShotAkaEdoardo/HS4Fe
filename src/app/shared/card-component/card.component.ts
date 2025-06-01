@@ -33,6 +33,7 @@ export interface Cutout {
 @Component({
   selector: 'app-card',
   standalone: true,
+
   imports: [
     GameModuleModule,
     LessThanEqualPipe,
