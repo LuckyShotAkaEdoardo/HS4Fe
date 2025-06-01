@@ -437,7 +437,7 @@ body {
   object-position: top;
 }
 
-@media screen and (max-width: 768px) {
+@media (pointer: coarse) {
   .avatar {
     width: 24px;
     height: 24px;
