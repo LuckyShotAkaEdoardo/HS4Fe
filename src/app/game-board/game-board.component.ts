@@ -217,7 +217,7 @@ export class GameBoardComponent implements OnInit, OnDestroy {
         }
       })
     );
-
+    // this.eventResize();
     // console.log(this.frameSelected);
     this.baseFrame = environment.frame;
     this.baseFrameBack = environment.dorso;
@@ -301,46 +301,6 @@ export class GameBoardComponent implements OnInit, OnDestroy {
     }
   }
 
-  // get board(): Card[] {
-  //   return (this.gameState?.boards?.[this.userId] as any) || [];
-  // }
-
-  // get opponentBoard(): Card[] {
-  //   return (this.gameState?.boards?.[this.opponentId] as any) || [];
-  // }
-
-  // playCard(card: Card): void {
-  //   if (this.showEndModal) return;
-  //   if (!this.isMyTurn) {
-  //     alert('Non è il tuo turno');
-  //     return;
-  //   }
-  //   if (card.cost > this.playerCrystals) {
-  //     alert('Cristalli insufficienti');
-  //     return;
-  //   }
-  //   if (card.type === 'HERO' && this.board.length >= 6) {
-  //     alert('Plancia piena');
-  //     return;
-  //   }
-  //   if (
-  //     card.effect &&
-  //     typeof card.effect.target === 'string' &&
-  //     card.effect.target.startsWith('CHOOSE') &&
-  //     card.effect.count &&
-  //     card.effect.count > 0
-  //   ) {
-  //     console.log('scegli');
-  //     this.awaitingTargetForCard = card;
-  //     this.maxSelectableTargets = card.effect.count;
-  //     this.selectedTargets = [];
-  //     this.enableTargetSelectionMode(card.effect.target);
-  //     return;
-  //   }
-
-  //   this.socket.emit('play-card', { gameId: this.gameId, card });
-  // }
-
   attack(
     attacker: Card,
     target: { type: 'HERO' | 'FACE'; id?: string; playerId?: string }
@@ -357,13 +317,6 @@ export class GameBoardComponent implements OnInit, OnDestroy {
   leaveGame(): void {
     this.socket.emit('leave-game', this.gameId);
   }
-
-  // setCurrentPlayerName() {
-  //   const currentPlayer = this.players.find(
-  //     (player) => player.id === this.currentPlayerId
-  //   );
-  //   this.currentPlayerName = currentPlayer ? currentPlayer.name : '';
-  // }
 
   ngOnDestroy(): void {
     this.socketService.disconnect();
@@ -476,21 +429,7 @@ export class GameBoardComponent implements OnInit, OnDestroy {
       });
     }
   }
-  // startArrow(event: MouseEvent | TouchEvent, card: Card) {
-  //   const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
-  //   const point = this.getClientPoint(event);
-  //   this.arrow = {
-  //     start: {
-  //       x: rect.left + rect.width / 2,
-  //       y: rect.top + rect.height / 2,
-  //     },
-  //     end: {
-  //       x: point.x,
-  //       y: point.y,
-  //     },
-  //     source: card,
-  //   };
-  // }
+
   startArrow(event: MouseEvent | TouchEvent, card: any) {
     this.arrowStartCard = card;
 
@@ -506,15 +445,6 @@ export class GameBoardComponent implements OnInit, OnDestroy {
     event.stopPropagation(); // evita click bubbling
   }
 
-  // updateArrow(event: MouseEvent | TouchEvent): void {
-  //   if (this.arrow) {
-  //     const point = this.getClientPoint(event);
-  //     this.arrow.end = {
-  //       x: point.x,
-  //       y: point.y,
-  //     };
-  //   }
-  // }
   onBackgroundClick() {
     this.arrowStartCard = null;
     this.arrowStartPos = null;
@@ -635,15 +565,6 @@ export class GameBoardComponent implements OnInit, OnDestroy {
     }
     return { x: 0, y: 0 };
   }
-  // showCardDrawn(card: any) {
-  //   this.drawnCard = card;
-  //   this.showCardAnim = true;
-
-  //   setTimeout(() => {
-  //     this.showCardAnim = false;
-  //     this.drawnCard = null;
-  //   }, 1800); // durata dell'animazione
-  // }
 
   highlightCard(cardId: string, cssClass: string) {
     const el = document.querySelector(`[data-card-id="${cardId}"]`);
@@ -858,27 +779,10 @@ export class GameBoardComponent implements OnInit, OnDestroy {
       cardHeight *= scale;
     }
 
-    console.log('Card width:', cardWidth, 'Card height:', cardHeight);
+    // console.log('Card width:', cardWidth, 'Card height:', cardHeight);
+
     return { wi: cardWidth, hi: cardHeight };
   }
-
-  // measureHandRatio() {
-  //   if (!this.myboard) return;
-
-  //   const rect = this.myboard.nativeElement.getBoundingClientRect();
-  //   const width = rect.width;
-  //   const height = rect.height;
-
-  //   const ratio = width / height;
-  //   // console.log('Current ratio (width / height):', ratio);
-
-  //   // Verifica quanto sei distante dal rapporto ideale 2:3
-  //   const idealRatio = 2 / 3;
-  //   const delta = Math.abs(ratio - idealRatio);
-  //   // console.log('Delta rispetto a 2:3:', delta);
-  //   let wi = width / this.cardsInHand.length;
-  //   return { wi, height, ratio, delta };
-  // }
 
   // @ViewChild('myboard') myboard!: ElementRef<HTMLDivElement>;
   @ViewChild('myboardHeight') myboardHeight!: ElementRef<HTMLDivElement>;
@@ -904,26 +808,9 @@ export class GameBoardComponent implements OnInit, OnDestroy {
       cardHeight *= scale;
     }
 
-    console.log('Card width:', cardWidth, 'Card height:', cardHeight);
+    // console.log('Card width:', cardWidth, 'Card height:', cardHeight);
     return { wi: cardWidth, hi: cardHeight };
   }
-  // measureBoardRatio() {
-  //   if (!this.myboard) return;
-
-  //   const rect = this.myboard.nativeElement.getBoundingClientRect();
-  //   const width = rect.width;
-  //   const height = rect.height;
-
-  //   const ratio = width / height;
-  //   // console.log('Current ratio (width / height):', ratio);
-
-  //   // Verifica quanto sei distante dal rapporto ideale 2:3
-  //   const idealRatio = 2 / 3;
-  //   const delta = Math.abs(ratio - idealRatio);
-  //   // console.log('Delta rispetto a 2:3:', delta);
-  //   let wi = Math.min(width, 10);
-  //   return { wi, height, ratio, delta };
-  // }
 
   @ViewChild('enemyHand') enemyHand!: ElementRef<HTMLDivElement>;
 
@@ -951,4 +838,20 @@ export class GameBoardComponent implements OnInit, OnDestroy {
     console.log('Card width:', cardWidth, 'Card height:', cardHeight);
     return { wi: cardWidth, hi: cardHeight };
   }
+  // handRatio;
+  // enemyRatio = { wi: 10, hi: 10 } as any;
+  // boardRatio;
+  // eventResize() {
+  //   setTimeout(() => {
+  //     this.enemyRatio = this.measureEnemyRatio();
+  //     this.boardRatio = this.measureBoardRatio();
+  //     this.handRatio = this.measureHandRatio();
+  //   }, 500);
+
+  //   fromEvent(window, 'resize').subscribe(() => {
+  //     this.enemyRatio = this.measureEnemyRatio();
+  //     this.boardRatio = this.measureBoardRatio();
+  //     this.handRatio = this.measureHandRatio();
+  //   });
+  // }
 }

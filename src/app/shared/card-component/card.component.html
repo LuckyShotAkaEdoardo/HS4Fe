@@ -42,7 +42,7 @@
     *ngIf="titleStyles && isVisibileText"
     [ngStyle]="titleStyles"
   >
-    {{ card.name }}
+    {{ card.name | truncateName }}
   </div>
   <div class="icons" *ngIf="iconStyles" [ngStyle]="iconStyles">
     <ng-container *ngFor="let icon of icons">

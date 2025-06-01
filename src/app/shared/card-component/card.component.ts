@@ -22,6 +22,7 @@ import { CardEffectHighlightDirective } from '../../../directive/card-effect.dir
 import { NgOptimizedImage } from '@angular/common';
 import { CardImageCachePipe } from './img-cash.pipe';
 import { of } from 'rxjs';
+import { TruncateNamePipe } from '../../../directive/title.pipe';
 
 export interface Cutout {
   top: number;
@@ -41,6 +42,7 @@ export interface Cutout {
     CardEffectClassPipe,
     NgOptimizedImage,
     CardImageCachePipe,
+    TruncateNamePipe,
   ],
   templateUrl: './card.component.html',
   styleUrls: ['./card.component.scss'],
