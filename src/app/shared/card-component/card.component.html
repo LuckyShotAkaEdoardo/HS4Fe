@@ -11,6 +11,7 @@
     [ngStyle]="frameBorderStyles"
     [ngClass]="card | cardEffectClass"
     cardEffectClass
+    [cardEffectHighlight]="card.currentEffect"
   ></div>
   <!-- [cardEffectHighlight]="card.effect?.type" -->
   <!-- mostro la cutout wrapper solo se cutoutStyles è già calcolato -->

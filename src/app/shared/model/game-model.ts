@@ -24,6 +24,7 @@ export interface Card {
     subtype?: string; // es. "HERO" (per SUMMON, TRANSFORM)
     intoCardId?: string; // es. "pecora_trasformata"
   };
+  currentEffect;
 }
 export interface GameState {
   userIds: any;

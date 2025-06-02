@@ -121,8 +121,13 @@ export class GameBoardComponent implements OnInit, OnDestroy {
   // Variabile per il controllo del turno
   private _currentTurnPlayerId: string = '';
 
-  // boardTemplate: any = [];
   enemyBoardTemplate: any = [];
+
+  @ViewChild('myCard') myDiv!: ElementRef<HTMLDivElement>;
+  @ViewChild('spaceHand') spaceHand!: ElementRef<HTMLDivElement>;
+  @ViewChild('myboardHeight') myboardHeight!: ElementRef<HTMLDivElement>;
+
+  @ViewChild('enemyHand') enemyHand!: ElementRef<HTMLDivElement>;
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -180,41 +185,43 @@ export class GameBoardComponent implements OnInit, OnDestroy {
 
     this.subscriptions.push(
       this.socketService.onGameUpdate().subscribe((state) => {
-        this.loading = false;
-        if (!state?.gameId) return;
-        this.gameState = state;
-        this.frameSelected = state.frames?.[this.userId] || '';
-        this.frameSelectedOpponent = state.frames?.[this.opponentId] || '';
-        this.playerCrystals = state.crystals?.[this.userId] || 0;
-        this.opponentCrystals = state.crystals?.[this.opponentId] || 0;
-        this.board = [];
-        this.opponentBoard = [];
         setTimeout(() => {
-          this.board = (state.boards?.[this.userId] || []).map((c) => ({
-            ...c,
-          }));
+          this.loading = false;
+          if (!state?.gameId) return;
+          this.gameState = state;
+          this.frameSelected = state.frames?.[this.userId] || '';
+          this.frameSelectedOpponent = state.frames?.[this.opponentId] || '';
+          this.playerCrystals = state.crystals?.[this.userId] || 0;
+          this.opponentCrystals = state.crystals?.[this.opponentId] || 0;
+          this.board = [];
+          this.opponentBoard = [];
+          setTimeout(() => {
+            this.board = (state.boards?.[this.userId] || []).map((c) => ({
+              ...c,
+            }));
 
-          console.log('guarda board', this.board);
-          this.opponentBoard = [
-            ...(this.gameState.boards[this.opponentId] || []),
-          ];
-          this.cdr.detectChanges();
-          this.zone.run(() => {});
-          this.loading = true;
-        }, 100);
+            console.log('guarda board', this.board);
+            this.opponentBoard = [
+              ...(this.gameState.boards[this.opponentId] || []),
+            ];
+            this.cdr.detectChanges();
+            this.zone.run(() => {});
+            this.loading = true;
+          }, 100);
 
-        this._currentTurnPlayerId = state.turnInfo?.currentPlayerId;
-        this.currentPlayerName =
-          state.usernames?.[this._currentTurnPlayerId] || '';
-        this.isLoading = false;
+          this._currentTurnPlayerId = state.turnInfo?.currentPlayerId;
+          this.currentPlayerName =
+            state.usernames?.[this._currentTurnPlayerId] || '';
+          this.isLoading = false;
 
-        if (state.visualEvents) {
-          state.visualEvents.forEach((ev: any) => {
-            if (ev.cardId) {
-              this.highlightCard(ev.cardId, ev.type.toLowerCase());
-            }
-          });
-        }
+          // if (state.visualEvents) {
+          //   state.visualEvents.forEach((ev: any) => {
+          //     if (ev.cardId) {
+          //       this.highlightCard(ev.cardId, ev.type.toLowerCase());
+          //     }
+          //   });
+          // }
+        }, 1000); //serve per far vedere le animazioni
       })
     );
     // this.eventResize();
@@ -241,6 +248,24 @@ export class GameBoardComponent implements OnInit, OnDestroy {
     });
     this.socket.on('history-update', (entry) => {
       this.gameHistory.push(entry);
+      console.log('guarda history', entry);
+      if (entry.details?.effects?.length) {
+        entry.details.effects.forEach((effc: any) => {
+          if (effc.length > 0) {
+            effc.forEach((eff) => {
+              if (eff.to) {
+                console.log('effc.type multiplo', eff.type);
+                this.assignEffectToCard(eff.to, eff.type);
+              }
+            });
+          } else {
+            if (effc.type) {
+              console.log('effc.type singolo', effc.type);
+              this.assignEffectToCard(effc.to, effc.type);
+            }
+          }
+        });
+      }
     });
 
     this.socket.emit('request-history', { gameId: this.gameId });
@@ -729,21 +754,64 @@ export class GameBoardComponent implements OnInit, OnDestroy {
 
   formatEntry(entry: any): string {
     const who = entry.actor === this.userId ? 'Tu' : 'Avversario';
+
+    let base = '';
     switch (entry.type) {
       case 'PLAY_CARD':
-        return `${who} ha giocato ${entry.details.cardName}`;
+        base = `${who} ha giocato ${entry.details.cardName}`;
+        break;
       case 'ATTACK':
-        return `${who} ha attaccato ${entry.details.targetId}`;
+        base = `${who} ha attaccato ${entry.details.targetId}`;
+        break;
       case 'END_TURN':
-        return `${who} ha terminato il turno`;
+        base = `${who} ha terminato il turno`;
+        break;
       case 'EFFECT':
-        return `${who} ha attivato ${entry.details.effectType}`;
+        base = `${who} ha attivato ${entry.details.effectType}`;
+        break;
       case 'DRAW':
-        return `${who} ha pescato una carta`;
+        base = `${who} ha pescato una carta`;
+        break;
       default:
-        return `${who} ha fatto qualcosa`;
+        base = `${who} ha fatto qualcosa`;
     }
+
+    // Ora gestiamo eventuali effetti
+    if (entry.details?.effects?.length > 0) {
+      const effectsDescriptions = entry.details.effects
+        .map((eff: any) => {
+          switch (eff.type) {
+            case 'DAMAGE':
+              return `Inflitto ${eff.amount} danni a ${eff.to}`;
+            case 'HEAL':
+              return `Curato ${eff.amount} a ${eff.to}`;
+            case 'BURN':
+              return `Bruciato ${eff.to} (${eff.value})`;
+            case 'FREEZE':
+              return `Congelato ${eff.to} (${eff.duration} turni)`;
+            case 'BUFF_ATTACK':
+              return `+${eff.amount} Attacco su ${eff.to}`;
+            case 'BUFF_DEFENSE':
+              return `+${eff.amount} Difesa su ${eff.to}`;
+            case 'SHIELD':
+              return `Scudo ${eff.amount} a ${eff.to}`;
+            case 'SILENCE':
+              return `Silenziato ${eff.to}`;
+            case 'SET_STATS':
+              return `Set Stats ${eff.to} → ATK:${eff.newAttack}, DEF:${eff.newDefense}`;
+            // puoi aggiungere tutti gli altri qui se vuoi
+            default:
+              return `${eff.type} su ${eff.to ?? '-'}`;
+          }
+        })
+        .join(', ');
+
+      base += ` [Effetti: ${effectsDescriptions}]`;
+    }
+
+    return base;
   }
+
   backgroundUrl;
   setBoardBackground(imageUrl: string) {
     this.backgroundUrl = imageUrl;
@@ -754,8 +822,6 @@ export class GameBoardComponent implements OnInit, OnDestroy {
       'background-repeat': 'no-repeat',
     };
   }
-  @ViewChild('myCard') myDiv!: ElementRef<HTMLDivElement>;
-  @ViewChild('spaceHand') spaceHand!: ElementRef<HTMLDivElement>;
 
   measureHandRatio() {
     if (!this.myDiv || !this.spaceHand) return;
@@ -784,9 +850,6 @@ export class GameBoardComponent implements OnInit, OnDestroy {
     return { wi: cardWidth, hi: cardHeight };
   }
 
-  // @ViewChild('myboard') myboard!: ElementRef<HTMLDivElement>;
-  @ViewChild('myboardHeight') myboardHeight!: ElementRef<HTMLDivElement>;
-
   measureBoardRatio() {
     if (!this.myboardHeight) return;
 
@@ -812,8 +875,6 @@ export class GameBoardComponent implements OnInit, OnDestroy {
     return { wi: cardWidth, hi: cardHeight };
   }
 
-  @ViewChild('enemyHand') enemyHand!: ElementRef<HTMLDivElement>;
-
   measureEnemyRatio() {
     if (!this.enemyHand) return;
 
@@ -835,7 +896,7 @@ export class GameBoardComponent implements OnInit, OnDestroy {
       cardHeight *= scale;
     }
 
-    console.log('Card width:', cardWidth, 'Card height:', cardHeight);
+    // console.log('Card width:', cardWidth, 'Card height:', cardHeight);
     return { wi: cardWidth, hi: cardHeight };
   }
   // handRatio;
@@ -854,4 +915,41 @@ export class GameBoardComponent implements OnInit, OnDestroy {
   //     this.handRatio = this.measureHandRatio();
   //   });
   // }
+  targetClose() {
+    // Reset variabili interne
+    console.log('sono in reset');
+    this.awaitingTargetForCard = null;
+    this.awaitingTargetForCardIndex = null;
+    this.maxSelectableTargets = 0;
+    this.selectedTargets = [];
+    this.targetInstruction = null;
+
+    // Rimuovi highlight selezione dal DOM
+    const highlighted = document.querySelectorAll('.highlight-selectable');
+    highlighted.forEach((el) => el.classList.remove('highlight-selectable'));
+
+    const selected = document.querySelectorAll('.card-selected');
+    selected.forEach((el) => el.classList.remove('card-selected'));
+
+    // Rimuove anche eventuali listener pendenti
+    document.querySelectorAll('.highlight-selectable').forEach((el) => {
+      const newEl = el.cloneNode(true);
+      el.replaceWith(newEl);
+    });
+  }
+  assignEffectToCard(cardId: string, effectType: string) {
+    console.log('STO CERCANDO DI ASSEGGNARE EFFETTO');
+    const foundInMyBoard = this.board.find((c) => c.id === cardId) as any;
+    if (foundInMyBoard) {
+      foundInMyBoard.currentEffect = effectType;
+      return;
+    }
+
+    const foundInOpponentBoard = this.opponentBoard.find(
+      (c) => c.id === cardId
+    ) as any;
+    if (foundInOpponentBoard) {
+      foundInOpponentBoard.currentEffect = effectType;
+    }
+  }
 }

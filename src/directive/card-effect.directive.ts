@@ -17,20 +17,29 @@ export class CardEffectHighlightDirective implements OnChanges {
   constructor(private el: ElementRef) {}
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['effectType'] && this.effectType) {
+    console.log('sonoQui', changes);
+    if (changes['effectType']) {
+      console.log('sonoQui');
       const el = this.el.nativeElement;
 
-      // Rimuovi la classe precedente se esiste
       if (this.previousClass) {
         el.classList.remove(this.previousClass);
       }
 
-      el.classList.add(this.effectType);
-      this.previousClass = this.effectType;
+      if (this.effectType) {
+        const normalizedClass = this.normalizeEffectType(this.effectType);
+        el.classList.add(normalizedClass);
+        this.previousClass = normalizedClass;
 
-      setTimeout(() => {
-        el.classList.remove(this.effectType!);
-      }, 1000); // durata animazione
+        setTimeout(() => {
+          el.classList.remove(normalizedClass);
+          this.previousClass = undefined;
+        }, 1000);
+      }
     }
+  }
+
+  private normalizeEffectType(effectType: string): string {
+    return `effect-${effectType.toLowerCase()}`;
   }
 }

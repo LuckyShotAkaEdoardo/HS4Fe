@@ -42,6 +42,7 @@ export interface Cutout {
     CardEffectClassPipe,
     NgOptimizedImage,
     CardImageCachePipe,
+    CardEffectHighlightDirective,
     TruncateNamePipe,
   ],
   templateUrl: './card.component.html',
@@ -82,6 +83,7 @@ export class CardComponent implements OnInit {
 
     // console.log('frame', this.frameSrc, 'enviromentFrame', environment.frame);
   }
+  @Input() currentEffect;
   icons: { src: string; alt: string; value: string }[] = [];
   val = {
     cristal: 'crystal_64x64.png',

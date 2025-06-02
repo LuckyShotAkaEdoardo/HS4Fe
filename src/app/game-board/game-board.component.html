@@ -84,6 +84,7 @@
   </section>
   <div *ngIf="targetInstruction" class="target-instruction">
     {{ targetInstruction }}
+    <button (click)="targetClose()">ANNULLA</button>
   </div>
   <div cdkDropListGroup>
     <!-- INFO TURNO + BOARD -->
@@ -162,6 +163,7 @@
                   [isVisibileText]="false"
                   [frameTitle]="frameSelectedOpponent"
                   [card]="c"
+                  [currentEffect]="c.currentEffect"
                 ></app-card>
               </div>
             </div>
@@ -201,6 +203,7 @@
                   [isVisibileText]="false"
                   [frameTitle]="frameSelected"
                   [card]="c"
+                  [currentEffect]="c.currentEffect"
                 ></app-card>
               </div>
             </div>
@@ -209,6 +212,7 @@
             <div
               *ngIf="isDraggingFromHand && previewIndex === board.length"
               class="singleCardBoard placeholder-slot"
+              [style.width.px]="measureBoardRatio()?.wi"
             ></div>
 
             <!-- <div

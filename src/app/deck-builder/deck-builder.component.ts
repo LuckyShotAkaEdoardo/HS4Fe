@@ -34,6 +34,9 @@ export class DeckBuilderComponent implements OnInit {
   allFrame: any[] = [];
   frameSelected;
   decks: any[] = [];
+  showDeck = false;
+  deckSelectedId;
+  copied: boolean = false;
   constructor(private router: Router) {}
 
   ngOnInit(): void {
@@ -118,8 +121,7 @@ export class DeckBuilderComponent implements OnInit {
       d.isSelected = i === count;
     });
   }
-  showDeck = false;
-  deckSelectedId;
+
   editDeck(deck) {
     console.log(deck);
     const cardIds = this.decks[deck].cards;
@@ -192,7 +194,6 @@ export class DeckBuilderComponent implements OnInit {
     }
     return bytes;
   }
-  copied: boolean = false;
 
   copyDeckCode(): void {
     const input = document.getElementById('deck-code') as HTMLInputElement;

@@ -340,17 +340,17 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
    border-radius: 10px 10px 10px 10px;
 }
 
-.effect-damage {
-  animation: shake 0.4s ease;
-}
+// .effect-damage {
+//   animation: shake 0.4s ease;
+// }
 
-@keyframes shake {
-  0% { transform: translateX(0); }
-  25% { transform: translateX(-5px); }
-  50% { transform: translateX(5px); }
-  75% { transform: translateX(-5px); }
-  100% { transform: translateX(0); }
-}
+// @keyframes shake {
+//   0% { transform: translateX(0); }
+//   25% { transform: translateX(-5px); }
+//   50% { transform: translateX(5px); }
+//   75% { transform: translateX(-5px); }
+//   100% { transform: translateX(0); }
+// }
 
 .effect-damage {
   animation: shake-red 0.5s;

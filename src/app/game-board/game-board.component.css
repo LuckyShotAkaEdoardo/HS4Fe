@@ -281,7 +281,7 @@ body {
   border-radius: 12px;
   box-shadow: 0 0 15px rgba(255, 215, 0, 0.7);
   z-index: 1100;
-  pointer-events: none;
+
   animation: fadeInOut 0.3s ease-in-out;
 }
 .cards-board .cdk-drag-placeholder {
