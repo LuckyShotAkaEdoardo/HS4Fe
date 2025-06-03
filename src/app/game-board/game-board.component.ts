@@ -34,6 +34,7 @@ import { VisualEvent } from '../../service/effect-mapper';
 import { fromEvent, Subscription } from 'rxjs';
 import { trigger, transition, style, animate } from '@angular/animations';
 import { CardEffectClassPipe } from '../../directive/card-effect.pipe';
+import { BoardStateService, CardWithDelta } from '../../service/board-service';
 
 @Component({
   selector: 'app-game-board',
@@ -88,7 +89,7 @@ export class GameBoardComponent implements OnInit, OnDestroy {
 
   selectedTargets: string[] = [];
   maxSelectableTargets = 0;
-  awaitingTargetForCard: Card | null = null;
+  awaitingTargetForCard: CardWithDelta | null = null;
   currentPlayerName = '';
   playerCrystals = 0;
   // cardsInHand: Card[] = [];
@@ -134,7 +135,8 @@ export class GameBoardComponent implements OnInit, OnDestroy {
     private socketService: SocketService,
     private cdr: ChangeDetectorRef,
     private cardService: CardService,
-    private zone: NgZone
+    private zone: NgZone,
+    private boardStateService: BoardStateService // QUI
   ) {}
   userId: string = '';
   showEndModal = false;
@@ -146,9 +148,9 @@ export class GameBoardComponent implements OnInit, OnDestroy {
   targetInstruction: string | null = null;
   gameHistory: any[] = [];
   private subscriptions: Subscription[] = [];
-  board: Card[] = [];
-  opponentBoard: Card[] = [];
-  loading = false;
+  board: CardWithDelta[] = [];
+  opponentBoard: CardWithDelta[] = [];
+  loading = true;
   boardStyle;
   vh;
   ngOnInit(): void {
@@ -163,11 +165,18 @@ export class GameBoardComponent implements OnInit, OnDestroy {
         this.socket = this.socketService.getSocket();
       }
     }
-
+    const cachedBoard = this.boardStateService.getFullBoard();
+    if (cachedBoard) {
+      this.board = cachedBoard[this.userId] || [];
+      this.opponentBoard = cachedBoard[this.opponentId] || [];
+    }
     this.setBoardBackground('assets/boards/3.png');
     this.subscriptions.push(
       this.socketService.onGameStarted().subscribe((state) => {
         this.gameState = state;
+        this.boardStateService.setMyUserId(state.userId);
+        this.boardStateService.applyGameUpdate(state);
+
         this.userId = state.userId;
         this.username = state.username;
         this.gameState = state;
@@ -177,6 +186,9 @@ export class GameBoardComponent implements OnInit, OnDestroy {
         this.playerCrystals = state.crystals?.[this.userId] || 0;
         this.opponentCrystals = state.crystals?.[opponentId] || 0;
         this._currentTurnPlayerId = state.turnInfo?.currentPlayerId;
+        this.board = this.boardStateService.getPlayerBoardSelf();
+
+        this.opponentBoard = this.boardStateService.getPlayerBoardOpponent();
         this.currentPlayerName =
           state.usernames?.[this._currentTurnPlayerId] || '';
         this.isLoading = false;
@@ -186,28 +198,22 @@ export class GameBoardComponent implements OnInit, OnDestroy {
     this.subscriptions.push(
       this.socketService.onGameUpdate().subscribe((state) => {
         setTimeout(() => {
-          this.loading = false;
+          // this.loading = false;
           if (!state?.gameId) return;
           this.gameState = state;
+          this.boardStateService.applyGameUpdate(state);
+
           this.frameSelected = state.frames?.[this.userId] || '';
           this.frameSelectedOpponent = state.frames?.[this.opponentId] || '';
           this.playerCrystals = state.crystals?.[this.userId] || 0;
           this.opponentCrystals = state.crystals?.[this.opponentId] || 0;
-          this.board = [];
-          this.opponentBoard = [];
-          setTimeout(() => {
-            this.board = (state.boards?.[this.userId] || []).map((c) => ({
-              ...c,
-            }));
+          // this.board = [];
+          // this.opponentBoard = [];
+          this.board = this.boardStateService.getPlayerBoardSelf();
 
-            console.log('guarda board', this.board);
-            this.opponentBoard = [
-              ...(this.gameState.boards[this.opponentId] || []),
-            ];
-            this.cdr.detectChanges();
-            this.zone.run(() => {});
-            this.loading = true;
-          }, 100);
+          this.opponentBoard = this.boardStateService.getPlayerBoardOpponent();
+          this.zone.run(() => this.cdr.detectChanges());
+          // this.loading = true;
 
           this._currentTurnPlayerId = state.turnInfo?.currentPlayerId;
           this.currentPlayerName =
@@ -304,30 +310,30 @@ export class GameBoardComponent implements OnInit, OnDestroy {
       : '';
   }
 
-  get cardsInHand(): Card[] {
+  get cardsInHand(): CardWithDelta[] {
     return (this.gameState?.hands?.[this.userId] as any) || [];
   }
-  updateBoard(newCards: Card[]) {
-    for (let i = 0; i < newCards.length; i++) {
-      const newCard = newCards[i];
-      const oldCard = this.board[i];
+  // updateBoard(newCards: Card[]) {
+  //   for (let i = 0; i < newCards.length; i++) {
+  //     const newCard = newCards[i];
+  //     const oldCard = this.board[i];
 
-      if (!oldCard || oldCard.id !== newCard.id) {
-        this.board[i] = { ...newCard }; // nuova carta
-      } else {
-        // aggiorno i campi mutabili: hp, freeze, ecc.
-        Object.assign(this.board[i], newCard);
-      }
-    }
+  //     if (!oldCard || oldCard.id !== newCard.id) {
+  //       this.board[i] = { ...newCard }; // nuova carta
+  //     } else {
+  //       // aggiorno i campi mutabili: hp, freeze, ecc.
+  //       Object.assign(this.board[i], newCard);
+  //     }
+  //   }
 
-    // Rimuovo carte in eccesso se necessario
-    if (this.board.length > newCards.length) {
-      this.board.length = newCards.length;
-    }
-  }
+  //   // Rimuovo carte in eccesso se necessario
+  //   if (this.board.length > newCards.length) {
+  //     this.board.length = newCards.length;
+  //   }
+  // }
 
   attack(
-    attacker: Card,
+    attacker: CardWithDelta,
     target: { type: 'HERO' | 'FACE'; id?: string; playerId?: string }
   ): void {
     this.socket.emit('attack', { gameId: this.gameId, attacker, target });
@@ -356,12 +362,15 @@ export class GameBoardComponent implements OnInit, OnDestroy {
   }
   /** Predicate used by Angular CDK to allow dropping only
    * if it's the player's turn and they have enough crystals */
-  boardEnterPredicate = (drag: CdkDrag<Card>, drop: CdkDropList): boolean => {
+  boardEnterPredicate = (
+    drag: CdkDrag<CardWithDelta>,
+    drop: CdkDropList
+  ): boolean => {
     const card = drag.data;
     return this.isMyTurn && card.cost <= this.playerCrystals;
   };
   awaitingTargetForCardIndex;
-  onDrop(event: CdkDragDrop<Card[]>): void {
+  onDrop(event: CdkDragDrop<CardWithDelta[]>): void {
     // Riordino nella mano
     if (this.showEndModal) return;
     if (event.previousContainer === event.container) {
@@ -939,17 +948,7 @@ export class GameBoardComponent implements OnInit, OnDestroy {
   }
   assignEffectToCard(cardId: string, effectType: string) {
     console.log('STO CERCANDO DI ASSEGGNARE EFFETTO');
-    const foundInMyBoard = this.board.find((c) => c.id === cardId) as any;
-    if (foundInMyBoard) {
-      foundInMyBoard.currentEffect = effectType;
-      return;
-    }
 
-    const foundInOpponentBoard = this.opponentBoard.find(
-      (c) => c.id === cardId
-    ) as any;
-    if (foundInOpponentBoard) {
-      foundInOpponentBoard.currentEffect = effectType;
-    }
+    this.boardStateService.assignEffectToCard(cardId, effectType);
   }
 }

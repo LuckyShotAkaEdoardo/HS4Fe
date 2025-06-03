@@ -48,7 +48,15 @@
   <div class="icons" *ngIf="iconStyles" [ngStyle]="iconStyles">
     <ng-container *ngFor="let icon of icons">
       <img [src]="icon.src" [alt]="icon.alt" (error)="onImgError($event)" />
-      <span *ngIf="icon.value | lte">0</span> <span>{{ icon.value }}</span>
+      <span
+        [class.buff]="icon.delta > 0"
+        [class.nerf]="icon.delta < 0"
+        *ngIf="icon.value | lte"
+        >0</span
+      >
+      <span [class.buff]="icon.delta > 0" [class.nerf]="icon.delta < 0">{{
+        icon.value
+      }}</span>
     </ng-container>
   </div>
 </div>

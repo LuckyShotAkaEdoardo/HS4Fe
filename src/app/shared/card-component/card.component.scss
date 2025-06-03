@@ -111,3 +111,15 @@
   }
   
 }
+
+.buff {
+  color: #4caf50; // verde positivo
+  font-weight: bold;
+  transition: color 0.3s;
+}
+
+.nerf {
+  color: #f44336; // rosso negativo
+  font-weight: bold;
+  transition: color 0.3s;
+}

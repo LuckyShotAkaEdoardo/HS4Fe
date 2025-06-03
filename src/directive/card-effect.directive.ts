@@ -17,7 +17,6 @@ export class CardEffectHighlightDirective implements OnChanges {
   constructor(private el: ElementRef) {}
 
   ngOnChanges(changes: SimpleChanges): void {
-    console.log('sonoQui', changes);
     if (changes['effectType']) {
       console.log('sonoQui');
       const el = this.el.nativeElement;

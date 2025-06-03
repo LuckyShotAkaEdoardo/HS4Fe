@@ -23,7 +23,7 @@ import { NgOptimizedImage } from '@angular/common';
 import { CardImageCachePipe } from './img-cash.pipe';
 import { of } from 'rxjs';
 import { TruncateNamePipe } from '../../../directive/title.pipe';
-
+import { ChangeDetectorRef } from '@angular/core';
 export interface Cutout {
   top: number;
   left: number;
@@ -84,7 +84,7 @@ export class CardComponent implements OnInit {
     // console.log('frame', this.frameSrc, 'enviromentFrame', environment.frame);
   }
   @Input() currentEffect;
-  icons: { src: string; alt: string; value: string }[] = [];
+  icons: { src: string; alt: string; value: string; delta }[] = [];
   val = {
     cristal: 'crystal_64x64.png',
     heart: 'heart_64x64.png',
@@ -103,26 +103,30 @@ export class CardComponent implements OnInit {
       this.icons = [
         {
           src: this.basePathIcon + this.val.sword,
-          alt: '',
+          alt: 'sword',
           value: this.card.attack,
+          delta: this.card.deltaAttack ?? 0,
         },
         {
           src: this.basePathIcon + this.val.heart,
-          alt: '',
+          alt: 'heart',
           value: this.card.defense,
+          delta: this.card.deltaDefense ?? 0,
         },
         {
           src: this.basePathIcon + this.val.cristal,
-          alt: '',
+          alt: 'crystal',
           value: this.card.cost,
+          delta: 0,
         },
       ];
     } else {
       this.icons = [
         {
           src: this.basePathIcon + this.val.cristal,
-          alt: '',
+          alt: 'crystal',
           value: this.card.cost,
+          delta: 0,
         },
       ];
     }
