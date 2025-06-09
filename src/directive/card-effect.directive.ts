@@ -5,7 +5,8 @@ import {
   OnChanges,
   SimpleChanges,
 } from '@angular/core';
-
+export const VISUAL_ANIMATION_DURATION = 1000; // ms
+export const VISUAL_CLEANUP_DELAY = 100; // ms
 @Directive({
   selector: '[cardEffectHighlight]',
 })
@@ -18,7 +19,6 @@ export class CardEffectHighlightDirective implements OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['effectType']) {
-      console.log('sonoQui');
       const el = this.el.nativeElement;
 
       if (this.previousClass) {
@@ -33,7 +33,7 @@ export class CardEffectHighlightDirective implements OnChanges {
         setTimeout(() => {
           el.classList.remove(normalizedClass);
           this.previousClass = undefined;
-        }, 1000);
+        }, VISUAL_ANIMATION_DURATION);
       }
     }
   }

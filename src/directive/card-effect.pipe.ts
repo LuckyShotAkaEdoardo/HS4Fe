@@ -36,7 +36,9 @@ export class CardEffectClassPipe implements PipeTransform {
       legacyClasses.push('ability-charge');
       fxClasses.push('fx-border-right-red');
     }
-
+    if (card.frozenFor && card.frozenFor > 0) {
+      legacyClasses.push('ability-freeze');
+    }
     // if (card.canAttack === true) {
     //   legacyClasses.push('ability-can-attack');
     //   fxClasses.push('fx-bottom-green-glow');

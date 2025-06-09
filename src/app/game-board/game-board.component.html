@@ -149,7 +149,7 @@
             class="cards-board board-min"
             [style.height.vh]="displaySettings().sizes.board / 2.5"
           >
-            <div *ngFor="let c of opponentBoard">
+            <div *ngFor="let c of opponentBoard; trackBy: trackByCardId">
               <div
                 *ngIf="c.name"
                 (mouseenter)="onHoverTarget(c)"
@@ -184,7 +184,10 @@
             *ngIf="loading"
             #myboardHeight
           >
-            <div #myboard *ngFor="let c of board; let i = index">
+            <div
+              #myboard
+              *ngFor="let c of board; let i = index; trackBy: trackByCardId"
+            >
               <div
                 *ngIf="isDraggingFromHand && previewIndex === i"
                 class="singleCardBoard placeholder-slot"
@@ -362,5 +365,5 @@
     ></line>
   </svg>
 </div>
-<!-- <pre>{{ gameState | json }}</pre> -->
+<pre>{{ gameState | json }}</pre>
 } @else{ Vai alla dashboard }

@@ -35,6 +35,10 @@ import { fromEvent, Subscription } from 'rxjs';
 import { trigger, transition, style, animate } from '@angular/animations';
 import { CardEffectClassPipe } from '../../directive/card-effect.pipe';
 import { BoardStateService, CardWithDelta } from '../../service/board-service';
+import {
+  VISUAL_ANIMATION_DURATION,
+  VISUAL_CLEANUP_DELAY,
+} from '../../directive/card-effect.directive';
 
 @Component({
   selector: 'app-game-board',
@@ -165,18 +169,42 @@ export class GameBoardComponent implements OnInit, OnDestroy {
         this.socket = this.socketService.getSocket();
       }
     }
-    const cachedBoard = this.boardStateService.getFullBoard();
-    if (cachedBoard) {
-      this.board = cachedBoard[this.userId] || [];
-      this.opponentBoard = cachedBoard[this.opponentId] || [];
-    }
+    // const cachedBoard = this.boardStateService.getFullBoard();
+    // if (cachedBoard) {
+    //   this.board = cachedBoard[this.userId] || [];
+    //   this.opponentBoard = cachedBoard[this.opponentId] || [];
+    // }
     this.setBoardBackground('assets/boards/3.png');
     this.subscriptions.push(
       this.socketService.onGameStarted().subscribe((state) => {
         this.gameState = state;
         this.boardStateService.setMyUserId(state.userId);
-        this.boardStateService.applyGameUpdate(state);
+        // 1️⃣ Applico effetti visivi
+        if (state.visualEvents) {
+          state.visualEvents.forEach((ev: any) => {
+            if (ev.cardId) {
+              this.assignEffectToCard(ev.cardId, ev.type.toLowerCase());
+            }
+          });
+        }
 
+        // 2️⃣ Aspetto il tempo delle animazioni (ad esempio 500ms)
+        setTimeout(() => {
+          // 3️⃣ Solo dopo aggiorno la board vera (stats, hp, ecc.)
+          this.boardStateService.applyGameUpdate(state);
+
+          // 4️⃣ Resetto anche gli effetti visivi una volta conclusa l'animazione
+          setTimeout(() => {
+            this.boardStateService.clearEffects();
+          }, VISUAL_CLEANUP_DELAY); // opzionale: delay di reset effetti
+        }, VISUAL_ANIMATION_DURATION);
+        // qui assegni visualEvents solo una volta
+        // if (state.visualEvents) {
+        //   state.visualEvents.forEach((ev: any) => {
+        //     if (ev.cardId) {
+        //       this.assignEffectToCard(ev.cardId, ev.type.toLowerCase());
+        //     }
+        //   });
         this.userId = state.userId;
         this.username = state.username;
         this.gameState = state;
@@ -186,48 +214,76 @@ export class GameBoardComponent implements OnInit, OnDestroy {
         this.playerCrystals = state.crystals?.[this.userId] || 0;
         this.opponentCrystals = state.crystals?.[opponentId] || 0;
         this._currentTurnPlayerId = state.turnInfo?.currentPlayerId;
-        this.board = this.boardStateService.getPlayerBoardSelf();
+        // this.board = this.boardStateService.getPlayerBoardSelf();
 
-        this.opponentBoard = this.boardStateService.getPlayerBoardOpponent();
+        // this.opponentBoard = this.boardStateService.getPlayerBoardOpponent();
         this.currentPlayerName =
           state.usernames?.[this._currentTurnPlayerId] || '';
         this.isLoading = false;
       })
     );
+    this.boardStateService.selfBoard$.subscribe((board) => {
+      this.board = board;
+    });
+
+    this.boardStateService.opponentBoard$.subscribe((board) => {
+      this.opponentBoard = board;
+    });
 
     this.subscriptions.push(
       this.socketService.onGameUpdate().subscribe((state) => {
+        // setTimeout(() => {
+        // this.loading = false;
+        if (!state?.gameId) return;
+        this.gameState = state;
+        this.boardStateService.setMyUserId(state.userId);
+        if (state.visualEvents) {
+          state.visualEvents.forEach((ev: any) => {
+            if (ev.cardId) {
+              this.assignEffectToCard(ev.cardId, ev.type.toLowerCase());
+            }
+          });
+        }
+
+        // 2️⃣ Aspetto il tempo delle animazioni (ad esempio 500ms)
         setTimeout(() => {
-          // this.loading = false;
-          if (!state?.gameId) return;
-          this.gameState = state;
+          // 3️⃣ Solo dopo aggiorno la board vera (stats, hp, ecc.)
           this.boardStateService.applyGameUpdate(state);
 
-          this.frameSelected = state.frames?.[this.userId] || '';
-          this.frameSelectedOpponent = state.frames?.[this.opponentId] || '';
-          this.playerCrystals = state.crystals?.[this.userId] || 0;
-          this.opponentCrystals = state.crystals?.[this.opponentId] || 0;
-          // this.board = [];
-          // this.opponentBoard = [];
-          this.board = this.boardStateService.getPlayerBoardSelf();
+          // 4️⃣ Resetto anche gli effetti visivi una volta conclusa l'animazione
+          setTimeout(() => {
+            this.boardStateService.clearEffects();
+          }, VISUAL_CLEANUP_DELAY); // opzionale: delay di reset effetti
+        }, VISUAL_ANIMATION_DURATION);
 
-          this.opponentBoard = this.boardStateService.getPlayerBoardOpponent();
-          this.zone.run(() => this.cdr.detectChanges());
-          // this.loading = true;
+        this.frameSelected = state.frames?.[this.userId] || '';
+        this.frameSelectedOpponent = state.frames?.[this.opponentId] || '';
+        this.playerCrystals = state.crystals?.[this.userId] || 0;
+        this.opponentCrystals = state.crystals?.[this.opponentId] || 0;
+        // this.board = [];
+        // this.opponentBoard = [];
+        // const updatedSelf = this.boardStateService.getPlayerBoardSelf();
+        // const updatedOpponent = this.boardStateService.getPlayerBoardOpponent();
 
-          this._currentTurnPlayerId = state.turnInfo?.currentPlayerId;
-          this.currentPlayerName =
-            state.usernames?.[this._currentTurnPlayerId] || '';
-          this.isLoading = false;
+        // this.syncBoard(this.board, updatedSelf);
+        // this.syncBoard(this.opponentBoard, updatedOpponent);
+        this.zone.run(() => this.cdr.detectChanges());
+        // this.loading = true;
 
-          // if (state.visualEvents) {
-          //   state.visualEvents.forEach((ev: any) => {
-          //     if (ev.cardId) {
-          //       this.highlightCard(ev.cardId, ev.type.toLowerCase());
-          //     }
-          //   });
-          // }
-        }, 1000); //serve per far vedere le animazioni
+        this._currentTurnPlayerId = state.turnInfo?.currentPlayerId;
+        this.currentPlayerName =
+          state.usernames?.[this._currentTurnPlayerId] || '';
+        this.isLoading = false;
+
+        if (state.visualEvents) {
+          state.visualEvents.forEach((ev: any) => {
+            if (ev.cardId) {
+              this.assignEffectToCard(ev.cardId, ev.type.toLowerCase());
+            }
+          });
+        }
+
+        // },); //serve per far vedere le animazioni
       })
     );
     // this.eventResize();
@@ -255,23 +311,23 @@ export class GameBoardComponent implements OnInit, OnDestroy {
     this.socket.on('history-update', (entry) => {
       this.gameHistory.push(entry);
       console.log('guarda history', entry);
-      if (entry.details?.effects?.length) {
-        entry.details.effects.forEach((effc: any) => {
-          if (effc.length > 0) {
-            effc.forEach((eff) => {
-              if (eff.to) {
-                console.log('effc.type multiplo', eff.type);
-                this.assignEffectToCard(eff.to, eff.type);
-              }
-            });
-          } else {
-            if (effc.type) {
-              console.log('effc.type singolo', effc.type);
-              this.assignEffectToCard(effc.to, effc.type);
-            }
-          }
-        });
-      }
+      // if (entry.details?.effects?.length) {
+      //   entry.details.effects.forEach((effc: any) => {
+      //     if (effc.length > 0) {
+      //       effc.forEach((eff) => {
+      //         if (eff.to) {
+      //           console.log('effc.type multiplo', eff.type);
+      //           this.assignEffectToCard(eff.to, eff.type);
+      //         }
+      //       });
+      //     } else {
+      //       if (effc.type) {
+      //         console.log('effc.type singolo', effc.type);
+      //         this.assignEffectToCard(effc.to, effc.type);
+      //       }
+      //     }
+      //   });
+      // }
     });
 
     this.socket.emit('request-history', { gameId: this.gameId });
@@ -374,6 +430,7 @@ export class GameBoardComponent implements OnInit, OnDestroy {
     // Riordino nella mano
     if (this.showEndModal) return;
     if (event.previousContainer === event.container) {
+      this.clearPreviewIndex();
       return;
       // // riordino nella stessa lista
     } else {
@@ -382,6 +439,8 @@ export class GameBoardComponent implements OnInit, OnDestroy {
       if (!this.isMyTurn || draggedCard.cost > this.playerCrystals) return;
       if (draggedCard.type === 'HERO' && this.board.length >= 6) {
         alert('Board piena');
+        // Protezione: non è il mio turno o non ho cristalli → RESET DEL DRAG
+        this.clearPreviewIndex();
         return;
       }
 
@@ -908,22 +967,7 @@ export class GameBoardComponent implements OnInit, OnDestroy {
     // console.log('Card width:', cardWidth, 'Card height:', cardHeight);
     return { wi: cardWidth, hi: cardHeight };
   }
-  // handRatio;
-  // enemyRatio = { wi: 10, hi: 10 } as any;
-  // boardRatio;
-  // eventResize() {
-  //   setTimeout(() => {
-  //     this.enemyRatio = this.measureEnemyRatio();
-  //     this.boardRatio = this.measureBoardRatio();
-  //     this.handRatio = this.measureHandRatio();
-  //   }, 500);
 
-  //   fromEvent(window, 'resize').subscribe(() => {
-  //     this.enemyRatio = this.measureEnemyRatio();
-  //     this.boardRatio = this.measureBoardRatio();
-  //     this.handRatio = this.measureHandRatio();
-  //   });
-  // }
   targetClose() {
     // Reset variabili interne
     console.log('sono in reset');
@@ -950,5 +994,8 @@ export class GameBoardComponent implements OnInit, OnDestroy {
     console.log('STO CERCANDO DI ASSEGGNARE EFFETTO');
 
     this.boardStateService.assignEffectToCard(cardId, effectType);
+  }
+  trackByCardId(index: number, card: CardWithDelta): string {
+    return card.id;
   }
 }

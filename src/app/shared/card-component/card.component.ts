@@ -1,10 +1,12 @@
 // card.component.ts
 import {
+  ChangeDetectionStrategy,
   Component,
   ElementRef,
   HostListener,
   inject,
   Input,
+  OnChanges,
   OnInit,
   SimpleChanges,
   ViewChild,
@@ -24,6 +26,7 @@ import { CardImageCachePipe } from './img-cash.pipe';
 import { of } from 'rxjs';
 import { TruncateNamePipe } from '../../../directive/title.pipe';
 import { ChangeDetectorRef } from '@angular/core';
+import { CardWithDelta } from '../../../service/board-service';
 export interface Cutout {
   top: number;
   left: number;
@@ -49,7 +52,7 @@ export interface Cutout {
   styleUrls: ['./card.component.scss'],
   providers: [LessThanEqualPipe],
 })
-export class CardComponent implements OnInit {
+export class CardComponent implements OnInit, OnChanges {
   @Input() title = '';
   // contentSrc = '';
   frameSrc = '';
@@ -73,7 +76,26 @@ export class CardComponent implements OnInit {
     'https://rrcamyzbvljicmaaqwap.supabase.co/storage/v1/object/public/sw4img/card-img/icon/';
   frameBase =
     'https://rrcamyzbvljicmaaqwap.supabase.co/storage/v1/object/public/sw4img/card-img/frame/';
-  @Input() card;
+  private _card: any;
+  @Input() set card(value: any) {
+    const isFirstTime = !this._card;
+
+    const hasChanges =
+      isFirstTime ||
+      this._card.attack !== value.attack ||
+      this._card.defense !== value.defense ||
+      this._card.canAttack !== value.canAttack ||
+      JSON.stringify(this._card.delta) !== JSON.stringify(value.delta);
+
+    this._card = value;
+
+    if (isFirstTime || hasChanges) {
+      this.getALl();
+    }
+  }
+  get card(): CardWithDelta {
+    return this._card;
+  }
   @Input() isVisibileText = true;
   @Input() set frameTitle(val) {
     this.frameSrc = this.frameBase + val;
@@ -84,7 +106,7 @@ export class CardComponent implements OnInit {
     // console.log('frame', this.frameSrc, 'enviromentFrame', environment.frame);
   }
   @Input() currentEffect;
-  icons: { src: string; alt: string; value: string; delta }[] = [];
+  icons: { src: string; alt: string; value: any; delta }[] = [];
   val = {
     cristal: 'crystal_64x64.png',
     heart: 'heart_64x64.png',
@@ -99,6 +121,58 @@ export class CardComponent implements OnInit {
   getALl() {
     this.contentSrc = this.baseAllCard + this.card.image;
     console.log();
+    this.getIcon();
+    this.getCutOutStyle();
+    this.getFrameVisibleStyles();
+  }
+  getCutOutStyle() {
+    this.cutoutStyles = null;
+    this.iconStyles = null;
+    this.cutoutSvc.getCutout(this.frameSrc!).then((c) => {
+      this.cutoutStyles = {
+        top: `${c.top}%`,
+        left: `${c.left}%`,
+        width: `${c.width}%`,
+        height: `${c.height}%`,
+      };
+
+      this.iconStyles = {
+        top: `${c.top + c.height + 3.5}%`,
+        left: `${c.left}%`,
+        width: `${c.width}%`,
+        'justify-content': this.icons.length === 1 ? 'center' : 'space-around',
+      };
+      const center = c.left + c.width / 2;
+      this.titleStyles = {
+        top: `calc(${c.top + c.height}% - 2.5em)`,
+        left: `${center}%`,
+        transform: 'translateX(-50%)',
+        width: `${c.width}%`, // ← qui
+      };
+    });
+  }
+  ngOnChanges() {
+    console.log('GUARDA CAMBIO', this.card.defense);
+    this.getIcon();
+  }
+  onImgError(ev: Event) {
+    (ev.target as HTMLImageElement).style.display = 'none';
+    ev.stopImmediatePropagation();
+  }
+  onLongPress() {
+    this.dialog.open(CardZoomDialogComponent, {
+      data: this.card,
+      panelClass: 'card-zoom-dialog',
+      backdropClass: 'card-zoom-backdrop',
+    });
+  }
+
+  private lastTap = 0;
+
+  onDoubleTap() {
+    this.onLongPress();
+  }
+  getIcon() {
     if (this.card.type === 'HERO') {
       this.icons = [
         {
@@ -130,54 +204,7 @@ export class CardComponent implements OnInit {
         },
       ];
     }
-    this.getCutOutStyle();
-    this.getFrameVisibleStyles();
   }
-  getCutOutStyle() {
-    this.cutoutStyles = null;
-    this.iconStyles = null;
-    this.cutoutSvc.getCutout(this.frameSrc!).then((c) => {
-      this.cutoutStyles = {
-        top: `${c.top}%`,
-        left: `${c.left}%`,
-        width: `${c.width}%`,
-        height: `${c.height}%`,
-      };
-
-      this.iconStyles = {
-        top: `${c.top + c.height + 3.5}%`,
-        left: `${c.left}%`,
-        width: `${c.width}%`,
-        'justify-content': this.icons.length === 1 ? 'center' : 'space-around',
-      };
-      const center = c.left + c.width / 2;
-      this.titleStyles = {
-        top: `calc(${c.top + c.height}% - 2.5em)`,
-        left: `${center}%`,
-        transform: 'translateX(-50%)',
-        width: `${c.width}%`, // ← qui
-      };
-    });
-  }
-
-  onImgError(ev: Event) {
-    (ev.target as HTMLImageElement).style.display = 'none';
-    ev.stopImmediatePropagation();
-  }
-  onLongPress() {
-    this.dialog.open(CardZoomDialogComponent, {
-      data: this.card,
-      panelClass: 'card-zoom-dialog',
-      backdropClass: 'card-zoom-backdrop',
-    });
-  }
-
-  private lastTap = 0;
-
-  onDoubleTap() {
-    this.onLongPress();
-  }
-
   getFrameVisibleStyles() {
     this.getVisibleFrameBounds(this.frameSrc!).then((bounds) => {
       this.frameBorderStyles = {

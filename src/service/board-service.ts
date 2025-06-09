@@ -1,95 +1,3 @@
-import { Injectable } from '@angular/core';
-
-@Injectable({ providedIn: 'root' })
-export class BoardStateService {
-  private readonly storageKey = 'boardStateCache';
-
-  private myUserId: string = ''; // 👈 serve per distinguere self/opponent
-
-  private board: {
-    self: CardWithDelta[];
-    opponent: CardWithDelta[];
-  } = { self: [], opponent: [] };
-
-  constructor() {
-    this.loadFromCache();
-  }
-
-  setMyUserId(userId: string): void {
-    this.myUserId = userId;
-  }
-
-  private loadFromCache(): void {
-    const raw = localStorage.getItem(this.storageKey);
-    this.board = raw ? JSON.parse(raw) : { self: [], opponent: [] };
-  }
-
-  private saveToCache(): void {
-    localStorage.setItem(this.storageKey, JSON.stringify(this.board));
-  }
-
-  reset(): void {
-    this.board = { self: [], opponent: [] };
-    this.saveToCache();
-  }
-
-  applyGameUpdate(gameState: any): void {
-    const prevBoard = structuredClone(this.board);
-
-    const updatedBoard = { self: [], opponent: [] };
-
-    for (const userId of Object.keys(gameState.boards)) {
-      const serverBoard = gameState.boards[userId];
-      const side = userId === this.myUserId ? 'self' : 'opponent';
-
-      updatedBoard[side] = serverBoard.map((serverCard: any) => {
-        const previous = prevBoard[side]?.find((c) => c.id === serverCard.id);
-
-        let baseAttack = previous?.baseAttack ?? serverCard.attack;
-        let baseDefense = previous?.baseDefense ?? serverCard.defense;
-
-        const deltaAttack = serverCard.attack - baseAttack;
-        const deltaDefense = serverCard.defense - baseDefense;
-
-        return {
-          ...serverCard,
-          baseAttack,
-          baseDefense,
-          deltaAttack,
-          deltaDefense,
-          currentEffect: previous?.currentEffect ?? null, // preserva effetto visivo se presente
-        };
-      });
-    }
-
-    this.board = updatedBoard;
-    this.saveToCache();
-  }
-
-  getPlayerBoardSelf(): CardWithDelta[] {
-    return this.board.self;
-  }
-
-  getPlayerBoardOpponent(): CardWithDelta[] {
-    return this.board.opponent;
-  }
-
-  getFullBoard(): { self: CardWithDelta[]; opponent: CardWithDelta[] } {
-    return this.board;
-  }
-
-  assignEffectToCard(cardId: string, effectType: string): void {
-    for (const side of ['self', 'opponent'] as const) {
-      const foundCard = this.board[side].find((c) => c.id === cardId);
-      if (foundCard) {
-        foundCard.currentEffect = effectType;
-        break;
-      }
-    }
-    this.saveToCache();
-  }
-}
-
 export interface CardWithDelta {
   _id: string;
   id: string;
@@ -122,4 +30,92 @@ export interface CardWithDelta {
   baseDefense: number;
   deltaAttack: number;
   deltaDefense: number;
+}
+import { Injectable } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
+
+@Injectable({ providedIn: 'root' })
+export class BoardStateService {
+  private readonly storageKey = 'boardStateCache';
+  private myUserId: string = '';
+
+  private selfBoardSubject = new BehaviorSubject<CardWithDelta[]>([]);
+  private opponentBoardSubject = new BehaviorSubject<CardWithDelta[]>([]);
+
+  selfBoard$ = this.selfBoardSubject.asObservable();
+  opponentBoard$ = this.opponentBoardSubject.asObservable();
+
+  setMyUserId(userId: string): void {
+    this.myUserId = userId;
+  }
+
+  reset(): void {
+    this.selfBoardSubject.next([]);
+    this.opponentBoardSubject.next([]);
+  }
+  applyGameUpdate(gameState: any): void {
+    const prevSelf = this.selfBoardSubject.getValue();
+    const prevOpponent = this.opponentBoardSubject.getValue();
+
+    const selfBoard: CardWithDelta[] = [];
+    const opponentBoard: CardWithDelta[] = [];
+
+    for (const userId of Object.keys(gameState.boards)) {
+      const serverBoard = gameState.boards[userId];
+      const side = userId === this.myUserId ? 'self' : 'opponent';
+
+      const previousBoard = side === 'self' ? prevSelf : prevOpponent;
+
+      const processedBoard = serverBoard.map((serverCard: any) => {
+        const previous = previousBoard.find((c) => c.id === serverCard.id);
+
+        // SE previous non esiste → PRIMO CARICAMENTO
+        const baseAttack = previous ? previous.baseAttack : serverCard.attack;
+        const baseDefense = previous
+          ? previous.baseDefense
+          : serverCard.defense;
+
+        const deltaAttack = serverCard.attack - baseAttack;
+        const deltaDefense = serverCard.defense - baseDefense;
+
+        return {
+          ...serverCard,
+          baseAttack,
+          baseDefense,
+          deltaAttack,
+          deltaDefense,
+          currentEffect: previous?.currentEffect ?? null,
+        };
+      });
+
+      if (side === 'self') selfBoard.push(...processedBoard);
+      if (side === 'opponent') opponentBoard.push(...processedBoard);
+    }
+
+    this.selfBoardSubject.next(selfBoard);
+    this.opponentBoardSubject.next(opponentBoard);
+  }
+
+  assignEffectToCard(cardId: string, effectType: string): void {
+    const updateBoard = (board: CardWithDelta[]): CardWithDelta[] => {
+      return board.map((c) =>
+        c.id === cardId ? { ...c, currentEffect: effectType } : c
+      );
+    };
+
+    this.selfBoardSubject.next(updateBoard(this.selfBoardSubject.getValue()));
+    this.opponentBoardSubject.next(
+      updateBoard(this.opponentBoardSubject.getValue())
+    );
+  }
+  clearEffects() {
+    const clearBoard = (board: CardWithDelta[]): CardWithDelta[] => {
+      return board.map((c: any) => ({ ...c, currentEffect: null }));
+    };
+
+    this.selfBoardSubject.next(clearBoard(this.selfBoardSubject.getValue()));
+    this.opponentBoardSubject.next(
+      clearBoard(this.opponentBoardSubject.getValue())
+    );
+  }
 }
